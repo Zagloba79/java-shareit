@@ -8,6 +8,7 @@ import ru.practicum.shareit.user.model.User;
 @Data
 @AllArgsConstructor
 public class Feedback {
+    private int id;
     private Item item;
     private User owner;
     private User booker;

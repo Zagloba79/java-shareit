@@ -13,10 +13,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/items")
 public class ItemController {
-    private final ItemService itemService;
+    private final ItemServiceImpl itemService;
 
     @Autowired
-    public ItemController(ItemService itemService) {
+    public ItemController(ItemServiceImpl itemService) {
         this.itemService = itemService;
     }
 
@@ -44,7 +44,7 @@ public class ItemController {
 
     @DeleteMapping("/{itemId}")
     public void delete(@PathVariable int itemId, @RequestHeader("X-Sharer-User-Id") int ownerId) {
-        itemService.delete(itemId, ownerId);
+        itemService.deleteItem(itemId, ownerId);
     }
 
     @GetMapping("/search")
@@ -55,8 +55,8 @@ public class ItemController {
     @ResponseBody
     @PostMapping("/{itemId}/comment")
     public FeedbackDto createFeedback(@RequestBody FeedbackDto feedbackDto,
-                                      @RequestHeader("X-Sharer-User-Id") Long userId,
-                                      @PathVariable Long itemId) {
+                                      @RequestHeader("X-Sharer-User-Id") int userId,
+                                      @PathVariable int itemId) {
         return itemService.createFeedback(feedbackDto, itemId, userId);
     }
 }

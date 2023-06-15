@@ -1,29 +1,36 @@
 package ru.practicum.shareit.item;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 
+import static java.util.stream.Collectors.toList;
+
 @Component("itemStorage")
 @Slf4j
+@AllArgsConstructor
 public class InMemoryItemStorage implements ItemStorage {
+    private ItemMapper itemMapper;
+    private ItemStorage itemStorage;
     Integer itemId = 0;
     Map<Integer, Item> items = new HashMap<>();
 
-    public Item create(String name, String description, boolean available, User owner, String request) {
-        Item item = new Item(name, description, available, owner, request);
-        int id = itemId++;
-        item.setId(id);
-        add(item);
-        return item;
+    @Override
+    public ItemDto create(Item item) {
+        items.put(item.getId(), item);
+        return itemMapper.createItemDto(items.get(item.getId()));
     }
 
     @Override
-    public void delete(int itemId, int ownerId) {
+    public void deleteItem(int itemId, int ownerId) {
         if (!items.containsKey(itemId)) {
             log.info("Предмет с идентификатором {} не найден.", itemId);
             throw new ObjectNotFoundException("Нет такого пользователя");
@@ -45,6 +52,12 @@ public class InMemoryItemStorage implements ItemStorage {
 
     public List<Item> findAll() {
         return new ArrayList<>(items.values());
+    }
+
+    public List<Item> getItemsByOwner(int ownerId) {
+        return itemStorage.findAll().stream()
+                .filter(item -> item.getOwner().getId() == ownerId)
+                .collect(toList());
     }
 
     @Override

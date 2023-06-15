@@ -51,7 +51,7 @@ public class UserService {
         if (validateUser(user)) {
             for (Item item : itemStorage.findAll()) {
                 if (item.getOwner().equals(user)) {
-                    itemStorage.delete(item.getId(), user.getId());
+                    itemStorage.deleteItem(item.getId(), user.getId());
                 }
             }
             userStorage.delete(user);
