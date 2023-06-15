@@ -1,17 +1,15 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.feedback;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @Data
 @AllArgsConstructor
-public class ItemRequest {
-    int id;
-    Item item;
-    User requester;
+public class Feedback {
+    private Item item;
+    private User owner;
+    private User booker;
+    private String comment;
 }
