@@ -3,9 +3,7 @@ package ru.practicum.shareit.request;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
-
-import java.util.HashMap;
+import ru.practicum.shareit.user.model.User;
 
 @Data
 public class ItemRequestService {

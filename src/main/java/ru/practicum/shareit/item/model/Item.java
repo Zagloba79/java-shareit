@@ -1,18 +1,12 @@
 package ru.practicum.shareit.item.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.feedback.Feedback;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-/**
- * TODO Sprint add-controllers.
- */
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 public class Item {
     private int id;
@@ -21,8 +15,8 @@ public class Item {
     private boolean available;
     private User owner;
     private String request;
-    private HashMap<User, ArrayList<Booking>> bookings;
-    private HashMap<User, Feedback> feedbacks;
+    //private HashMap<User, ArrayList<Booking>> bookings;
+    //private HashMap<User, Feedback> feedbacks;
 
     public Item(String name, String description, boolean available, User owner, String request) {
         this.name = name;

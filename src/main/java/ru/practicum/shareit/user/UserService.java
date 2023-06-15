@@ -5,9 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemStorage;
+import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class UserService {
         if (validateUser(user)) {
             for (Item item : itemStorage.findAll()) {
                 if (item.getOwner().equals(user)) {
-                    itemStorage.delete(item);
+                    itemStorage.delete(item.getId(), user.getId());
                 }
             }
             userStorage.delete(user);

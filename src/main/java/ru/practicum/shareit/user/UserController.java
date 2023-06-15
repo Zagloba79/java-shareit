@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
@@ -19,7 +20,8 @@ public class UserController {
         return userService.getUser(userId);
     }
 
-    @PostMapping
+    @PostMapping("/{userId}")
+    @ResponseBody
     public User create(@RequestBody UserDto userDto) {
         return userService.createUser(userDto);
     }
@@ -29,12 +31,13 @@ public class UserController {
         return userService.findAll();
     }
 
-    @PutMapping
+    @PatchMapping("/{userId}")
+    @ResponseBody
     public UserDto update(@RequestBody UserDto userDto) {
         return userService.update(userDto);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{userId}")
     public void delete(@RequestBody UserDto userDto) {
         userService.delete(userDto);
     }

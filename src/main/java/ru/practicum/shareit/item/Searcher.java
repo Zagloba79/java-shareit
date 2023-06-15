@@ -3,7 +3,6 @@ package ru.practicum.shareit.item;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.InMemoryItemStorage;
 
 import java.util.ArrayList;
 import java.util.List;

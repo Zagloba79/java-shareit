@@ -1,9 +1,15 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.user.User;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 
+@Component("itemStorage")
+@Slf4j
 public class InMemoryItemStorage implements ItemStorage {
     Integer itemId = 0;
     Map<Integer, Item> items = new HashMap<>();
@@ -16,14 +22,22 @@ public class InMemoryItemStorage implements ItemStorage {
         return item;
     }
 
+    @Override
+    public void delete(int itemId, int ownerId) {
+        if (!items.containsKey(itemId)) {
+            log.info("Предмет с идентификатором {} не найден.", itemId);
+            throw new ObjectNotFoundException("Нет такого пользователя");
+        } else {
+            Item item = items.get(itemId);
+        }
+
+    }
+
     public Item add(Item item) {
         items.put(item.getId(), item);
         return item;
     }
 
-    public void delete(Item item) {
-        items.remove(item.getId());
-    }
 
     public Optional<Item> getItem(Integer id) {
         return Optional.of(items.get(id));
