@@ -36,13 +36,13 @@ public class ItemServiceImpl implements ItemService {
         if (itemStorage.findAll().contains(item)) {
             itemStorage.update(item);
         }
-        return itemMapper.createItemDto(itemStorage.getItem(item.getId()).orElseThrow(() ->
+        return itemMapper.createItemDto(itemStorage.getItemById(item.getId()).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + item.getId() + " не существует.")));
     }
 
 
-    public ItemDto getItemById(int itemId, int ownerId) {
-        return itemMapper.createItemDto(itemStorage.getItem(itemId).orElseThrow(() ->
+    public ItemDto getItemById(int itemId) {
+        return itemMapper.createItemDto(itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует.")));
     }
 
@@ -87,7 +87,10 @@ public class ItemServiceImpl implements ItemService {
                 .collect(toList());
     }
 
-    public FeedbackDto createFeedback(FeedbackDto feedbackDto, int itemId, int userId) {
-
+    public FeedbackDto createFeedback(FeedbackDto feedbackDto, int itemId, int bookerId) {
+        User booker = userStorage.getUser(bookerId).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
+        feedbackService.createFeedback(feedbackDto, itemId, bookerId);
+        return feedbackService.getFeedbackById(feedbackDto.getId());
     }
 }

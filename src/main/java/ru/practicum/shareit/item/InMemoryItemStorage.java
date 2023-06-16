@@ -7,8 +7,6 @@ import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserStorage;
-import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 
@@ -29,6 +27,10 @@ public class InMemoryItemStorage implements ItemStorage {
         return itemMapper.createItemDto(items.get(item.getId()));
     }
 
+    public Optional<Item> getItemById(Integer id) {
+        return Optional.of(items.get(id));
+    }
+
     @Override
     public void deleteItem(int itemId, int ownerId) {
         if (!items.containsKey(itemId)) {
@@ -38,16 +40,6 @@ public class InMemoryItemStorage implements ItemStorage {
             Item item = items.get(itemId);
         }
 
-    }
-
-    public Item add(Item item) {
-        items.put(item.getId(), item);
-        return item;
-    }
-
-
-    public Optional<Item> getItem(Integer id) {
-        return Optional.of(items.get(id));
     }
 
     public List<Item> findAll() {

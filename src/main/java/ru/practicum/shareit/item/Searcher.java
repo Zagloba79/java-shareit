@@ -11,7 +11,7 @@ public class Searcher {
     @Autowired
     InMemoryItemStorage itemStorage;
     public Item searchItemById(Integer id) {
-        return itemStorage.getItem(id).orElseThrow(() ->
+        return itemStorage.getItemById(id).orElseThrow(() ->
                 new ObjectNotFoundException("item with id = " + id + " not found"));
     }
 
