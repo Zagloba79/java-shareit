@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.model.Item;
@@ -7,14 +8,23 @@ import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.model.User;
 
 @Component
+@AllArgsConstructor
 public class ItemMapper {
-    private UserStorage userStorage;
+    private final UserStorage userStorage;
+
     public ItemDto createItemDto(Item item) {
-        return new ItemDto(item.getId(), item.getName(), item.getDescription(),
-                item.isAvailable(), item.getRequest());
+        return new ItemDto(item.getId(),
+                item.getName(),
+                item.getDescription(),
+                item.isAvailable(),
+                item.getRequests());
     }
 
-    public Item createItem(ItemDto itemDto, int ownerId, int id) {
+    public ItemDto createItemDtoForOwner(Item item) {
+        return new ItemDto(item.getName(), item.getDescription());
+    }
+
+    public Item createItem(ItemDto itemDto, int ownerId) {
         User owner = userStorage.getUser(ownerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
         return new Item(
@@ -23,6 +33,6 @@ public class ItemMapper {
                 itemDto.getDescription(),
                 itemDto.isAvailable(),
                 owner,
-                itemDto.getRequest());
+                itemDto.getRequests());
     }
 }

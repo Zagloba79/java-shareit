@@ -1,16 +1,20 @@
 package ru.practicum.shareit.booking;
 
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.booking.model.Booking;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
-public class BookingStorage {
-    private Map<Integer, Booking> bookings = new HashMap<>();
+public interface BookingStorage {
+    Booking create(Booking booking);
 
-    public List<Booking> findAll() {
-        return new ArrayList<>(bookings.values());
-    }
+    List<Booking> findAll();
+
+    Optional<Booking> getBookingById(int bookingId);
+
+    void deleteBooking(int itemId);
+
+    List<Booking> getBookingsByBooker(int bookingId);
+
+    Booking update(Booking booking);
 }

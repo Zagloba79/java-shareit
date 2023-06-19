@@ -5,6 +5,7 @@ import lombok.Data;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.feedback.dto.FeedbackMapper;
+import ru.practicum.shareit.feedback.model.Feedback;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;

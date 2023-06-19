@@ -10,7 +10,6 @@ import ru.practicum.shareit.user.model.User;
 public class FeedbackDto {
     private int id;
     private Item item;
-    private User owner;
     private User booker;
     private String comment;
 }

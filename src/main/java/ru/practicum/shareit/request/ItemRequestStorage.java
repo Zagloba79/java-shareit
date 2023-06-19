@@ -1,19 +1,20 @@
 package ru.practicum.shareit.request;
 
-import lombok.Data;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
 
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
-@Data
-public class ItemRequestStorage {
-    private HashMap<Item, ItemRequest> requests = new HashMap<>();
+public interface ItemRequestStorage {
+    ItemRequest addRequest(ItemRequest request);
 
-    public void add(ItemRequest request) {
-        requests.put(request.getItem(), request);
-    }
+    Optional<ItemRequest> getRequestById(int id);
 
-    public void delete(ItemRequest request) {
-        requests.remove(request.getItem());
-    }
+    ItemRequest update(ItemRequest request);
+
+    List<ItemRequest> getItemRequestsByItem(Item item);
+
+    List<ItemRequest> getItemRequestsByRequester(int requesterId);
 }

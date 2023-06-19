@@ -1,0 +1,51 @@
+package ru.practicum.shareit.request;
+
+import lombok.Data;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
+
+@Data
+public class InMemoryItemRequestStorage implements ItemRequestStorage {
+    private HashMap<Integer, ItemRequest> requests = new HashMap<>();
+
+    @Override
+    public ItemRequest addRequest(ItemRequest request) {
+        requests.put(request.getId(), request);
+        return requests.get(request.getId());
+    }
+
+    @Override
+    public Optional<ItemRequest> getRequestById(int id) {
+        return Optional.of(requests.get(id));
+    }
+
+    @Override
+    public ItemRequest update(ItemRequest request) {
+        requests.put(request.getId(), request);
+        return requests.get(request.getId());
+    }
+
+    @Override
+    public List<ItemRequest> getItemRequestsByItem(Item item) {
+        return requests.values().stream()
+                .filter(itemRequest -> itemRequest.getItem().equals(item))
+                .collect(toList());
+    }
+
+    @Override
+    public List<ItemRequest> getItemRequestsByRequester(int requesterId) {
+        return requests.values().stream()
+                .filter(itemRequest -> itemRequest.getRequester().getId() == requesterId)
+                .collect(toList());
+    }
+
+    public void delete(ItemRequest request) {
+        requests.remove(request.getId());
+    }
+}

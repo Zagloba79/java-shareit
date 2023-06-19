@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
+import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -22,8 +23,15 @@ public class UserService {
     private UserMapper userMapper;
     private ItemStorage itemStorage;
 
-    public User createUser(UserDto userDto) {
-        return userStorage.create(userMapper.createUser(userDto));
+    public UserDto createUser(UserDto userDto) {
+        for (User thisUser : userStorage.findAll()) {
+            if (thisUser.getEmail().equals(userDto.getEmail())) {
+                throw new UserAlreadyExistsException("Пользователь с таким Email уже зарегистрирован");
+            }
+        }
+        User user = userMapper.createUser(userDto);
+        userStorage.create(user);
+        return userMapper.createUserDto(user);
     }
 
     public List<UserDto> findAll() {
@@ -33,32 +41,26 @@ public class UserService {
     }
 
     public UserDto getUser(int userId) {
-        return userMapper.createUserDto(userStorage.getUser(userId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + userId + " не существует.")));
+        User user = userStorage.getUser(userId).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + userId + " не существует."));
+        return userMapper.createUserDto(user);
     }
 
     public UserDto update(UserDto userDto) {
-        User user = userMapper.createUser(userDto);
-        if (validateUser(user)) {
-            userStorage.update(user);
-        }
-        return userMapper.createUserDto(userStorage.getUser(user.getId()).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + user.getId() + " не существует.")));
+        User user = userMapper.createUser(getUser(userDto.getId()));
+        userStorage.update(user);
+        User updatedUser = userStorage.getUser(user.getId()).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + user.getId() + " не существует."));
+        return userMapper.createUserDto(updatedUser);
     }
 
     public void delete(UserDto userDto) {
-        User user = userMapper.createUser(userDto);
-        if (validateUser(user)) {
-            for (Item item : itemStorage.findAll()) {
-                if (item.getOwner().equals(user)) {
-                    itemStorage.deleteItem(item.getId(), user.getId());
-                }
+        User user = userMapper.createUser(getUser(userDto.getId()));
+        for (Item item : itemStorage.findAll()) {
+            if (item.getOwner().equals(user)) {
+                itemStorage.deleteItem(item.getId());
             }
-            userStorage.delete(user);
         }
-    }
-
-    private boolean validateUser(User user) {
-        return userStorage.findAll().contains(user);
+        userStorage.delete(user);
     }
 }

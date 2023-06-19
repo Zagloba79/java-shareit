@@ -1,19 +1,20 @@
 package ru.practicum.shareit.item;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
+import ru.practicum.shareit.feedback.FeedbackService;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
+@AllArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
-    private final ItemServiceImpl itemService;
+    private final ItemService itemService;
+    private FeedbackService feedbackService;
 
     @Autowired
     public ItemController(ItemServiceImpl itemService) {
@@ -31,7 +32,7 @@ public class ItemController {
         return itemService.getItemById(itemId);
     }
 
-    @GetMapping
+    @GetMapping("/{items}")
     public List<ItemDto> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") int ownerId) {
         return itemService.getItemsByOwner(ownerId);
     }
@@ -55,8 +56,8 @@ public class ItemController {
     @ResponseBody
     @PostMapping("/{itemId}/comment")
     public FeedbackDto createFeedback(@RequestBody FeedbackDto feedbackDto,
-                                      @RequestHeader("X-Sharer-User-Id") int userId,
+                                      @RequestHeader("X-Sharer-User-Id") int bookerId,
                                       @PathVariable int itemId) {
-        return itemService.createFeedback(feedbackDto, itemId, userId);
+        return feedbackService.createFeedback(feedbackDto, bookerId, itemId);
     }
 }
