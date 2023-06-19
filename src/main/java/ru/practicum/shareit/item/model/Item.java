@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class Item {
-    private int id;
+    private Integer id;
     private String name;
     private String description;
     private boolean available;

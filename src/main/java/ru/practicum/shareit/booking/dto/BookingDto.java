@@ -11,7 +11,7 @@ import java.util.ArrayList;
 @Data
 @AllArgsConstructor
 public class BookingDto {
-    private int id;
+    private Integer id;
     private LocalDateTime start;
     private LocalDateTime end;
     private int itemId;

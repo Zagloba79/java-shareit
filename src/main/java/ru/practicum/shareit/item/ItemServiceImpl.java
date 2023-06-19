@@ -28,11 +28,15 @@ public class ItemServiceImpl implements ItemService {
     private UserStorage userStorage;
     private FeedbackService feedbackService;
     private ItemRequestStorage itemRequestStorage;
+    private int id = 0;
 
     public ItemDto create(ItemDto itemDto, int ownerId) {
         User owner = userStorage.getUser(ownerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
         Item item = itemMapper.createItem(itemDto, owner.getId());
+        if (item.getId() == null) {
+            item.setId(id++);
+        }
         List<String> requests = itemRequestStorage.getItemRequestsByItem(item)
                 .stream()
                 .map(ItemRequest::toString)

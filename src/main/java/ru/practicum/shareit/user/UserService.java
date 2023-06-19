@@ -22,6 +22,7 @@ public class UserService {
     private UserStorage userStorage;
     private UserMapper userMapper;
     private ItemStorage itemStorage;
+    private int id = 0;
 
     public UserDto createUser(UserDto userDto) {
         for (User thisUser : userStorage.findAll()) {
@@ -30,6 +31,9 @@ public class UserService {
             }
         }
         User user = userMapper.createUser(userDto);
+        if (user.getId() == null) {
+            user.setId(id++);
+        }
         userStorage.create(user);
         return userMapper.createUserDto(user);
     }

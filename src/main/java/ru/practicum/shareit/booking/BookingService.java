@@ -29,7 +29,7 @@ public class BookingService {
     private UserStorage userStorage;
     private BookingMapper bookingMapper;
     private ItemStorage itemStorage;
-    private int ids = 0;
+    private int id = 0;
 
     public BookingDto addNewBooking(BookingDto bookingDto, int bookerId) {
         int itemId = bookingDto.getItemId();
@@ -41,7 +41,7 @@ public class BookingService {
         if (!item.isAvailable()) {
             log.info("This item has been rented");
         } else {
-            booking.setId(ids++);
+            booking.setId(bookingDto.getId());
             booking.setStart(bookingDto.getStart());
             booking.setEnd(bookingDto.getEnd());
             booking.setItemId(itemId);
@@ -51,6 +51,9 @@ public class BookingService {
             statuses.add(WAITING);
             booking.setStatuses(statuses);
             bookingStorage.create(booking);
+        }
+        if (booking.getId() == null) {
+            booking.setId(id++);
         }
         Booking bookingFromStorage = bookingStorage.getBookingById(booking.getId()).orElseThrow(() ->
                 new ObjectNotFoundException("Данного предмета в базе не существует."));

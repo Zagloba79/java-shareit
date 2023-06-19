@@ -32,6 +32,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         ItemRequest request = new ItemRequest(itemRequestDto.getId(),
                 itemRequestDto.getItem(),
                 requester);
+        if (request.getId() == null) {
+            request.setId(id++);
+        }
         itemRequestStorage.addRequest(request);
         ItemRequest itemRequest = itemRequestStorage.getRequestById(request.getId()).orElseThrow(() ->
                 new ObjectNotFoundException("Запроса с " + request.getId() + " не существует."));

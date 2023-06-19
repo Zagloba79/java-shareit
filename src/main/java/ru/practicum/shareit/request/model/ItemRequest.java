@@ -8,7 +8,7 @@ import ru.practicum.shareit.user.model.User;
 @Data
 @AllArgsConstructor
 public class ItemRequest {
-    int id;
+    Integer id;
     Item item;
     User requester;
 }
