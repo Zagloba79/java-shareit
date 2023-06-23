@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.feedback.FeedbackService;
@@ -20,7 +19,6 @@ import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 
-@Slf4j
 @Service
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {

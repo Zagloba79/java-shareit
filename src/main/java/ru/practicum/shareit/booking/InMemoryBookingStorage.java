@@ -9,7 +9,7 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
-@Component
+@Component("bookingStorage")
 @Data
 @AllArgsConstructor
 public class InMemoryBookingStorage implements BookingStorage {

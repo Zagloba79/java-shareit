@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
@@ -15,7 +14,6 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Slf4j
 @Service
 @AllArgsConstructor
 public class UserService {

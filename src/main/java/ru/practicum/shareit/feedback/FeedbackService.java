@@ -1,7 +1,6 @@
 package ru.practicum.shareit.feedback;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingStorage;
 import ru.practicum.shareit.booking.model.Booking;
@@ -15,12 +14,12 @@ import ru.practicum.shareit.user.InMemoryUserStorage;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 import static ru.practicum.shareit.booking.BookingStatus.APPROVED;
 
 @Service
-@Slf4j
 @AllArgsConstructor
 public class FeedbackService {
     private FeedbackStorage feedbackStorage;
@@ -61,7 +60,7 @@ public class FeedbackService {
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
         return feedbackStorage.findAll().stream()
-                .filter(feedback -> feedback.getItem().getId() == item.getId())
+                .filter(feedback -> Objects.equals(feedback.getItem().getId(), item.getId()))
                 .collect(toList());
     }
 
@@ -69,7 +68,7 @@ public class FeedbackService {
         User booker = userStorage.getUser(bookerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
         return feedbackStorage.findAll().stream()
-                .filter(feedback -> feedback.getBooker().getId() == booker.getId())
+                .filter(feedback -> Objects.equals(feedback.getBooker().getId(), booker.getId()))
                 .collect(toList());
     }
 }

@@ -31,10 +31,12 @@ public class InMemoryItemStorage implements ItemStorage {
         items.remove(itemId);
     }
 
+    @Override
     public List<Item> findAll() {
         return new ArrayList<>(items.values());
     }
 
+    @Override
     public List<Item> getItemsByOwner(int ownerId) {
         return findAll().stream()
                 .filter(item -> item.getOwner().getId().equals(ownerId))

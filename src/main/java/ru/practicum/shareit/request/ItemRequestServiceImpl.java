@@ -1,8 +1,7 @@
 package ru.practicum.shareit.request;
 
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
@@ -16,10 +15,10 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Data
-@Component
+@Service
+@AllArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
-    @Autowired
+
     private InMemoryItemRequestStorage itemRequestStorage;
     private ItemRequestMapper itemRequestMapper;
     private ItemStorage itemStorage;

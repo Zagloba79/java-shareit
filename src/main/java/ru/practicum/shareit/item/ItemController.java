@@ -18,35 +18,30 @@ public class ItemController {
     private final ItemService itemService;
     private FeedbackService feedbackService;
 
-    @Autowired
-    public ItemController(ItemServiceImpl itemService) {
-        this.itemService = itemService;
-    }
-
     @ResponseBody
     @PostMapping
-    public ItemDto create(@RequestBody ItemDto itemDto, @RequestHeader(USER_ID) int ownerId) {
+    public ItemDto create(@RequestBody ItemDto itemDto, @RequestHeader(USER_ID) Integer ownerId) {
         return itemService.create(itemDto, ownerId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable int itemId) {
+    public ItemDto getItemById(@PathVariable Integer itemId) {
         return itemService.getItemById(itemId);
     }
 
-    @GetMapping
-    public List<ItemDto> getItemsByOwner(@RequestHeader(USER_ID) int ownerId) {
+    @GetMapping("/{ownerId}")
+    public List<ItemDto> getItemsByOwner(@RequestHeader(USER_ID) Integer ownerId) {
         return itemService.getItemsByOwner(ownerId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestBody ItemDto itemDto, @PathVariable int itemId,
-                          @RequestHeader(USER_ID) int ownerId) {
+    public ItemDto update(@RequestBody ItemDto itemDto, @PathVariable Integer itemId,
+                          @RequestHeader(USER_ID) Integer ownerId) {
         return itemService.update(itemDto, itemId, ownerId);
     }
 
     @DeleteMapping("/{itemId}")
-    public void delete(@PathVariable int itemId, @RequestHeader(USER_ID) int ownerId) {
+    public void delete(@PathVariable Integer itemId, @RequestHeader(USER_ID) Integer ownerId) {
         itemService.deleteItem(itemId, ownerId);
     }
 
@@ -58,8 +53,8 @@ public class ItemController {
     @ResponseBody
     @PostMapping("/{itemId}/comment")
     public FeedbackDto createFeedback(@RequestBody FeedbackDto feedbackDto,
-                                      @RequestHeader(USER_ID) int bookerId,
-                                      @PathVariable int itemId) {
+                                      @RequestHeader(USER_ID) Integer bookerId,
+                                      @PathVariable Integer itemId) {
         return feedbackService.createFeedback(feedbackDto, bookerId, itemId);
     }
 }

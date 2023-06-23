@@ -16,4 +16,6 @@ public interface ItemRequestStorage {
     List<ItemRequest> getItemRequestsByItem(Item item);
 
     List<ItemRequest> getItemRequestsByRequester(int requesterId);
+
+    void delete(ItemRequest request);
 }

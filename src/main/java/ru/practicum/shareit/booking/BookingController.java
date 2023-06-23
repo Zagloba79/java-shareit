@@ -19,19 +19,19 @@ public class BookingController {
     @ResponseBody
     @PostMapping
     public BookingDto create(@RequestBody BookingDto bookingDto,
-                             @RequestHeader(USER_ID) int bookerId) {
+                             @RequestHeader(USER_ID) Integer bookerId) {
         return bookingService.addNewBooking(bookingDto, bookerId);
     }
 
     @ResponseBody
     @PatchMapping("/{bookingId}")
-    public BookingDto update(@PathVariable int bookingId,
-                             @RequestHeader(USER_ID) int userId, @RequestParam BookingStatus status) {
+    public BookingDto update(@PathVariable Integer bookingId,
+                             @RequestHeader(USER_ID) Integer userId, @RequestParam BookingStatus status) {
         return bookingService.update(bookingId, userId, status);
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto getBookingById(@PathVariable int bookingId) {
+    public BookingDto getBookingById(@PathVariable Integer bookingId) {
         return bookingService.getBookingById(bookingId);
     }
 
@@ -40,13 +40,13 @@ public class BookingController {
         return bookingService.getAllBookings();
     }
 
-    @GetMapping("/owner")
-    public List<BookingDto> getBookingsByBooker(@RequestHeader(USER_ID) int bookerId) {
+    @GetMapping("/{bookerId}")
+    public List<BookingDto> getBookingsByBooker(@RequestHeader(USER_ID) Integer bookerId) {
         return bookingService.getBookingsByBooker(bookerId);
     }
 
     @GetMapping("/{itemId}")
-    public List<BookingDto> getBookingByItem(@PathVariable int itemId) {
+    public List<BookingDto> getBookingByItem(@PathVariable Integer itemId) {
         return bookingService.getBookingByItem(itemId);
     }
 }

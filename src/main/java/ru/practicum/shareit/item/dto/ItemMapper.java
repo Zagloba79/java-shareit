@@ -1,15 +1,11 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.model.User;
 
 @Component
-@AllArgsConstructor
 public class ItemMapper {
-    private final UserStorage userStorage;
 
     public ItemDto createItemDto(Item item) {
         return new ItemDto(item.getId(),

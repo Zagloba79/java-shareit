@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -21,7 +20,6 @@ import static ru.practicum.shareit.booking.BookingStatus.*;
 
 @Service
 @Slf4j
-@Data
 @AllArgsConstructor
 public class BookingService {
     private BookingStorage bookingStorage;
