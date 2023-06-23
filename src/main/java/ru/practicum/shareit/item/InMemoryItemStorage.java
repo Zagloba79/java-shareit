@@ -13,8 +13,6 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 @AllArgsConstructor
 public class InMemoryItemStorage implements ItemStorage {
-    private ItemStorage itemStorage;
-    Integer itemId = 0;
     Map<Integer, Item> items = new HashMap<>();
 
     @Override
@@ -38,8 +36,8 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     public List<Item> getItemsByOwner(int ownerId) {
-        return itemStorage.findAll().stream()
-                .filter(item -> item.getOwner().getId() == ownerId)
+        return findAll().stream()
+                .filter(item -> item.getOwner().getId().equals(ownerId))
                 .collect(toList());
     }
 

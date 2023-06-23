@@ -22,7 +22,7 @@ public class UserService {
     private UserStorage userStorage;
     private UserMapper userMapper;
     private ItemStorage itemStorage;
-    private int id = 0;
+    private static Integer id = 0;
 
     public UserDto createUser(UserDto userDto) {
         for (User thisUser : userStorage.findAll()) {
@@ -31,9 +31,7 @@ public class UserService {
             }
         }
         User user = userMapper.createUser(userDto);
-        if (user.getId() == null) {
-            user.setId(id++);
-        }
+        user.setId(id++);
         userStorage.create(user);
         return userMapper.createUserDto(user);
     }
@@ -44,7 +42,7 @@ public class UserService {
                 .collect(toList());
     }
 
-    public UserDto getUser(int userId) {
+    public UserDto getUser(Integer userId) {
         User user = userStorage.getUser(userId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + userId + " не существует."));
         return userMapper.createUserDto(user);

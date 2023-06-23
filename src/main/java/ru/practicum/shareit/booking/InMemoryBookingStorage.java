@@ -2,17 +2,18 @@ package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.Booking;
 
 import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
+@Component
 @Data
 @AllArgsConstructor
 public class InMemoryBookingStorage implements BookingStorage {
     private Map<Integer, Booking> bookings = new HashMap<>();
-    BookingStorage bookingStorage;
 
     @Override
     public Booking create(Booking booking) {
@@ -25,7 +26,6 @@ public class InMemoryBookingStorage implements BookingStorage {
         return Optional.of(bookings.get(id));
     }
 
-
     @Override
     public void deleteBooking(int id) {
         bookings.remove(id);
@@ -36,10 +36,9 @@ public class InMemoryBookingStorage implements BookingStorage {
         return new ArrayList<>(bookings.values());
     }
 
-
     @Override
     public List<Booking> getBookingsByBooker(int bookingId) {
-        return bookingStorage.findAll().stream()
+        return findAll().stream()
                 .filter(booking -> booking.getBooker().getId() == bookingId)
                 .collect(toList());
     }

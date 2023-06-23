@@ -24,9 +24,7 @@ public class ItemMapper {
         return new ItemDto(item.getName(), item.getDescription());
     }
 
-    public Item createItem(ItemDto itemDto, int ownerId) {
-        User owner = userStorage.getUser(ownerId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
+    public Item createItem(ItemDto itemDto, User owner) {
         return new Item(
                 itemDto.getId(),
                 itemDto.getName(),

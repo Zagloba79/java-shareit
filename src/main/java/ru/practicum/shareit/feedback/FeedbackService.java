@@ -28,10 +28,10 @@ public class FeedbackService {
     private ItemStorage itemStorage;
     private FeedbackMapper feedbackMapper;
     private InMemoryUserStorage userStorage;
-    private int feedbackId = 0;
+    private static Integer feedbackId = 0;
 
 
-    public FeedbackDto createFeedback(FeedbackDto feedbackDto, int bookerId, int itemId) {
+    public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer bookerId, Integer itemId) {
         Feedback feedback = new Feedback();
         User booker = userStorage.getUser(bookerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
@@ -51,13 +51,13 @@ public class FeedbackService {
         return feedbackMapper.createFeedbackDto(feedback);
     }
 
-    public FeedbackDto getFeedbackById(int id) {
+    public FeedbackDto getFeedbackById(Integer id) {
         Feedback feedback = feedbackStorage.getFeedback(id).orElseThrow(() ->
                 new ObjectNotFoundException("Отзыва с номером = " + id + " не существует."));
         return feedbackMapper.createFeedbackDto(feedback);
     }
 
-    public List<Feedback> getFeedbacksByItem(int itemId) {
+    public List<Feedback> getFeedbacksByItem(Integer itemId) {
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
         return feedbackStorage.findAll().stream()
@@ -65,7 +65,7 @@ public class FeedbackService {
                 .collect(toList());
     }
 
-    public List<Feedback> getFeedbacksByBooker(int bookerId) {
+    public List<Feedback> getFeedbacksByBooker(Integer bookerId) {
         User booker = userStorage.getUser(bookerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
         return feedbackStorage.findAll().stream()

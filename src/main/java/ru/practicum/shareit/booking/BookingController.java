@@ -7,6 +7,8 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 
 import java.util.List;
 
+import static ru.practicum.shareit.Constants.USER_ID;
+
 @Slf4j
 @RestController
 @RequestMapping(path = "/bookings")
@@ -17,14 +19,14 @@ public class BookingController {
     @ResponseBody
     @PostMapping
     public BookingDto create(@RequestBody BookingDto bookingDto,
-                             @RequestHeader("X-Sharer-User-Id") int bookerId) {
+                             @RequestHeader(USER_ID) int bookerId) {
         return bookingService.addNewBooking(bookingDto, bookerId);
     }
 
     @ResponseBody
     @PatchMapping("/{bookingId}")
     public BookingDto update(@PathVariable int bookingId,
-                             @RequestHeader("X-Sharer-User-Id") int userId, @RequestParam BookingStatus status) {
+                             @RequestHeader(USER_ID) int userId, @RequestParam BookingStatus status) {
         return bookingService.update(bookingId, userId, status);
     }
 
@@ -39,7 +41,7 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getBookingsByBooker(@RequestHeader("X-Sharer-User-Id") int bookerId) {
+    public List<BookingDto> getBookingsByBooker(@RequestHeader(USER_ID) int bookerId) {
         return bookingService.getBookingsByBooker(bookerId);
     }
 

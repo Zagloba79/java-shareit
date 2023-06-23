@@ -25,13 +25,13 @@ import static ru.practicum.shareit.booking.BookingStatus.*;
 @Data
 @AllArgsConstructor
 public class BookingService {
-    private InMemoryBookingStorage bookingStorage;
+    private BookingStorage bookingStorage;
     private UserStorage userStorage;
     private BookingMapper bookingMapper;
     private ItemStorage itemStorage;
-    private int id = 0;
+    private static Integer id = 0;
 
-    public BookingDto addNewBooking(BookingDto bookingDto, int bookerId) {
+    public BookingDto addNewBooking(BookingDto bookingDto, Integer bookerId) {
         int itemId = bookingDto.getItemId();
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Данного предмета в базе не существует."));
@@ -41,7 +41,7 @@ public class BookingService {
         if (!item.isAvailable()) {
             log.info("This item has been rented");
         } else {
-            booking.setId(bookingDto.getId());
+            booking.setId(id++);
             booking.setStart(bookingDto.getStart());
             booking.setEnd(bookingDto.getEnd());
             booking.setItemId(itemId);
@@ -87,20 +87,14 @@ public class BookingService {
         }
     }
 
-
-    private Boolean validateBooking(Booking booking) {
-        return booking.getStart().isBefore(LocalDateTime.now()) && booking.getEnd().isAfter(LocalDateTime.now())
-                && booking.getStatus().equals(APPROVED);
-    }
-
-    public List<BookingDto> getBookingByItem(int itemId) {
+    public List<BookingDto> getBookingByItem(Integer itemId) {
         return bookingStorage.findAll().stream()
                 .filter(booking -> booking.getItemId() == itemId)
                 .map(bookingMapper::createBookingDto)
                 .collect(toList());
     }
 
-    public List<BookingDto> getBookingsByBooker(int bookerId) {
+    public List<BookingDto> getBookingsByBooker(Integer bookerId) {
         User booker = userStorage.getUser(bookerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
         return bookingStorage.getBookingsByBooker(booker.getId()).stream()
@@ -109,7 +103,7 @@ public class BookingService {
     }
 
 
-    public BookingDto update(int bookingId, int userId, BookingStatus status) {
+    public BookingDto update(Integer bookingId, Integer userId, BookingStatus status) {
         Booking booking = bookingStorage.getBookingById(bookingId).orElseThrow(() ->
                 new ObjectNotFoundException("Резерва с " + bookingId + " не существует."));
         User user = userStorage.getUser(userId).orElseThrow(() ->
@@ -134,7 +128,7 @@ public class BookingService {
                 .collect(toList());
     }
 
-    public BookingDto getBookingById(int bookingId) {
+    public BookingDto getBookingById(Integer bookingId) {
         Booking booking = bookingStorage.getBookingById(bookingId).orElseThrow(() ->
                 new ObjectNotFoundException("Резерва с " + bookingId + " не существует."));
         return bookingMapper.createBookingDto(booking);

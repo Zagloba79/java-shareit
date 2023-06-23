@@ -2,6 +2,7 @@ package ru.practicum.shareit.feedback;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.feedback.dto.FeedbackMapper;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Component
 @Data
 @AllArgsConstructor
 public class FeedbackStorage {

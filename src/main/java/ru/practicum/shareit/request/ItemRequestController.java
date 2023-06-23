@@ -1,16 +1,12 @@
 package ru.practicum.shareit.request;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.feedback.dto.FeedbackDto;
-import ru.practicum.shareit.item.ItemServiceImpl;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
+
+import static ru.practicum.shareit.Constants.USER_ID;
 
 @RestController
 @AllArgsConstructor
@@ -21,7 +17,7 @@ public class ItemRequestController {
     @ResponseBody
     @PostMapping
     public ItemRequestDto create(@RequestBody ItemRequestDto itemRequestDto,
-                                 @RequestHeader("X-Sharer-User-Id") int requesterId) {
+                                 @RequestHeader(USER_ID) int requesterId) {
         return itemRequestService.addRequest(itemRequestDto, requesterId);
     }
 
@@ -30,19 +26,24 @@ public class ItemRequestController {
         return itemRequestService.getRequestById(itemRequestId);
     }
 
-    @GetMapping("/{itemRequests}")
-    public List<ItemRequestDto> getItemRequestsByRequester(@RequestHeader("X-Sharer-User-Id") int requesterId) {
+    @GetMapping
+    public List<ItemRequestDto> getItemRequestsByRequester(@RequestHeader(USER_ID) int requesterId) {
         return itemRequestService.getItemsByRequester(requesterId);
+    }
+
+    @GetMapping("/{itemId}")
+    public List<ItemRequestDto> getItemRequestsByItem(@PathVariable int itemId) {
+        return itemRequestService.getItemRequestsByItem(itemId);
     }
 
     @PatchMapping("/{itemRequestId}")
     public ItemRequestDto update(@RequestBody ItemRequestDto itemRequestDto, @PathVariable int itemId,
-                                 @RequestHeader("X-Sharer-User-Id") int requesterId) {
+                                 @RequestHeader(USER_ID) int requesterId) {
         return itemRequestService.update(itemRequestDto, itemId, requesterId);
     }
 
     @DeleteMapping("/{itemRequestId}")
-    public void delete(@PathVariable int itemId, @RequestHeader("X-Sharer-User-Id") int requesterId) {
+    public void delete(@PathVariable int itemId, @RequestHeader(USER_ID) int requesterId) {
         itemRequestService.delete(itemId, requesterId);
     }
 }

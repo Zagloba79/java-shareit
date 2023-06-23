@@ -14,8 +14,9 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 
@@ -28,15 +29,13 @@ public class ItemServiceImpl implements ItemService {
     private UserStorage userStorage;
     private FeedbackService feedbackService;
     private ItemRequestStorage itemRequestStorage;
-    private int id = 0;
+    private static Integer id = 0;
 
-    public ItemDto create(ItemDto itemDto, int ownerId) {
+    public ItemDto create(ItemDto itemDto, Integer ownerId) {
         User owner = userStorage.getUser(ownerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
-        Item item = itemMapper.createItem(itemDto, owner.getId());
-        if (item.getId() == null) {
-            item.setId(id++);
-        }
+        Item item = itemMapper.createItem(itemDto, owner);
+        item.setId(id++);
         List<String> requests = itemRequestStorage.getItemRequestsByItem(item)
                 .stream()
                 .map(ItemRequest::toString)
@@ -45,12 +44,12 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.createItemDto(itemStorage.create(item));
     }
 
-    public ItemDto update(ItemDto itemDto, int itemId, int ownerId) {
+    public ItemDto update(ItemDto itemDto, Integer itemId, Integer ownerId) {
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
         User owner = userStorage.getUser(ownerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
-        if (item.getOwner().getId() == owner.getId()) {
+        if (Objects.equals(item.getOwner().getId(), owner.getId())) {
             item.setName(itemDto.getName());
             item.setDescription(itemDto.getDescription());
             item.setAvailable(itemDto.isAvailable());
@@ -61,13 +60,13 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.createItemDto(updatedItem);
     }
 
-    public ItemDto getItemById(int itemId) {
+    public ItemDto getItemById(Integer itemId) {
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
         return itemMapper.createItemDto(item);
     }
 
-    public List<ItemDto> getItemsByOwner(int ownerId) {
+    public List<ItemDto> getItemsByOwner(Integer ownerId) {
         User owner = userStorage.getUser(ownerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
         return itemStorage.getItemsByOwner(owner.getId()).stream()
@@ -81,32 +80,31 @@ public class ItemServiceImpl implements ItemService {
                 .collect(toList());
     }
 
-    public void deleteItem(int itemId, int ownerId) {
+    public void deleteItem(Integer itemId, Integer ownerId) {
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
         User owner = userStorage.getUser(ownerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
-        if (item.getOwner().getId() == owner.getId()) {
+        if (Objects.equals(item.getOwner().getId(), owner.getId())) {
             itemStorage.deleteItem(itemId);
         }
     }
 
 
     public List<ItemDto> getItemsByQuery(String text) {
-        List<ItemDto> itemsByQuery = new ArrayList<>();
         if ((text != null) && (!text.isEmpty()) && (!text.isBlank())) {
             String lowerText = text.toLowerCase();
-            itemsByQuery = itemStorage.findAll().stream()
-                    .filter(item -> (item.getName().toLowerCase().contains(lowerText) ||
-                            item.getDescription().toLowerCase().contains(lowerText))
-                            && item.isAvailable())
+            return itemStorage.findAll().stream()
+                    .filter(item -> (item.isAvailable() &&
+                            item.getName().toLowerCase().contains(lowerText) ||
+                            item.getDescription().toLowerCase().contains(lowerText)))
                     .map(itemMapper::createItemDto)
                     .collect(toList());
         }
-        return itemsByQuery;
+        return Collections.EMPTY_LIST;
     }
 
-    public FeedbackDto createFeedback(FeedbackDto feedbackDto, int itemId, int bookerId) {
+    public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer itemId, Integer bookerId) {
         User booker = userStorage.getUser(bookerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
         feedbackService.createFeedback(feedbackDto, itemId, booker.getId());

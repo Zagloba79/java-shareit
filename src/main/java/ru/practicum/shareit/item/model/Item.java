@@ -2,12 +2,14 @@ package ru.practicum.shareit.item.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"id", "requests"})
 public class Item {
     private Integer id;
     private String name;
