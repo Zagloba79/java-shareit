@@ -3,7 +3,6 @@ package ru.practicum.shareit.request;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
