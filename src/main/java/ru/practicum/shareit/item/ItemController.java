@@ -29,9 +29,12 @@ public class ItemController {
         return itemService.getItemById(itemId);
     }
 
-    @GetMapping("/{ownerId}")
+    @GetMapping
     public List<ItemDto> getItemsByOwner(@RequestHeader(USER_ID) Integer ownerId) {
-        return itemService.getItemsByOwner(ownerId);
+        if (ownerId != null) {
+            return itemService.getItemsByOwner(ownerId);
+        }
+        return itemService.findAll();
     }
 
     @PatchMapping("/{itemId}")

@@ -32,12 +32,13 @@ public class UserController {
 
     @PatchMapping("/{userId}")
     @ResponseBody
-    public UserDto update(@RequestBody UserDto userDto) {
+    public UserDto update(@RequestBody UserDto userDto, @PathVariable Integer userId) {
+        userDto.setId(userId);
         return userService.update(userDto);
     }
 
     @DeleteMapping("/{userId}")
-    public void delete(@RequestBody UserDto userDto) {
-        userService.delete(userDto);
+    public void delete(@PathVariable Integer userId) {
+        userService.delete(userId);
     }
 }

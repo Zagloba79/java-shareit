@@ -13,7 +13,7 @@ public interface ItemRequestStorage {
 
     ItemRequest update(ItemRequest request);
 
-    List<ItemRequest> getItemRequestsByItem(Item item);
+    Optional<ItemRequest> getItemRequestByItem(Item item);
 
     List<ItemRequest> getItemRequestsByRequester(int requesterId);
 

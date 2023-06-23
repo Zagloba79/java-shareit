@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -20,7 +21,7 @@ public class UserService {
     private UserStorage userStorage;
     private UserMapper userMapper;
     private ItemStorage itemStorage;
-    private static Integer id = 0;
+    private static Integer id = 1;
 
     public UserDto createUser(UserDto userDto) {
         for (User thisUser : userStorage.findAll()) {
@@ -29,8 +30,10 @@ public class UserService {
             }
         }
         User user = userMapper.createUser(userDto);
-        user.setId(id++);
-        userStorage.create(user);
+        if (userValidator(user)) {
+            user.setId(id++);
+            userStorage.create(user);
+        }
         return userMapper.createUserDto(user);
     }
 
@@ -48,19 +51,31 @@ public class UserService {
 
     public UserDto update(UserDto userDto) {
         User user = userMapper.createUser(getUser(userDto.getId()));
-        userStorage.update(user);
+        if (userValidator(user)) {
+            userStorage.update(user);
+        }
         User updatedUser = userStorage.getUser(user.getId()).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + user.getId() + " не существует."));
         return userMapper.createUserDto(updatedUser);
     }
 
-    public void delete(UserDto userDto) {
-        User user = userMapper.createUser(getUser(userDto.getId()));
+    public void delete(Integer id) {
+        User user = userMapper.createUser(getUser(id));
         for (Item item : itemStorage.findAll()) {
             if (item.getOwner().equals(user)) {
                 itemStorage.deleteItem(item.getId());
             }
         }
         userStorage.delete(user);
+    }
+
+    private boolean userValidator(User user) {
+        if (user.getEmail() == null || !user.getEmail().contains("@") || !user.getEmail().contains(".")) {
+            throw new ValidationException("Некорректный e-mail пользователя: " + user.getEmail());
+        }
+        if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
+            throw new ValidationException("Некорректный логин пользователя: " + user.getName());
+        }
+        return true;
     }
 }

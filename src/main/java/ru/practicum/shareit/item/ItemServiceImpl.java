@@ -16,6 +16,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -27,18 +28,15 @@ public class ItemServiceImpl implements ItemService {
     private UserStorage userStorage;
     private FeedbackService feedbackService;
     private ItemRequestStorage itemRequestStorage;
-    private static Integer id = 0;
+    private static Integer id = 1;
 
     public ItemDto create(ItemDto itemDto, Integer ownerId) {
         User owner = userStorage.getUser(ownerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
         Item item = itemMapper.createItem(itemDto, owner);
         item.setId(id++);
-        List<String> requests = itemRequestStorage.getItemRequestsByItem(item)
-                .stream()
-                .map(ItemRequest::toString)
-                .collect(toList());
-        item.setRequests(requests);
+        Optional<ItemRequest> request = itemRequestStorage.getItemRequestByItem(item);
+        request.ifPresent(item::setRequest);
         return itemMapper.createItemDto(itemStorage.create(item));
     }
 
@@ -94,8 +92,9 @@ public class ItemServiceImpl implements ItemService {
             String lowerText = text.toLowerCase();
             return itemStorage.findAll().stream()
                     .filter(item -> (item.isAvailable() &&
-                            item.getName().toLowerCase().contains(lowerText) ||
-                            item.getDescription().toLowerCase().contains(lowerText)))
+                            (item.getName() != null &&
+                            item.getName().toLowerCase().contains(lowerText)) ||
+                            (item.getDescription() != null && item.getDescription().toLowerCase().contains(lowerText))))
                     .map(itemMapper::createItemDto)
                     .collect(toList());
         }

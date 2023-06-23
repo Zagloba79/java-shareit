@@ -27,7 +27,7 @@ public class FeedbackService {
     private ItemStorage itemStorage;
     private FeedbackMapper feedbackMapper;
     private InMemoryUserStorage userStorage;
-    private static Integer feedbackId = 0;
+    private static Integer feedbackId = 1;
 
 
     public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer bookerId, Integer itemId) {

@@ -21,4 +21,5 @@ public interface ItemService {
     FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer itemId, Integer userId);
 
     ItemDto update(ItemDto itemDto, Integer itemId, Integer ownerId);
+
 }

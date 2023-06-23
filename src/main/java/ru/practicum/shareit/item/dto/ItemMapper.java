@@ -12,7 +12,7 @@ public class ItemMapper {
                 item.getName(),
                 item.getDescription(),
                 item.isAvailable(),
-                item.getRequests());
+                item.getRequest());
     }
 
     public ItemDto createItemDtoForOwner(Item item) {
@@ -26,6 +26,6 @@ public class ItemMapper {
                 itemDto.getDescription(),
                 itemDto.isAvailable(),
                 owner,
-                itemDto.getRequests());
+                itemDto.getRequest());
     }
 }

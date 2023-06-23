@@ -31,11 +31,6 @@ public class ItemRequestController {
         return itemRequestService.getItemsByRequester(requesterId);
     }
 
-    @GetMapping("/{itemId}")
-    public List<ItemRequestDto> getItemRequestsByItem(@PathVariable Integer itemId) {
-        return itemRequestService.getItemRequestsByItem(itemId);
-    }
-
     @PatchMapping("/{itemRequestId}")
     public ItemRequestDto update(@RequestBody ItemRequestDto itemRequestDto, @PathVariable Integer itemId,
                                  @RequestHeader(USER_ID) Integer requesterId) {

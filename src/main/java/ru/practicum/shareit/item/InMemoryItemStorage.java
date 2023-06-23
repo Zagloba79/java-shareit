@@ -23,7 +23,7 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public Optional<Item> getItemById(Integer id) {
-        return Optional.of(items.get(id));
+        return Optional.ofNullable(items.get(id));
     }
 
     @Override

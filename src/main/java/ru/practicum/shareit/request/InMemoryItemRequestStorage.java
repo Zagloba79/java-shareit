@@ -8,6 +8,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -17,6 +18,7 @@ import static java.util.stream.Collectors.toList;
 @AllArgsConstructor
 public class InMemoryItemRequestStorage implements ItemRequestStorage {
     private HashMap<Integer, ItemRequest> requests = new HashMap<>();
+    private Map<ItemRequest, Item> requestToItem = new HashMap<>();
 
     @Override
     public ItemRequest addRequest(ItemRequest request) {
@@ -35,11 +37,12 @@ public class InMemoryItemRequestStorage implements ItemRequestStorage {
         return requests.get(request.getId());
     }
 
+
     @Override
-    public List<ItemRequest> getItemRequestsByItem(Item item) {
+    public Optional<ItemRequest> getItemRequestByItem(Item item) {
         return requests.values().stream()
-                .filter(itemRequest -> itemRequest.getItem().equals(item))
-                .collect(toList());
+                .filter(itemRequest -> itemRequest.getDescription().equals(item.getDescription()))
+                .findFirst();
     }
 
     @Override

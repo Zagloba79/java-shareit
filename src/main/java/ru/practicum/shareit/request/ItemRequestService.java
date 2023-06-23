@@ -12,7 +12,7 @@ public interface ItemRequestService {
 
     ItemRequestDto update(ItemRequestDto itemRequestDto, Integer itemId, Integer requesterId);
 
-    List<ItemRequestDto> getItemRequestsByItem(Integer itemId);
+    //List<ItemRequestDto> getItemRequestsByItem(Integer itemId);
 
     void delete(Integer itemId, Integer requesterId);
 
