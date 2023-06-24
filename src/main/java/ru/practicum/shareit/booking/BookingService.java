@@ -84,7 +84,9 @@ public class BookingService {
         }
     }
 
-    public List<BookingDto> getBookingByItem(Integer itemId) {
+    public List<BookingDto> getBookingByItem(Integer itemId, Integer bookerId) {
+        User booker = userStorage.getUser(bookerId).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
         return bookingStorage.findAll().stream()
                 .filter(booking -> booking.getItemId() == itemId)
                 .map(bookingMapper::createBookingDto)
@@ -119,13 +121,17 @@ public class BookingService {
         return bookingMapper.createBookingDto(booking);
     }
 
-    public List<BookingDto> getAllBookings() {
+    public List<BookingDto> getAllBookings(Integer userId) {
+        User user = userStorage.getUser(userId).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + userId + " не существует."));
         return bookingStorage.findAll().stream()
                 .map(bookingMapper::createBookingDto)
                 .collect(toList());
     }
 
-    public BookingDto getBookingById(Integer bookingId) {
+    public BookingDto getBookingById(Integer bookingId, Integer userId) {
+        User user = userStorage.getUser(userId).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + userId + " не существует."));
         Booking booking = bookingStorage.getBookingById(bookingId).orElseThrow(() ->
                 new ObjectNotFoundException("Резерва с " + bookingId + " не существует."));
         return bookingMapper.createBookingDto(booking);

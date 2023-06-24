@@ -8,7 +8,7 @@ import java.util.List;
 public interface ItemService {
     ItemDto create(ItemDto itemDto, Integer ownerId);
 
-    ItemDto getItemById(Integer itemId);
+    ItemDto getItemById(Integer itemId, Integer ownerId);
 
     List<ItemDto> getItemsByOwner(Integer ownerId);
 
@@ -16,7 +16,7 @@ public interface ItemService {
 
     void deleteItem(Integer itemId, Integer ownerId);
 
-    List<ItemDto> getItemsByQuery(String text);
+    List<ItemDto> getItemsByQuery(String text, Integer ownerId);
 
     FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer itemId, Integer userId);
 

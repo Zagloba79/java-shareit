@@ -24,8 +24,8 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable Integer itemId) {
-        return itemService.getItemById(itemId);
+    public ItemDto getItemById(@PathVariable Integer itemId, @RequestHeader(USER_ID) Integer ownerId) {
+        return itemService.getItemById(itemId, ownerId);
     }
 
     @GetMapping
@@ -48,8 +48,8 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getItemsByQuery(@RequestParam String text) {
-        return itemService.getItemsByQuery(text);
+    public List<ItemDto> getItemsByQuery(@RequestParam String text, @RequestHeader(USER_ID) Integer ownerId) {
+        return itemService.getItemsByQuery(text, ownerId);
     }
 
     @ResponseBody

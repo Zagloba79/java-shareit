@@ -56,7 +56,9 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.createItemDto(updatedItem);
     }
 
-    public ItemDto getItemById(Integer itemId) {
+    public ItemDto getItemById(Integer itemId, Integer ownerId) {
+        User owner = userStorage.getUser(ownerId).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
         return itemMapper.createItemDto(item);
@@ -87,7 +89,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
 
-    public List<ItemDto> getItemsByQuery(String text) {
+    public List<ItemDto> getItemsByQuery(String text, Integer ownerId) {
+        User owner = userStorage.getUser(ownerId).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
         if ((text != null) && (!text.isEmpty()) && (!text.isBlank())) {
             String lowerText = text.toLowerCase();
             return itemStorage.findAll().stream()
