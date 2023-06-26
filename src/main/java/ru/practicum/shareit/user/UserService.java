@@ -7,11 +7,13 @@ import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.ItemStorage;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -30,10 +32,10 @@ public class UserService {
             }
         }
         User user = userMapper.createUser(userDto);
-        if (userValidator(user)) {
-            user.setId(id++);
-            userStorage.create(user);
-        }
+        userValidator(user);
+        user.setId(id++);
+        userStorage.create(user);
+
         return userMapper.createUserDto(user);
     }
 
@@ -52,10 +54,20 @@ public class UserService {
     public UserDto update(UserDto userDto) {
         User user = userStorage.getUser(userDto.getId()).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + userDto.getId() + " не существует."));
-        userValidator(user);
         User userToUpdate = userMapper.createUser(userDto);
-        userStorage.update(userToUpdate);
-        return userMapper.createUserDto(userToUpdate);
+        if (userToUpdate.getName() != null) {
+            user.setName(userToUpdate.getName());
+        }
+        if (userToUpdate.getEmail() != null && userToUpdate.getEmail().contains("@") && userToUpdate.getEmail().contains(".")) {
+            user.setEmail(userToUpdate.getEmail());
+        }
+        userStorage.update(user);
+        User updatedUser = new User();
+        Optional<User> updatedUserOpt = userStorage.getUser(user.getId());
+        if (updatedUserOpt.isPresent()) {
+            updatedUser = updatedUserOpt.get();
+        }
+        return userMapper.createUserDto(updatedUser);
     }
 
     public void delete(Integer id) {
@@ -68,13 +80,12 @@ public class UserService {
         userStorage.delete(user);
     }
 
-    private boolean userValidator(User user) {
+    private void userValidator(User user) {
         if (user.getEmail() == null || !user.getEmail().contains("@") || !user.getEmail().contains(".")) {
             throw new ValidationException("Некорректный e-mail пользователя: " + user.getEmail());
         }
         if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
             throw new ValidationException("Некорректный логин пользователя: " + user.getName());
         }
-        return true;
     }
 }
