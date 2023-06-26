@@ -7,7 +7,6 @@ import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.ItemStorage;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -58,7 +57,7 @@ public class UserService {
         if (userToUpdate.getName() != null) {
             user.setName(userToUpdate.getName());
         }
-        if (userToUpdate.getEmail() != null && userToUpdate.getEmail().contains("@") && userToUpdate.getEmail().contains(".")) {
+        if (emailValidate(userToUpdate.getEmail(), userToUpdate.getId())) {
             user.setEmail(userToUpdate.getEmail());
         }
         userStorage.update(user);
@@ -70,12 +69,11 @@ public class UserService {
         return userMapper.createUserDto(updatedUser);
     }
 
-    public void delete(Integer id) {
-        User user = userMapper.createUser(getUser(id));
-        for (Item item : itemStorage.findAll()) {
-            if (item.getOwner().equals(user)) {
-                itemStorage.deleteItem(item.getId());
-            }
+    public void delete(Integer userId) {
+        User user = userStorage.getUser(userId).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + userId + " не существует."));
+        for (Item item : itemStorage.getItemsByOwner(user.getId())) {
+            itemStorage.deleteItem(item.getId());
         }
         userStorage.delete(user);
     }
@@ -87,5 +85,17 @@ public class UserService {
         if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
             throw new ValidationException("Некорректный логин пользователя: " + user.getName());
         }
+    }
+
+    private boolean emailValidate(String email, Integer id) {
+        if (email == null || !email.contains("@") || !email.contains(".")) {
+            return false;
+        }
+        for (User user : userStorage.findAll()) {
+            if (!user.getId().equals(id) && user.getEmail().equals(email)) {
+                throw new UserAlreadyExistsException("Пользователь с таким Email уже зарегистрирован");
+            }
+        }
+        return true;
     }
 }
