@@ -14,7 +14,7 @@ import static ru.practicum.shareit.Constants.USER_ID;
 @AllArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
-    private final ItemService itemService;
+    private ItemService itemService;
     private FeedbackService feedbackService;
 
     @ResponseBody

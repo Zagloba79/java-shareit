@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 
@@ -9,9 +8,8 @@ import java.util.List;
 
 import static ru.practicum.shareit.Constants.USER_ID;
 
-@Slf4j
 @RestController
-@RequestMapping(path = "/bookings")
+@RequestMapping("/bookings")
 @AllArgsConstructor
 public class BookingController {
     private BookingService bookingService;
