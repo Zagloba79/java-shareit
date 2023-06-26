@@ -14,7 +14,7 @@ public class ItemDto {
     private Integer id;
     private String name;
     private String description;
-    private boolean available;
+    private Boolean available;
     private ItemRequest request;
 
     public ItemDto(String name, String description) {

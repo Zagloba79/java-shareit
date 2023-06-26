@@ -35,7 +35,7 @@ public class BookingService {
         User booker = userStorage.getUser(bookerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
         Booking booking = new Booking();
-        if (!item.isAvailable()) {
+        if (item.getAvailable().equals("false")) {
             log.info("This item has been rented");
         } else {
             booking.setId(id++);

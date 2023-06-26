@@ -38,7 +38,7 @@ public class FeedbackService {
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
         for (Booking booking : bookingStorage.getBookingsByBooker(bookerId)) {
             if (booking.getItemId() == item.getId() &&
-            booking.getStatuses().contains(APPROVED) && item.isAvailable()) {
+            booking.getStatuses().contains(APPROVED) && item.getAvailable().equals("true")) {
                 feedback.setId(feedbackId++);
                 feedback.setItem(item);
                 feedback.setOwner(item.getOwner());

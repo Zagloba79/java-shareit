@@ -34,7 +34,6 @@ public class UserService {
         userValidator(user);
         user.setId(id++);
         userStorage.create(user);
-
         return userMapper.createUserDto(user);
     }
 
