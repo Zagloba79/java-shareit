@@ -26,7 +26,7 @@ public class BookingService {
     private UserStorage userStorage;
     private BookingMapper bookingMapper;
     private ItemStorage itemStorage;
-    private static int id = 1;
+    private int id = 1;
 
     public BookingDto addNewBooking(BookingDto bookingDto, int bookerId) {
         int itemId = bookingDto.getItemId();
