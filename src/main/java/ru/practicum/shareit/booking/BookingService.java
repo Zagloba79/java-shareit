@@ -26,9 +26,9 @@ public class BookingService {
     private UserStorage userStorage;
     private BookingMapper bookingMapper;
     private ItemStorage itemStorage;
-    private static Integer id = 1;
+    private static int id = 1;
 
-    public BookingDto addNewBooking(BookingDto bookingDto, Integer bookerId) {
+    public BookingDto addNewBooking(BookingDto bookingDto, int bookerId) {
         int itemId = bookingDto.getItemId();
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Данного предмета в базе не существует."));
