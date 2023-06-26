@@ -50,13 +50,12 @@ public class UserService {
     }
 
     public UserDto update(UserDto userDto) {
-        User user = userMapper.createUser(getUser(userDto.getId()));
-        if (userValidator(user)) {
-            userStorage.update(user);
-        }
-        User updatedUser = userStorage.getUser(user.getId()).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + user.getId() + " не существует."));
-        return userMapper.createUserDto(updatedUser);
+        User user = userStorage.getUser(userDto.getId()).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + userDto.getId() + " не существует."));
+        userValidator(user);
+        User userToUpdate = userMapper.createUser(userDto);
+        userStorage.update(userToUpdate);
+        return userMapper.createUserDto(userToUpdate);
     }
 
     public void delete(Integer id) {

@@ -10,7 +10,7 @@ import ru.practicum.shareit.exception.ValidationException;
 
 @RestControllerAdvice
 public class ErrorHandler {
-    @ExceptionHandler
+    @ExceptionHandler(ObjectNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleObjectNotFoundException(final ObjectNotFoundException e) {
         return new ErrorResponse(
@@ -18,7 +18,7 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(UserAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleUserAlreadyExistsException(final UserAlreadyExistsException e) {
         return new ErrorResponse(
@@ -26,7 +26,7 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
         return new ErrorResponse(
@@ -34,9 +34,9 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler
+    @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleThrowable(final Throwable e) {
+    public ErrorResponse handleThrowable(final Exception e) {
         e.printStackTrace();
         return new ErrorResponse(
                 "Произошла непредвиденная ошибка."
