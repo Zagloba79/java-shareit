@@ -8,7 +8,7 @@ import java.util.List;
 
 import static ru.practicum.shareit.Constants.USER_ID;
 
-//@RestController
+@RestController
 @RequestMapping("/bookings")
 @AllArgsConstructor
 public class BookingController {
