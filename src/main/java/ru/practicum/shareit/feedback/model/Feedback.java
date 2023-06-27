@@ -12,7 +12,7 @@ import ru.practicum.shareit.user.model.User;
 @NoArgsConstructor
 @EqualsAndHashCode(exclude = {"id"})
 public class Feedback {
-    private int id;
+    private Integer id;
     private Item item;
     private User owner;
     private User booker;

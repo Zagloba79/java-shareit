@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"id", "name"})
+@EqualsAndHashCode//(exclude = {"id", "name"})
 @NoArgsConstructor
 public class User {
     private Integer id;

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
@@ -17,12 +18,18 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toList;
 
 @Service
-@AllArgsConstructor
 public class UserService {
-    private UserStorage userStorage;
-    private UserMapper userMapper;
-    private ItemStorage itemStorage;
-    private static Integer id = 1;
+    private final UserStorage userStorage;
+    private final UserMapper userMapper;
+    private final ItemStorage itemStorage;
+    private Integer userId = 1;
+
+    @Autowired
+    public UserService(UserStorage userStorage, UserMapper userMapper, ItemStorage itemStorage) {
+        this.userStorage = userStorage;
+        this.userMapper = userMapper;
+        this.itemStorage = itemStorage;
+    }
 
     public UserDto createUser(UserDto userDto) {
         for (User thisUser : userStorage.findAll()) {
@@ -32,7 +39,7 @@ public class UserService {
         }
         User user = userMapper.createUser(userDto);
         userValidator(user);
-        user.setId(id++);
+        user.setId(userId++);
         userStorage.create(user);
         return userMapper.createUserDto(user);
     }

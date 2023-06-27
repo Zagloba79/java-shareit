@@ -1,6 +1,7 @@
 package ru.practicum.shareit.feedback;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingStorage;
 import ru.practicum.shareit.booking.model.Booking;
@@ -14,7 +15,6 @@ import ru.practicum.shareit.user.InMemoryUserStorage;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 import static ru.practicum.shareit.booking.BookingStatus.APPROVED;
@@ -27,8 +27,18 @@ public class FeedbackService {
     private ItemStorage itemStorage;
     private FeedbackMapper feedbackMapper;
     private InMemoryUserStorage userStorage;
-    private static Integer feedbackId = 1;
+    private Integer feedbackId = 1;
 
+    @Autowired
+    public FeedbackService(FeedbackStorage feedbackStorage, BookingStorage bookingStorage,
+                           ItemStorage itemStorage, FeedbackMapper feedbackMapper,
+                           InMemoryUserStorage userStorage) {
+        this.feedbackStorage = feedbackStorage;
+        this.bookingStorage = bookingStorage;
+        this.itemStorage = itemStorage;
+        this.feedbackMapper = feedbackMapper;
+        this.userStorage = userStorage;
+    }
 
     public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer bookerId, Integer itemId) {
         Feedback feedback = new Feedback();
@@ -37,8 +47,8 @@ public class FeedbackService {
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
         for (Booking booking : bookingStorage.getBookingsByBooker(bookerId)) {
-            if (booking.getItemId() == item.getId() &&
-            booking.getStatuses().contains(APPROVED) && item.getAvailable().equals("true")) {
+            if (booking.getItemId().equals(item.getId()) &&
+                    booking.getStatuses().contains(APPROVED) && item.getAvailable().equals(true)) {
                 feedback.setId(feedbackId++);
                 feedback.setItem(item);
                 feedback.setOwner(item.getOwner());
@@ -60,7 +70,7 @@ public class FeedbackService {
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
         return feedbackStorage.findAll().stream()
-                .filter(feedback -> Objects.equals(feedback.getItem().getId(), item.getId()))
+                .filter(feedback -> feedback.getItem().getId().equals(item.getId()))
                 .collect(toList());
     }
 
@@ -68,7 +78,7 @@ public class FeedbackService {
         User booker = userStorage.getUser(bookerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
         return feedbackStorage.findAll().stream()
-                .filter(feedback -> Objects.equals(feedback.getBooker().getId(), booker.getId()))
+                .filter(feedback -> feedback.getBooker().getId().equals(booker.getId()))
                 .collect(toList());
     }
 }

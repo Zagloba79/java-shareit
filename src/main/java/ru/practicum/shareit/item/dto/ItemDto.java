@@ -16,9 +16,4 @@ public class ItemDto {
     private String description;
     private Boolean available;
     private ItemRequest request;
-
-    public ItemDto(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
 }

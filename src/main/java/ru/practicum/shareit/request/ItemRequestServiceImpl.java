@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.ItemStorage;
@@ -17,14 +18,23 @@ import java.util.List;
 import static java.util.stream.Collectors.toList;
 
 @Service
-@AllArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
 
-    private InMemoryItemRequestStorage itemRequestStorage;
-    private ItemRequestMapper itemRequestMapper;
-    private ItemStorage itemStorage;
-    private UserStorage userStorage;
-    private static Integer id = 1;
+    private final InMemoryItemRequestStorage itemRequestStorage;
+    private final ItemRequestMapper itemRequestMapper;
+    private final ItemStorage itemStorage;
+    private final UserStorage userStorage;
+    private Integer itemRequestId = 1;
+
+    @Autowired
+    public ItemRequestServiceImpl(InMemoryItemRequestStorage itemRequestStorage,
+                                  ItemRequestMapper itemRequestMapper,
+                                  ItemStorage itemStorage, UserStorage userStorage) {
+        this.itemRequestStorage = itemRequestStorage;
+        this.itemRequestMapper = itemRequestMapper;
+        this.itemStorage = itemStorage;
+        this.userStorage = userStorage;
+    }
 
     @Override
     public ItemRequestDto addRequest(ItemRequestDto itemRequestDto, Integer requesterId) {
@@ -34,7 +44,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 itemRequestDto.getDescription(),
                 requester,
                 itemRequestDto.getCreated());
-        request.setId(id++);
+        request.setId(itemRequestId++);
         itemRequestStorage.addRequest(request);
         ItemRequest itemRequest = itemRequestStorage.getRequestById(request.getId()).orElseThrow(() ->
                 new ObjectNotFoundException("Запроса с " + request.getId() + " не существует."));
@@ -65,15 +75,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 new ObjectNotFoundException("Запроса с " + itemRequestId + " не существует."));
         return itemRequestMapper.createItemRequestDto(itemRequestFromStorage);
     }
-
-//    @Override
-//    public List<ItemRequestDto> getItemRequestsByItem(Integer itemId) {
-//        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
-//                new ObjectNotFoundException("Запроса с " + itemId + " не существует."));
-//        return itemRequestStorage.getItemRequestsByItem(item).stream()
-//                .map(itemRequestMapper::createItemRequestDto)
-//                .collect(toList());
-//    }
 
     @Override
     public void delete(Integer itemRequestId, Integer requesterId) {

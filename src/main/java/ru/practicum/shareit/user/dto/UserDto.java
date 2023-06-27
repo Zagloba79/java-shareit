@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(exclude = {"id", "name"})
+@EqualsAndHashCode
 public class UserDto {
     private Integer id;
     @NotBlank

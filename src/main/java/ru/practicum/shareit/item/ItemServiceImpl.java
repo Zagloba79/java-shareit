@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -16,7 +17,6 @@ import ru.practicum.shareit.user.model.User;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
@@ -24,14 +24,25 @@ import java.util.function.Predicate;
 import static java.util.stream.Collectors.toList;
 
 @Service
-@AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    private ItemStorage itemStorage;
-    private ItemMapper itemMapper;
-    private UserStorage userStorage;
-    private FeedbackService feedbackService;
-    private ItemRequestStorage itemRequestStorage;
-    private static Integer id = 1;
+    private final ItemStorage itemStorage;
+    private final ItemMapper itemMapper;
+    private final UserStorage userStorage;
+    private final FeedbackService feedbackService;
+    private final ItemRequestStorage itemRequestStorage;
+    private Integer itemId = 1;
+
+    @Autowired
+    public ItemServiceImpl(ItemStorage itemStorage, ItemMapper itemMapper,
+                           UserStorage userStorage, FeedbackService feedbackService,
+                           ItemRequestStorage itemRequestStorage) {
+        this.itemStorage = itemStorage;
+        this.itemMapper = itemMapper;
+        this.userStorage = userStorage;
+        this.feedbackService = feedbackService;
+        this.itemRequestStorage = itemRequestStorage;
+    }
+
     static Predicate<Item> isAvailable = item ->
         Boolean.TRUE.equals(item.getAvailable());
     static BiPredicate<Item, String> isMatch = (item, text) -> (item.getName() != null &&
@@ -44,7 +55,7 @@ public class ItemServiceImpl implements ItemService {
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
         Item item = itemMapper.createItem(itemDto, owner);
         itemValidate(item);
-        item.setId(id++);
+        item.setId(itemId++);
         Optional<ItemRequest> request = itemRequestStorage.getItemRequestByItem(item);
         request.ifPresent(item::setRequest);
         itemStorage.create(item);
@@ -100,7 +111,7 @@ public class ItemServiceImpl implements ItemService {
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
         User owner = userStorage.getUser(ownerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
-        if (Objects.equals(item.getOwner().getId(), owner.getId())) {
+        if (item.getOwner().getId().equals(owner.getId())) {
             itemStorage.deleteItem(itemId);
         }
     }

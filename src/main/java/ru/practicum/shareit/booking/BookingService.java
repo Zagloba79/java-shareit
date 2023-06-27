@@ -20,13 +20,20 @@ import static ru.practicum.shareit.booking.BookingStatus.*;
 
 @Service
 @Slf4j
-@AllArgsConstructor
 public class BookingService {
-    private BookingStorage bookingStorage;
-    private UserStorage userStorage;
-    private BookingMapper bookingMapper;
-    private ItemStorage itemStorage;
-    private int id = 1;
+    private final BookingStorage bookingStorage;
+    private final UserStorage userStorage;
+    private final BookingMapper bookingMapper;
+    private final ItemStorage itemStorage;
+    private Integer bookingId = 1;
+
+    public BookingService(BookingStorage bookingStorage, UserStorage userStorage,
+                          BookingMapper bookingMapper, ItemStorage itemStorage) {
+        this.bookingStorage = bookingStorage;
+        this.userStorage = userStorage;
+        this.bookingMapper = bookingMapper;
+        this.itemStorage = itemStorage;
+    }
 
     public BookingDto addNewBooking(BookingDto bookingDto, int bookerId) {
         int itemId = bookingDto.getItemId();
@@ -38,7 +45,7 @@ public class BookingService {
         if (item.getAvailable().equals(false)) {
             log.info("This item has been rented");
         } else {
-            booking.setId(id++);
+            booking.setId(bookingId++);
             booking.setStart(bookingDto.getStart());
             booking.setEnd(bookingDto.getEnd());
             booking.setItemId(itemId);
@@ -50,7 +57,7 @@ public class BookingService {
             bookingStorage.create(booking);
         }
         if (booking.getId() == null) {
-            booking.setId(id++);
+            booking.setId(bookingId++);
         }
         Booking bookingFromStorage = bookingStorage.getBookingById(booking.getId()).orElseThrow(() ->
                 new ObjectNotFoundException("Данного предмета в базе не существует."));
@@ -88,7 +95,7 @@ public class BookingService {
         User booker = userStorage.getUser(bookerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
         return bookingStorage.findAll().stream()
-                .filter(booking -> booking.getItemId() == itemId)
+                .filter(booking -> booking.getItemId().equals(itemId))
                 .map(bookingMapper::createBookingDto)
                 .collect(toList());
     }

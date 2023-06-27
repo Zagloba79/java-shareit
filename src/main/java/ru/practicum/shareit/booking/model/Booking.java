@@ -18,7 +18,7 @@ public class Booking {
     private Integer id;
     private LocalDateTime start;
     private LocalDateTime end;
-    private int itemId;
+    private Integer itemId;
     private User booker;
     private BookingStatus status;
     private ArrayList<BookingStatus> statuses;

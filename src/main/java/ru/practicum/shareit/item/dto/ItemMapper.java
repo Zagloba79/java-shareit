@@ -15,10 +15,6 @@ public class ItemMapper {
                 item.getRequest());
     }
 
-    public ItemDto createItemDtoForOwner(Item item) {
-        return new ItemDto(item.getName(), item.getDescription());
-    }
-
     public Item createItem(ItemDto itemDto, User owner) {
         return new Item(
                 itemDto.getId(),
