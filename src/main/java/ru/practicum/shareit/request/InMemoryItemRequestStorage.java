@@ -1,7 +1,7 @@
 package ru.practicum.shareit.request;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -15,13 +15,15 @@ import static java.util.stream.Collectors.toList;
 
 @Data
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class InMemoryItemRequestStorage implements ItemRequestStorage {
     private HashMap<Integer, ItemRequest> requests = new HashMap<>();
     private Map<ItemRequest, Item> requestToItem = new HashMap<>();
+    private Integer itemRequestId = 1;
 
     @Override
     public ItemRequest addRequest(ItemRequest request) {
+        request.setId(itemRequestId++);
         requests.put(request.getId(), request);
         return requests.get(request.getId());
     }

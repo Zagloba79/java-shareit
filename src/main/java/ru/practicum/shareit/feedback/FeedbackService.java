@@ -1,7 +1,6 @@
 package ru.practicum.shareit.feedback;
 
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingStorage;
 import ru.practicum.shareit.booking.model.Booking;
@@ -20,50 +19,36 @@ import static java.util.stream.Collectors.toList;
 import static ru.practicum.shareit.booking.BookingStatus.APPROVED;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FeedbackService {
-    private FeedbackStorage feedbackStorage;
-    private BookingStorage bookingStorage;
-    private ItemStorage itemStorage;
-    private FeedbackMapper feedbackMapper;
-    private InMemoryUserStorage userStorage;
-    private Integer feedbackId = 1;
-
-    @Autowired
-    public FeedbackService(FeedbackStorage feedbackStorage, BookingStorage bookingStorage,
-                           ItemStorage itemStorage, FeedbackMapper feedbackMapper,
-                           InMemoryUserStorage userStorage) {
-        this.feedbackStorage = feedbackStorage;
-        this.bookingStorage = bookingStorage;
-        this.itemStorage = itemStorage;
-        this.feedbackMapper = feedbackMapper;
-        this.userStorage = userStorage;
-    }
+    private final FeedbackStorage feedbackStorage;
+    private final BookingStorage bookingStorage;
+    private final ItemStorage itemStorage;
+    private final InMemoryUserStorage userStorage;
 
     public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer bookerId, Integer itemId) {
         Feedback feedback = new Feedback();
-        User booker = userStorage.getUser(bookerId).orElseThrow(() ->
+        User author = userStorage.getUser(bookerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
         for (Booking booking : bookingStorage.getBookingsByBooker(bookerId)) {
-            if (booking.getItemId().equals(item.getId()) &&
+            if (booking.getItem().getId().equals(item.getId()) &&
                     booking.getStatuses().contains(APPROVED) && item.getAvailable().equals(true)) {
-                feedback.setId(feedbackId++);
                 feedback.setItem(item);
                 feedback.setOwner(item.getOwner());
-                feedback.setBooker(booker);
+                feedback.setAuthor(author);
                 feedback.setComment(feedbackDto.getComment());
                 feedbackStorage.create(feedback.getId(), feedback);
             }
         }
-        return feedbackMapper.createFeedbackDto(feedback);
+        return FeedbackMapper.createFeedbackDto(feedback);
     }
 
     public FeedbackDto getFeedbackById(Integer id) {
         Feedback feedback = feedbackStorage.getFeedback(id).orElseThrow(() ->
                 new ObjectNotFoundException("Отзыва с номером = " + id + " не существует."));
-        return feedbackMapper.createFeedbackDto(feedback);
+        return FeedbackMapper.createFeedbackDto(feedback);
     }
 
     public List<Feedback> getFeedbacksByItem(Integer itemId) {
@@ -78,7 +63,7 @@ public class FeedbackService {
         User booker = userStorage.getUser(bookerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
         return feedbackStorage.findAll().stream()
-                .filter(feedback -> feedback.getBooker().getId().equals(booker.getId()))
+                .filter(feedback -> feedback.getAuthor().getId().equals(booker.getId()))
                 .collect(toList());
     }
 }

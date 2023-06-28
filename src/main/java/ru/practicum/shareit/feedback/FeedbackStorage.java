@@ -2,6 +2,7 @@ package ru.practicum.shareit.feedback;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
@@ -16,15 +17,15 @@ import java.util.Optional;
 
 @Component
 @Data
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FeedbackStorage {
-    private BookingService bookingService;
-    private FeedbackMapper feedbackMapper;
     private Map<Integer, Feedback> feedbacks;
+    private Integer feedbackId = 1;
 
     public FeedbackDto create(int id, Feedback feedback) {
+        feedback.setId(feedbackId++);
         feedbacks.put(id, feedback);
-        return feedbackMapper.createFeedbackDto(feedbacks.get(id));
+        return FeedbackMapper.createFeedbackDto(feedbacks.get(id));
     }
 
     public Optional<Feedback> getFeedback(int id) {
@@ -32,9 +33,9 @@ public class FeedbackStorage {
     }
 
     public FeedbackDto update(FeedbackDto feedbackDto, User owner) {
-        Feedback f = feedbackMapper.createFeedback(feedbackDto, owner);
+        Feedback f = FeedbackMapper.createFeedback(feedbackDto, owner);
         feedbacks.put(f.getId(), f);
-        return feedbackMapper.createFeedbackDto(feedbacks.get(f.getId()));
+        return FeedbackMapper.createFeedbackDto(feedbacks.get(f.getId()));
     }
 
     public void delete(int id) {

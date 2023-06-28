@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -23,24 +23,12 @@ import java.util.function.Predicate;
 import static java.util.stream.Collectors.toList;
 
 @Service
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemStorage itemStorage;
-    private final ItemMapper itemMapper;
     private final UserStorage userStorage;
     private final FeedbackService feedbackService;
     private final ItemRequestStorage itemRequestStorage;
-    private Integer itemId = 1;
-
-    @Autowired
-    public ItemServiceImpl(ItemStorage itemStorage, ItemMapper itemMapper,
-                           UserStorage userStorage, FeedbackService feedbackService,
-                           ItemRequestStorage itemRequestStorage) {
-        this.itemStorage = itemStorage;
-        this.itemMapper = itemMapper;
-        this.userStorage = userStorage;
-        this.feedbackService = feedbackService;
-        this.itemRequestStorage = itemRequestStorage;
-    }
 
     static Predicate<Item> isAvailable = item ->
         Boolean.TRUE.equals(item.getAvailable());
@@ -52,13 +40,12 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto create(ItemDto itemDto, Integer ownerId) {
         User owner = userStorage.getUser(ownerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
-        Item item = itemMapper.createItem(itemDto, owner);
+        Item item = ItemMapper.createItem(itemDto, owner);
         itemValidate(item);
-        item.setId(itemId++);
         Optional<ItemRequest> request = itemRequestStorage.getItemRequestByItem(item);
         request.ifPresent(item::setRequest);
         itemStorage.create(item);
-        return itemMapper.createItemDto(item);
+        return ItemMapper.createItemDto(item);
     }
 
     public ItemDto update(ItemDto itemDto, Integer itemId, Integer ownerId) {
@@ -69,7 +56,7 @@ public class ItemServiceImpl implements ItemService {
         if (!item.getOwner().equals(owner)) {
             throw new ObjectNotFoundException("Собственник не тот");
         }
-        Item itemToUpdate = itemMapper.createItem(itemDto, owner);
+        Item itemToUpdate = ItemMapper.createItem(itemDto, owner);
         if (itemToUpdate.getName() != null) {
             item.setName(itemToUpdate.getName());
         }
@@ -80,7 +67,7 @@ public class ItemServiceImpl implements ItemService {
             item.setAvailable(itemDto.getAvailable());
         }
         Item updatedItem = itemStorage.update(item);
-        return itemMapper.createItemDto(updatedItem);
+        return ItemMapper.createItemDto(updatedItem);
     }
 
     public ItemDto getItemById(Integer itemId, Integer ownerId) {
@@ -88,20 +75,20 @@ public class ItemServiceImpl implements ItemService {
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
         Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
-        return itemMapper.createItemDto(item);
+        return ItemMapper.createItemDto(item);
     }
 
     public List<ItemDto> getItemsByOwner(Integer ownerId) {
         User owner = userStorage.getUser(ownerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
         return itemStorage.getItemsByOwner(owner.getId()).stream()
-                .map(itemMapper::createItemDto)
+                .map(ItemMapper::createItemDto)
                 .collect(toList());
     }
 
     public List<ItemDto> findAll() {
         return itemStorage.findAll().stream()
-                .map(itemMapper::createItemDto)
+                .map(ItemMapper::createItemDto)
                 .collect(toList());
     }
 
@@ -119,11 +106,11 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getItemsByQuery(String text, Integer ownerId) {
         User owner = userStorage.getUser(ownerId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
-        if ((text != null) && (!text.isEmpty()) && (!text.isBlank())) {
+        if ((text != null) && (!text.isBlank())) {
             String lowerText = text.toLowerCase();
             return itemStorage.findAll().stream()
                     .filter(item -> isAvailable.test(item) && (isMatch.test(item, lowerText)))
-                    .map(itemMapper::createItemDto)
+                    .map(ItemMapper::createItemDto)
                     .collect(toList());
         }
         return Collections.EMPTY_LIST;
@@ -140,11 +127,10 @@ public class ItemServiceImpl implements ItemService {
         if (item.getAvailable() == null) {
             throw new ValidationException("Поле статуса не заполнено");
         }
-        if (item.getName() == null || item.getName().isEmpty() || item.getName().isBlank()) {
+        if (item.getName() == null || item.getName().isBlank()) {
             throw new ValidationException("Некорректное название предмета: " + item.getName());
         }
-        if (item.getDescription() == null || item.getDescription().isEmpty() ||
-                item.getDescription().isBlank()) {
+        if (item.getDescription() == null  || item.getDescription().isBlank()) {
             throw new ValidationException("Некорректное описание предмета: " + item.getDescription());
         }
     }

@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.feedback.FeedbackService;
@@ -11,11 +11,11 @@ import java.util.List;
 import static ru.practicum.shareit.Constants.USER_ID;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/items")
 public class ItemController {
-    private ItemService itemService;
-    private FeedbackService feedbackService;
+    private final ItemService itemService;
+    private final FeedbackService feedbackService;
 
     @ResponseBody
     @PostMapping

@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 
@@ -10,9 +10,9 @@ import static ru.practicum.shareit.Constants.USER_ID;
 
 @RestController
 @RequestMapping("/bookings")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class BookingController {
-    private BookingService bookingService;
+    private final BookingService bookingService;
 
     @ResponseBody
     @PostMapping

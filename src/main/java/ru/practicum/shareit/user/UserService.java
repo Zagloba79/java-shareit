@@ -1,6 +1,6 @@
 package ru.practicum.shareit.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
@@ -17,18 +17,10 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toList;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
-    private final UserMapper userMapper;
     private final ItemStorage itemStorage;
-    private Integer userId = 1;
-
-    @Autowired
-    public UserService(UserStorage userStorage, UserMapper userMapper, ItemStorage itemStorage) {
-        this.userStorage = userStorage;
-        this.userMapper = userMapper;
-        this.itemStorage = itemStorage;
-    }
 
     public UserDto createUser(UserDto userDto) {
         for (User thisUser : userStorage.findAll()) {
@@ -36,29 +28,28 @@ public class UserService {
                 throw new UserAlreadyExistsException("Пользователь с таким Email уже зарегистрирован");
             }
         }
-        User user = userMapper.createUser(userDto);
+        User user = UserMapper.createUser(userDto);
         userValidator(user);
-        user.setId(userId++);
         userStorage.create(user);
-        return userMapper.createUserDto(user);
+        return UserMapper.createUserDto(user);
     }
 
     public List<UserDto> findAll() {
         return userStorage.findAll().stream()
-                .map(userMapper::createUserDto)
+                .map(UserMapper::createUserDto)
                 .collect(toList());
     }
 
     public UserDto getUser(Integer userId) {
         User user = userStorage.getUser(userId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + userId + " не существует."));
-        return userMapper.createUserDto(user);
+        return UserMapper.createUserDto(user);
     }
 
     public UserDto update(UserDto userDto) {
         User user = userStorage.getUser(userDto.getId()).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + userDto.getId() + " не существует."));
-        User userToUpdate = userMapper.createUser(userDto);
+        User userToUpdate = UserMapper.createUser(userDto);
         if (userToUpdate.getName() != null) {
             user.setName(userToUpdate.getName());
         }
@@ -71,7 +62,7 @@ public class UserService {
         if (updatedUserOpt.isPresent()) {
             updatedUser = updatedUserOpt.get();
         }
-        return userMapper.createUserDto(updatedUser);
+        return UserMapper.createUserDto(updatedUser);
     }
 
     public void delete(Integer userId) {
@@ -87,7 +78,7 @@ public class UserService {
         if (user.getEmail() == null || !user.getEmail().contains("@") || !user.getEmail().contains(".")) {
             throw new ValidationException("Некорректный e-mail пользователя: " + user.getEmail());
         }
-        if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             throw new ValidationException("Некорректный логин пользователя: " + user.getName());
         }
     }

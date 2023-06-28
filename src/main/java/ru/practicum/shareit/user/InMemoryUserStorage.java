@@ -1,18 +1,20 @@
 package ru.practicum.shareit.user;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 
 @Component("userStorage")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
+    private Integer userId = 1;
 
     @Override
     public User create(User user) {
+        user.setId(userId++);
         users.put(user.getId(), user);
         return users.get(user.getId());
     }

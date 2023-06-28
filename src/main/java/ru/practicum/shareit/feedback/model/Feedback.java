@@ -2,7 +2,6 @@ package ru.practicum.shareit.feedback.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
@@ -10,11 +9,10 @@ import ru.practicum.shareit.user.model.User;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode(exclude = {"id"})
 public class Feedback {
     private Integer id;
     private Item item;
     private User owner;
-    private User booker;
+    private User author;
     private String comment;
 }
