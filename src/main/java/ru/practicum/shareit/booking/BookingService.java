@@ -7,9 +7,9 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
-import ru.practicum.shareit.item.ItemStorage;
+import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
@@ -23,12 +23,12 @@ import static ru.practicum.shareit.booking.BookingStatus.*;
 @RequiredArgsConstructor
 public class BookingService {
     private final BookingStorage bookingStorage;
-    private final UserStorage userStorage;
-    private final ItemStorage itemStorage;
+    private final UserService userService;
+    private final ItemService itemService;
 
     public BookingDto addNewBooking(BookingDto bookingDto, int bookerId) {
         Item item = bookingDto.getItem();
-        User booker = userFromStorage(bookerId);
+        User booker = userService.userFromStorage(bookerId);
         Booking booking = new Booking();
         if (item.getAvailable().equals(false)) {
             log.info("This item has been rented");
@@ -49,7 +49,7 @@ public class BookingService {
     }
 
     public void approveBooking(Booking booking, User owner) {
-        Item item = itemFromStorage(booking);
+        Item item = itemService.itemFromStorage(booking.getItem().getId());
         if (booking.getStatus().equals(WAITING) && item.getOwner().equals(owner)) {
             booking.setStatus(APPROVED);
             booking.getStatuses().add(APPROVED);
@@ -57,7 +57,7 @@ public class BookingService {
     }
 
     public void rejectBooking(Booking booking, User owner) {
-        Item item = itemFromStorage(booking);
+        Item item = itemService.itemFromStorage(booking.getItem().getId());
         if (booking.getStatus().equals(WAITING) && item.getOwner().equals(owner)) {
             booking.setStatus(REJECTED);
             booking.getStatuses().add(REJECTED);
@@ -74,7 +74,7 @@ public class BookingService {
     }
 
     public List<BookingDto> getBookingByItem(Integer itemId, Integer bookerId) {
-        User booker = userFromStorage(bookerId);
+        User booker = userService.userFromStorage(bookerId);
         return bookingStorage.findAll().stream()
                 .filter(booking -> booking.getItem().getId().equals(itemId))
                 .map(BookingMapper::createBookingDto)
@@ -82,7 +82,7 @@ public class BookingService {
     }
 
     public List<BookingDto> getBookingsByBooker(Integer bookerId) {
-        User booker = userFromStorage(bookerId);
+        User booker = userService.userFromStorage(bookerId);
         return bookingStorage.getBookingsByBooker(booker.getId()).stream()
                 .map(BookingMapper::createBookingDto)
                 .collect(toList());
@@ -91,7 +91,7 @@ public class BookingService {
 
     public BookingDto update(Integer bookingId, Integer userId, BookingStatus status) {
         Booking booking = bookingFromStorage(bookingId);
-        User user = userFromStorage(userId);
+        User user = userService.userFromStorage(userId);
         switch (status) {
             case APPROVED:
                 approveBooking(booking, user);
@@ -107,30 +107,20 @@ public class BookingService {
     }
 
     public List<BookingDto> getAllBookings(Integer userId) {
-        User user = userFromStorage(userId);
+        User user = userService.userFromStorage(userId);
         return bookingStorage.findAll().stream()
                 .map(BookingMapper::createBookingDto)
                 .collect(toList());
     }
 
     public BookingDto getBookingById(Integer bookingId, Integer userId) {
-        User user = userFromStorage(userId);
+        User user = userService.userFromStorage(userId);
         Booking booking = bookingFromStorage(bookingId);
         return BookingMapper.createBookingDto(booking);
-    }
-
-    private User userFromStorage(Integer userId) {
-        return userStorage.getUser(userId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + userId + " не существует."));
     }
 
     private Booking bookingFromStorage(Integer bookingId) {
         return bookingStorage.getBookingById(bookingId).orElseThrow(() ->
                 new ObjectNotFoundException("Резерва с " + bookingId + " не существует."));
-    }
-
-    private Item itemFromStorage(Booking booking) {
-        return itemStorage.getItemById(booking.getItem().getId()).orElseThrow(() ->
-                new ObjectNotFoundException("Данного предмета в базе не существует."));
     }
 }

@@ -2,6 +2,7 @@ package ru.practicum.shareit.item;
 
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
@@ -21,5 +22,7 @@ public interface ItemService {
     FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer itemId, Integer userId);
 
     ItemDto update(ItemDto itemDto, Integer itemId, Integer ownerId);
+
+    Item itemFromStorage(Integer itemId);
 
 }

@@ -3,12 +3,12 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
-import ru.practicum.shareit.item.ItemStorage;
+import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 
@@ -20,55 +20,46 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
 
-    private final InMemoryItemRequestStorage itemRequestStorage;
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
+    private final ItemRequestStorage itemRequestStorage;
+    private final ItemService itemService;
+    private final UserService userService;
 
     @Override
     public ItemRequestDto addRequest(ItemRequestDto itemRequestDto, Integer requesterId) {
-        User requester = userStorage.getUser(requesterId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + requesterId + " не существует."));
+        User requester = userService.userFromStorage(requesterId);
         ItemRequest request = new ItemRequest(itemRequestDto.getId(),
                 itemRequestDto.getDescription(),
                 requester,
                 itemRequestDto.getCreated());
         itemRequestStorage.addRequest(request);
-        ItemRequest itemRequest = itemRequestStorage.getRequestById(request.getId()).orElseThrow(() ->
-                new ObjectNotFoundException("Запроса с " + request.getId() + " не существует."));
+        ItemRequest itemRequest = itemRequestFromStorage(request.getId());
         return ItemRequestMapper.createItemRequestDto(itemRequest);
     }
 
     @Override
-    public ItemRequestDto getRequestById(Integer id) {
-        ItemRequest itemRequest = itemRequestStorage.getRequestById(id).orElseThrow(() ->
-                new ObjectNotFoundException("Запроса с " + id + " не существует."));
+    public ItemRequestDto getRequestById(Integer itemRequestId) {
+        ItemRequest itemRequest = itemRequestFromStorage(itemRequestId);
         return ItemRequestMapper.createItemRequestDto(itemRequest);
     }
 
     @Override
     public ItemRequestDto update(ItemRequestDto itemRequestDto, Integer itemId, Integer requesterId) {
-        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
-        User requester = userStorage.getUser(requesterId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + requesterId + " не существует."));
+        Item item = itemService.itemFromStorage(itemId);
+        User requester = userService.userFromStorage(requesterId);
         Integer itemRequestId = itemRequestDto.getId();
-        ItemRequest itemRequest = itemRequestStorage.getRequestById(itemRequestId).orElseThrow(() ->
-                new ObjectNotFoundException("Запроса с " + itemRequestId + " не существует."));
+        ItemRequest itemRequest = itemRequestFromStorage(itemRequestId);
         if (itemRequest.getRequester().equals(requester)) {
             ItemRequest request = ItemRequestMapper.createItemRequest(itemRequestDto);
             itemRequestStorage.update(request);
         }
-        ItemRequest itemRequestFromStorage = itemRequestStorage.getRequestById(itemRequestId).orElseThrow(() ->
-                new ObjectNotFoundException("Запроса с " + itemRequestId + " не существует."));
+        ItemRequest itemRequestFromStorage = itemRequestFromStorage(itemRequestId);
         return ItemRequestMapper.createItemRequestDto(itemRequestFromStorage);
     }
 
     @Override
     public void delete(Integer itemRequestId, Integer requesterId) {
-        User requester = userStorage.getUser(requesterId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + requesterId + " не существует."));
-        ItemRequest itemRequest = itemRequestStorage.getRequestById(itemRequestId).orElseThrow(() ->
-                new ObjectNotFoundException("Запроса с " + itemRequestId + " не существует."));
+        User requester = userService.userFromStorage(requesterId);
+        ItemRequest itemRequest = itemRequestFromStorage(itemRequestId);
         if (itemRequest.getRequester().equals(requester)) {
             itemRequestStorage.delete(itemRequest);
         }
@@ -79,5 +70,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return itemRequestStorage.getItemRequestsByRequester(requesterId).stream()
                 .map(ItemRequestMapper::createItemRequestDto)
                 .collect(toList());
+    }
+
+    @Override
+    public ItemRequest itemRequestFromStorage(Integer itemRequestId) {
+        return itemRequestStorage.getRequestById(itemRequestId).orElseThrow(() ->
+                new ObjectNotFoundException("Запроса с " + itemRequestId + " не существует."));
     }
 }

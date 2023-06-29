@@ -12,7 +12,7 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @PostMapping
     @ResponseBody

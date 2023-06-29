@@ -11,7 +11,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequestStorage;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collections;
@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
+    private final UserService userService;
     private final FeedbackService feedbackService;
     private final ItemRequestStorage itemRequestStorage;
 
@@ -38,8 +38,7 @@ public class ItemServiceImpl implements ItemService {
                     item.getDescription().toLowerCase().contains(text));
 
     public ItemDto create(ItemDto itemDto, Integer ownerId) {
-        User owner = userStorage.getUser(ownerId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
+        User owner = userService.userFromStorage(ownerId);
         Item item = ItemMapper.createItem(itemDto, owner);
         itemValidate(item);
         Optional<ItemRequest> request = itemRequestStorage.getItemRequestByItem(item);
@@ -49,10 +48,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public ItemDto update(ItemDto itemDto, Integer itemId, Integer ownerId) {
-        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
-        User owner = userStorage.getUser(ownerId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
+        Item item = itemFromStorage(itemId);
+        User owner = userService.userFromStorage(ownerId);
         if (!item.getOwner().equals(owner)) {
             throw new ObjectNotFoundException("Собственник не тот");
         }
@@ -71,16 +68,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public ItemDto getItemById(Integer itemId, Integer ownerId) {
-        User owner = userStorage.getUser(ownerId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
-        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
+        User owner = userService.userFromStorage(ownerId);
+        Item item = itemFromStorage(itemId);
         return ItemMapper.createItemDto(item);
     }
 
     public List<ItemDto> getItemsByOwner(Integer ownerId) {
-        User owner = userStorage.getUser(ownerId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
+        User owner = userService.userFromStorage(ownerId);
         return itemStorage.getItemsByOwner(owner.getId()).stream()
                 .map(ItemMapper::createItemDto)
                 .collect(toList());
@@ -93,10 +87,8 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public void deleteItem(Integer itemId, Integer ownerId) {
-        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Предмета с " + itemId + " не существует."));
-        User owner = userStorage.getUser(ownerId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
+        Item item = itemFromStorage(itemId);
+        User owner = userService.userFromStorage(ownerId);
         if (item.getOwner().getId().equals(owner.getId())) {
             itemStorage.deleteItem(itemId);
         }
@@ -104,8 +96,7 @@ public class ItemServiceImpl implements ItemService {
 
 
     public List<ItemDto> getItemsByQuery(String text, Integer ownerId) {
-        User owner = userStorage.getUser(ownerId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + ownerId + " не существует."));
+        User owner = userService.userFromStorage(ownerId);
         if ((text != null) && (!text.isBlank())) {
             String lowerText = text.toLowerCase();
             return itemStorage.findAll().stream()
@@ -117,8 +108,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer itemId, Integer bookerId) {
-        User booker = userStorage.getUser(bookerId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + bookerId + " не существует."));
+        User booker = userService.userFromStorage(bookerId);
         feedbackService.createFeedback(feedbackDto, itemId, booker.getId());
         return feedbackService.getFeedbackById(feedbackDto.getId());
     }
@@ -133,5 +123,11 @@ public class ItemServiceImpl implements ItemService {
         if (item.getDescription() == null  || item.getDescription().isBlank()) {
             throw new ValidationException("Некорректное описание предмета: " + item.getDescription());
         }
+    }
+
+    @Override
+    public Item itemFromStorage(Integer itemId) {
+        return itemStorage.getItemById(itemId).orElseThrow(() ->
+                new ObjectNotFoundException("Данного предмета в базе не существует."));
     }
 }
