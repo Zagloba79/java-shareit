@@ -8,7 +8,6 @@ import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.feedback.dto.FeedbackMapper;
 import ru.practicum.shareit.feedback.model.Feedback;
-import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
