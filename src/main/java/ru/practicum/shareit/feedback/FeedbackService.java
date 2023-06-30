@@ -9,6 +9,7 @@ import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.feedback.dto.FeedbackMapper;
 import ru.practicum.shareit.feedback.model.Feedback;
 import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.model.User;
@@ -23,13 +24,14 @@ import static ru.practicum.shareit.booking.BookingStatus.APPROVED;
 public class FeedbackService {
     private final FeedbackStorage feedbackStorage;
     private final BookingStorage bookingStorage;
-    private final ItemService itemService;
+    private final ItemStorage itemStorage;
     private final UserService userService;
 
     public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer bookerId, Integer itemId) {
         Feedback feedback = new Feedback();
         User author = userService.userFromStorage(bookerId);
-        Item item = itemService.itemFromStorage(itemId);
+        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
+                new ObjectNotFoundException("Данного предмета в базе не существует."));
         for (Booking booking : bookingStorage.getBookingsByBooker(bookerId)) {
             if (booking.getItem().getId().equals(item.getId()) &&
                     booking.getStatuses().contains(APPROVED) && item.getAvailable().equals(true)) {
@@ -50,7 +52,8 @@ public class FeedbackService {
     }
 
     public List<Feedback> getFeedbacksByItem(Integer itemId) {
-        Item item = itemService.itemFromStorage(itemId);
+        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
+                new ObjectNotFoundException("Данного предмета в базе не существует."));
         return feedbackStorage.findAll().stream()
                 .filter(feedback -> feedback.getItem().getId().equals(item.getId()))
                 .collect(toList());
