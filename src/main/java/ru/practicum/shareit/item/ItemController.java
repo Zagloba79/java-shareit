@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.feedback.FeedbackService;
@@ -13,6 +14,7 @@ import static ru.practicum.shareit.Constants.USER_ID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/items")
+@Validated
 public class ItemController {
     private final ItemService itemService;
     private final FeedbackService feedbackService;

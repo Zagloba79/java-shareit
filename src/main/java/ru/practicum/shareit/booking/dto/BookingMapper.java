@@ -8,22 +8,23 @@ public final class BookingMapper {
     }
 
     public static BookingDto createBookingDto(Booking booking) {
-        return new BookingDto(
-                booking.getId(),
-                booking.getStart(),
-                booking.getEnd(),
-                booking.getItem(),
-                booking.getBooker(),
-                booking.getStatus());
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setId(booking.getId());
+        bookingDto.setStart(booking.getStart());
+        bookingDto.setEnd(booking.getEnd());
+        bookingDto.setItem(booking.getItem());
+        bookingDto.setBooker(booking.getBooker());
+        bookingDto.setStatus(booking.getStatus());
+        return bookingDto;
     }
 
     public static Booking createBooking(BookingDto bookingDto, User booker) {
-        return new Booking(
-                bookingDto.getId(),
-                bookingDto.getStart(),
-                bookingDto.getEnd(),
-                bookingDto.getItem(),
-                booker,
-                bookingDto.getStatus());
+        Booking booking = new Booking();
+        booking.setStart(bookingDto.getStart());
+        booking.setEnd(bookingDto.getEnd());
+        booking.setItem(bookingDto.getItem());
+        booking.setBooker(booker);
+        booking.setStatus(bookingDto.getStatus());
+        return booking;
     }
 }

@@ -7,16 +7,19 @@ public final class ItemRequestMapper {
     }
 
     public static ItemRequestDto createItemRequestDto(ItemRequest itemRequest) {
-        return new ItemRequestDto(itemRequest.getId(),
-                itemRequest.getDescription(),
-                itemRequest.getRequester(),
-                itemRequest.getCreated());
+        ItemRequestDto itemRequestDto = new ItemRequestDto();
+        itemRequestDto.setId(itemRequest.getId());
+        itemRequestDto.setDescription(itemRequest.getDescription());
+        itemRequestDto.setRequester(itemRequest.getRequester());
+        itemRequestDto.setCreated(itemRequest.getCreated());
+        return itemRequestDto;
     }
 
     public static ItemRequest createItemRequest(ItemRequestDto itemRequestDto) {
-        return new ItemRequest(itemRequestDto.getId(),
-                itemRequestDto.getDescription(),
-                itemRequestDto.getRequester(),
-                itemRequestDto.getCreated());
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setDescription(itemRequestDto.getDescription());
+        itemRequest.setRequester(itemRequestDto.getRequester());
+        itemRequest.setCreated(itemRequestDto.getCreated());
+        return itemRequest;
     }
 }

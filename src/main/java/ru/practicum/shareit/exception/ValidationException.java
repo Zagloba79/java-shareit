@@ -9,8 +9,4 @@ public class ValidationException extends RuntimeException {
     public static ValidationException createBadRequestException(String message) {
         return new ValidationException(message);
     }
-
-    public static ValidationException createNotFoundException(String message) {
-        return new ValidationException(message);
-    }
 }

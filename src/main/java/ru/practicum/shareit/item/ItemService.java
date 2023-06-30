@@ -24,5 +24,4 @@ public interface ItemService {
     ItemDto update(ItemDto itemDto, Integer itemId, Integer ownerId);
 
     Item itemFromStorage(Integer itemId);
-
 }

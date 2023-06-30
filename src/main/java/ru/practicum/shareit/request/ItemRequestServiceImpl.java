@@ -27,10 +27,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto addRequest(ItemRequestDto itemRequestDto, Integer requesterId) {
         User requester = userService.userFromStorage(requesterId);
-        ItemRequest request = new ItemRequest(itemRequestDto.getId(),
-                itemRequestDto.getDescription(),
-                requester,
-                itemRequestDto.getCreated());
+        ItemRequest request = ItemRequestMapper.createItemRequest(itemRequestDto);
         itemRequestStorage.addRequest(request);
         ItemRequest itemRequest = itemRequestFromStorage(request.getId());
         return ItemRequestMapper.createItemRequestDto(itemRequest);

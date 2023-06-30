@@ -8,20 +8,20 @@ public final class FeedbackMapper {
     }
 
     public static FeedbackDto createFeedbackDto(Feedback feedback) {
-        return new FeedbackDto(
-                feedback.getId(),
-                feedback.getItem(),
-                feedback.getAuthor(),
-                feedback.getComment());
+        FeedbackDto feedbackDto = new FeedbackDto();
+        feedbackDto.setId(feedback.getId());
+        feedbackDto.setItem(feedback.getItem());
+        feedbackDto.setAuthor(feedback.getAuthor());
+        feedbackDto.setComment(feedback.getComment());
+        return feedbackDto;
     }
 
     public static Feedback createFeedback(FeedbackDto feedbackDto, User owner) {
-        return new Feedback(
-                feedbackDto.getId(),
-                feedbackDto.getItem(),
-                owner,
-                feedbackDto.getAuthor(),
-                feedbackDto.getComment()
-        );
+        Feedback feedback = new Feedback();
+        feedback.setItem(feedbackDto.getItem());
+        feedback.setOwner(owner);
+        feedback.setAuthor(feedbackDto.getAuthor());
+        feedback.setComment(feedbackDto.getComment());
+        return feedback;
     }
 }

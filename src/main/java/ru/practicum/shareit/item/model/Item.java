@@ -1,25 +1,20 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.NotBlank;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
 public class Item {
     private Integer id;
+    @NotBlank
     private String name;
     private String description;
     private Boolean available;
     private User owner;
     private ItemRequest request;
-
-    public Item(String name, String description, Boolean available, User owner) {
-        this.name = name;
-        this.description = description;
-        this.available = available;
-        this.owner = owner;
-    }
 }

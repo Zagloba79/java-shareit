@@ -35,7 +35,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRequestStorage itemRequestStorage;
 
     static Predicate<Item> isAvailable = item ->
-        Boolean.TRUE.equals(item.getAvailable());
+            Boolean.TRUE.equals(item.getAvailable());
     static BiPredicate<Item, String> isMatch = (item, text) -> (item.getName() != null &&
             item.getName().toLowerCase().contains(text)) ||
             (item.getDescription() != null &&
@@ -133,7 +133,7 @@ public class ItemServiceImpl implements ItemService {
         if (item.getName() == null || item.getName().isBlank()) {
             throw new ValidationException("Некорректное название предмета: " + item.getName());
         }
-        if (item.getDescription() == null  || item.getDescription().isBlank()) {
+        if (item.getDescription() == null || item.getDescription().isBlank()) {
             throw new ValidationException("Некорректное описание предмета: " + item.getDescription());
         }
     }
