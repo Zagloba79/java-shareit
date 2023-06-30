@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.feedback.FeedbackService;
+import ru.practicum.shareit.feedback.FeedbackServiceImpl;
 import ru.practicum.shareit.feedback.FeedbackStorage;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.feedback.dto.FeedbackMapper;
@@ -31,7 +31,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemStorage itemStorage;
     private final UserService userService;
     private final FeedbackStorage feedbackStorage;
-    private final FeedbackService feedbackService;
+    private final FeedbackServiceImpl feedbackService;
     private final ItemRequestStorage itemRequestStorage;
 
     static Predicate<Item> isAvailable = item ->

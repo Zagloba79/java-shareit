@@ -19,10 +19,10 @@ public class FeedbackStorage {
     private Map<Integer, Feedback> feedbacks;
     private Integer feedbackId = 1;
 
-    public FeedbackDto create(int id, Feedback feedback) {
+    public Feedback create(Feedback feedback) {
         feedback.setId(feedbackId++);
-        feedbacks.put(id, feedback);
-        return FeedbackMapper.createFeedbackDto(feedbacks.get(id));
+        feedbacks.put(feedback.getId(), feedback);
+        return feedbacks.get(feedback.getId());
     }
 
     public Optional<Feedback> getFeedback(int id) {

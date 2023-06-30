@@ -40,8 +40,7 @@ public class BookingServiceImpl implements BookingService {
             booking.setStatus(WAITING);
             bookingStorage.create(booking);
         }
-        Booking bookingFromStorage = bookingStorage.getBookingById(booking.getId()).orElseThrow(() ->
-                new ObjectNotFoundException("Данного предмета в базе не существует."));
+        Booking bookingFromStorage = bookingFromStorage(booking.getId());
         return BookingMapper.createBookingDto(bookingFromStorage);
     }
 

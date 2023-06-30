@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
-import ru.practicum.shareit.feedback.FeedbackService;
+import ru.practicum.shareit.feedback.FeedbackServiceImpl;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import static ru.practicum.shareit.Constants.USER_ID;
 @Validated
 public class ItemController {
     private final ItemService itemService;
-    private final FeedbackService feedbackService;
+    private final FeedbackServiceImpl feedbackService;
 
     @PostMapping
     public ItemDto create(@RequestBody ItemDto itemDto, @RequestHeader(USER_ID) Integer ownerId) {
