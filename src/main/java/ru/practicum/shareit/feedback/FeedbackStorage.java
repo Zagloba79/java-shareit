@@ -1,6 +1,5 @@
 package ru.practicum.shareit.feedback;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
@@ -14,9 +13,9 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-@Data
 @RequiredArgsConstructor
 public class FeedbackStorage {
+
     private Map<Integer, Feedback> feedbacks;
     private Integer feedbackId = 1;
 

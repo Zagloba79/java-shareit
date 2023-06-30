@@ -17,7 +17,6 @@ public class ItemController {
     private final ItemService itemService;
     private final FeedbackService feedbackService;
 
-    @ResponseBody
     @PostMapping
     public ItemDto create(@RequestBody ItemDto itemDto, @RequestHeader(USER_ID) Integer ownerId) {
         return itemService.create(itemDto, ownerId);
@@ -52,7 +51,6 @@ public class ItemController {
         return itemService.getItemsByQuery(text, ownerId);
     }
 
-    @ResponseBody
     @PostMapping("/{itemId}/comment")
     public FeedbackDto createFeedback(@RequestBody FeedbackDto feedbackDto,
                                       @RequestHeader(USER_ID) Integer bookerId,

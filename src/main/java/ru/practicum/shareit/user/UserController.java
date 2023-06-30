@@ -15,7 +15,6 @@ public class UserController {
     private final UserServiceImpl userService;
 
     @PostMapping
-    @ResponseBody
     public UserDto create(@RequestBody UserDto userDto) {
         return userService.createUser(userDto);
     }
@@ -31,7 +30,6 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    @ResponseBody
     public UserDto update(@RequestBody UserDto userDto,
                           @PathVariable Integer userId) {
         userDto.setId(userId);

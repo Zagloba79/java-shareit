@@ -8,7 +8,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 @Data
 @AllArgsConstructor
@@ -20,7 +19,6 @@ public class Booking {
     private Item item;
     private User booker;
     private BookingStatus status;
-    private ArrayList<BookingStatus> statuses;
 
     public Booking(int id, LocalDateTime start, LocalDateTime end, Item item,
                    User booker, BookingStatus status) {

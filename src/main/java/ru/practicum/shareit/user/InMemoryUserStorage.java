@@ -9,6 +9,7 @@ import java.util.*;
 @Component("userStorage")
 @RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
+
     private final Map<Integer, User> users = new HashMap<>();
     private Integer userId = 1;
 

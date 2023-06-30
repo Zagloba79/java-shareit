@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.Booking;
@@ -10,9 +9,9 @@ import java.util.*;
 import static java.util.stream.Collectors.toList;
 
 @Component("bookingStorage")
-@Data
 @RequiredArgsConstructor
 public class InMemoryBookingStorage implements BookingStorage {
+
     private final Map<Integer, Booking> bookings = new HashMap<>();
     private Integer bookingId = 1;
 

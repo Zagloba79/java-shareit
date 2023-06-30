@@ -14,7 +14,6 @@ import static ru.practicum.shareit.Constants.USER_ID;
 public class ItemRequestController {
     private final ItemRequestService itemRequestService;
 
-    @ResponseBody
     @PostMapping
     public ItemRequestDto create(@RequestBody ItemRequestDto itemRequestDto,
                                  @RequestHeader(USER_ID) Integer requesterId) {

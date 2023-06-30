@@ -19,6 +19,7 @@ import static java.util.stream.Collectors.toList;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
     private final UserStorage userStorage;
     private final ItemStorage itemStorage;
 

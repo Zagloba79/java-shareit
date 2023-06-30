@@ -12,16 +12,14 @@ import static ru.practicum.shareit.Constants.USER_ID;
 @RequestMapping("/bookings")
 @RequiredArgsConstructor
 public class BookingController {
-    private final BookingService bookingService;
+    private final BookingServiceImpl bookingService;
 
-    @ResponseBody
     @PostMapping
     public BookingDto create(@RequestBody BookingDto bookingDto,
                              @RequestHeader(USER_ID) Integer bookerId) {
         return bookingService.addNewBooking(bookingDto, bookerId);
     }
 
-    @ResponseBody
     @PatchMapping("/{bookingId}")
     public BookingDto update(@PathVariable Integer bookingId,
                              @RequestHeader(USER_ID) Integer userId, @RequestParam BookingStatus status) {

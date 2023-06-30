@@ -16,11 +16,11 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static ru.practicum.shareit.booking.BookingStatus.APPROVED;
 
 @Service
 @RequiredArgsConstructor
 public class FeedbackService {
+
     private final FeedbackStorage feedbackStorage;
     private final BookingStorage bookingStorage;
     private final ItemStorage itemStorage;
@@ -29,11 +29,9 @@ public class FeedbackService {
     public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer bookerId, Integer itemId) {
         Feedback feedback = new Feedback();
         User author = userService.userFromStorage(bookerId);
-        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Данного предмета в базе не существует."));
+        Item item = itemStorage.getItemById(itemId).orElseThrow(() -> new ObjectNotFoundException("Данного предмета в базе не существует."));
         for (Booking booking : bookingStorage.getBookingsByBooker(bookerId)) {
-            if (booking.getItem().getId().equals(item.getId()) &&
-                    booking.getStatuses().contains(APPROVED) && item.getAvailable().equals(true)) {
+            if (booking.getItem().getId().equals(item.getId()) && item.getAvailable().equals(true)) {
                 feedback.setItem(item);
                 feedback.setOwner(item.getOwner());
                 feedback.setAuthor(author);
@@ -45,23 +43,17 @@ public class FeedbackService {
     }
 
     public FeedbackDto getFeedbackById(Integer id) {
-        Feedback feedback = feedbackStorage.getFeedback(id).orElseThrow(() ->
-                new ObjectNotFoundException("Отзыва с номером = " + id + " не существует."));
+        Feedback feedback = feedbackStorage.getFeedback(id).orElseThrow(() -> new ObjectNotFoundException("Отзыва с номером = " + id + " не существует."));
         return FeedbackMapper.createFeedbackDto(feedback);
     }
 
     public List<Feedback> getFeedbacksByItem(Integer itemId) {
-        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Данного предмета в базе не существует."));
-        return feedbackStorage.findAll().stream()
-                .filter(feedback -> feedback.getItem().getId().equals(item.getId()))
-                .collect(toList());
+        Item item = itemStorage.getItemById(itemId).orElseThrow(() -> new ObjectNotFoundException("Данного предмета в базе не существует."));
+        return feedbackStorage.findAll().stream().filter(feedback -> feedback.getItem().getId().equals(item.getId())).collect(toList());
     }
 
     public List<Feedback> getFeedbacksByBooker(Integer bookerId) {
         User booker = userService.userFromStorage(bookerId);
-        return feedbackStorage.findAll().stream()
-                .filter(feedback -> feedback.getAuthor().getId().equals(booker.getId()))
-                .collect(toList());
+        return feedbackStorage.findAll().stream().filter(feedback -> feedback.getAuthor().getId().equals(booker.getId())).collect(toList());
     }
 }

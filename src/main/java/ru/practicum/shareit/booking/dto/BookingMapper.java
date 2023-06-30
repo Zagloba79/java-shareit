@@ -14,8 +14,7 @@ public final class BookingMapper {
                 booking.getEnd(),
                 booking.getItem(),
                 booking.getBooker(),
-                booking.getStatus(),
-                booking.getStatuses());
+                booking.getStatus());
     }
 
     public static Booking createBooking(BookingDto bookingDto, User booker) {
@@ -25,7 +24,6 @@ public final class BookingMapper {
                 bookingDto.getEnd(),
                 bookingDto.getItem(),
                 booker,
-                bookingDto.getStatus(),
-                bookingDto.getStatuses());
+                bookingDto.getStatus());
     }
 }

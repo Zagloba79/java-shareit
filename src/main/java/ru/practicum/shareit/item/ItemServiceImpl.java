@@ -27,6 +27,7 @@ import static java.util.stream.Collectors.toList;
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
+
     private final ItemStorage itemStorage;
     private final UserService userService;
     private final FeedbackStorage feedbackStorage;
@@ -40,6 +41,7 @@ public class ItemServiceImpl implements ItemService {
             (item.getDescription() != null &&
                     item.getDescription().toLowerCase().contains(text));
 
+    @Override
     public ItemDto create(ItemDto itemDto, Integer ownerId) {
         User owner = userService.userFromStorage(ownerId);
         Item item = ItemMapper.createItem(itemDto, owner);
@@ -50,6 +52,7 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.createItemDto(item);
     }
 
+    @Override
     public ItemDto update(ItemDto itemDto, Integer itemId, Integer ownerId) {
         Item item = itemFromStorage(itemId);
         User owner = userService.userFromStorage(ownerId);
@@ -70,12 +73,14 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.createItemDto(updatedItem);
     }
 
+    @Override
     public ItemDto getItemById(Integer itemId, Integer ownerId) {
         User owner = userService.userFromStorage(ownerId);
         Item item = itemFromStorage(itemId);
         return ItemMapper.createItemDto(item);
     }
 
+    @Override
     public List<ItemDto> getItemsByOwner(Integer ownerId) {
         User owner = userService.userFromStorage(ownerId);
         return itemStorage.getItemsByOwner(owner.getId()).stream()
@@ -83,12 +88,14 @@ public class ItemServiceImpl implements ItemService {
                 .collect(toList());
     }
 
+    @Override
     public List<ItemDto> findAll() {
         return itemStorage.findAll().stream()
                 .map(ItemMapper::createItemDto)
                 .collect(toList());
     }
 
+    @Override
     public void deleteItem(Integer itemId, Integer ownerId) {
         Item item = itemFromStorage(itemId);
         User owner = userService.userFromStorage(ownerId);
@@ -98,6 +105,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
 
+    @Override
     public List<ItemDto> getItemsByQuery(String text, Integer ownerId) {
         User owner = userService.userFromStorage(ownerId);
         if ((text != null) && (!text.isBlank())) {
@@ -110,6 +118,7 @@ public class ItemServiceImpl implements ItemService {
         return Collections.EMPTY_LIST;
     }
 
+    @Override
     public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer itemId, Integer bookerId) {
         User booker = userService.userFromStorage(bookerId);
         feedbackService.createFeedback(feedbackDto, itemId, booker.getId());
