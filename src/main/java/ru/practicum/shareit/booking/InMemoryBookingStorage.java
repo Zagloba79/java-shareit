@@ -27,6 +27,7 @@ public class InMemoryBookingStorage implements BookingStorage {
         return Optional.of(bookings.get(id));
     }
 
+    @Override
     public Booking getBooking(Integer id) {
         return getBookingOpt(id).orElseThrow(() ->
                 new ObjectNotFoundException("Данного предмета в базе не существует."));
