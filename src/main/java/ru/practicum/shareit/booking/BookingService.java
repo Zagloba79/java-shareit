@@ -25,6 +25,4 @@ public interface BookingService {
     List<BookingDto> getAllBookings(Integer userId);
 
     BookingDto getBookingById(Integer bookingId, Integer userId);
-
-    Booking bookingFromStorage(Integer bookingId);
 }

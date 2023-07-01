@@ -2,6 +2,7 @@ package ru.practicum.shareit.feedback;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.feedback.dto.FeedbackMapper;
 import ru.practicum.shareit.feedback.model.Feedback;
@@ -25,8 +26,13 @@ public class FeedbackStorage {
         return feedbacks.get(feedback.getId());
     }
 
-    public Optional<Feedback> getFeedback(int id) {
+    private Optional<Feedback> getFeedbackOpt(Integer id) {
         return Optional.of(feedbacks.get(id));
+    }
+
+    public Feedback getFeedback(Integer id) {
+        return getFeedbackOpt(id).orElseThrow(() ->
+                new ObjectNotFoundException("Данного предмета в базе не существует."));
     }
 
     public FeedbackDto update(FeedbackDto feedbackDto, User owner) {

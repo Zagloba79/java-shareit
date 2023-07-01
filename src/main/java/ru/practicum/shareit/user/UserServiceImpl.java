@@ -2,7 +2,6 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.model.Item;
@@ -12,7 +11,6 @@ import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -45,13 +43,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUser(Integer userId) {
-        User user = userFromStorage(userId);
+        User user = userStorage.getUser(userId);
         return UserMapper.createUserDto(user);
     }
 
     @Override
     public UserDto update(UserDto userDto) {
-        User user = userFromStorage(userDto.getId());
+        User user = userStorage.getUser(userDto.getId());
         User userToUpdate = UserMapper.createUser(userDto);
         if (userToUpdate.getName() != null) {
             user.setName(userToUpdate.getName());
@@ -60,17 +58,13 @@ public class UserServiceImpl implements UserService {
             user.setEmail(userToUpdate.getEmail());
         }
         userStorage.update(user);
-        User updatedUser = new User();
-        Optional<User> updatedUserOpt = userStorage.getUser(user.getId());
-        if (updatedUserOpt.isPresent()) {
-            updatedUser = updatedUserOpt.get();
-        }
+        User updatedUser = userStorage.getUser(user.getId());
         return UserMapper.createUserDto(updatedUser);
     }
 
     @Override
     public void delete(Integer userId) {
-        User user = userFromStorage(userId);
+        User user = userStorage.getUser(userId);
         for (Item item : itemStorage.getItemsByOwner(user.getId())) {
             itemStorage.deleteItem(item.getId());
         }
@@ -96,11 +90,5 @@ public class UserServiceImpl implements UserService {
             }
         }
         return true;
-    }
-
-    @Override
-    public User userFromStorage(Integer userId) {
-        return userStorage.getUser(userId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + userId + " не существует."));
     }
 }

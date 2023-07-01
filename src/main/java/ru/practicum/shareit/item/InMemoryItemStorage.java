@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.*;
@@ -23,14 +24,19 @@ public class InMemoryItemStorage implements ItemStorage {
         return items.get(item.getId());
     }
 
-    @Override
-    public Optional<Item> getItemById(Integer id) {
+    private Optional<Item> getItemOpt(Integer id) {
         return Optional.ofNullable(items.get(id));
     }
 
     @Override
-    public void deleteItem(int itemId) {
-        items.remove(itemId);
+    public Item getItem(Integer id) {
+        return getItemOpt(id).orElseThrow(() ->
+                new ObjectNotFoundException("Данного предмета в базе не существует."));
+    }
+
+    @Override
+    public void deleteItem(int id) {
+        items.remove(id);
     }
 
     @Override

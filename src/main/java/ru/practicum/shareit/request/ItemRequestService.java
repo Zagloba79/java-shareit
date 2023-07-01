@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request;
 
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.model.ItemRequest;
 
 
 import java.util.List;
@@ -16,6 +15,4 @@ public interface ItemRequestService {
     void delete(Integer itemId, Integer requesterId);
 
     List<ItemRequestDto> getItemsByRequester(Integer requesterId);
-
-    ItemRequest itemRequestFromStorage(Integer itemRequestId);
 }

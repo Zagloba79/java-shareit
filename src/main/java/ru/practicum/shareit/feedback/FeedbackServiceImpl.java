@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingStorage;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.feedback.dto.FeedbackMapper;
 import ru.practicum.shareit.feedback.model.Feedback;
 import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -24,14 +23,13 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final FeedbackStorage feedbackStorage;
     private final BookingStorage bookingStorage;
     private final ItemStorage itemStorage;
-    private final UserService userService;
+    private final UserStorage userStorage;
 
     @Override
     public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer authorId, Integer itemId) {
         Feedback feedback = new Feedback();
-        User author = userService.userFromStorage(authorId);
-        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Данного предмета в базе не существует."));
+        User author = userStorage.getUser(authorId);
+        Item item = itemStorage.getItem(itemId);
         for (Booking booking : bookingStorage.getBookingsByBooker(authorId)) {
             if (booking.getItem().getId().equals(item.getId()) && item.getAvailable().equals(true)) {
                 feedback.setItemId(itemId);
@@ -45,15 +43,13 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     public FeedbackDto getFeedbackById(Integer id) {
-        Feedback feedback = feedbackStorage.getFeedback(id).orElseThrow(() ->
-                new ObjectNotFoundException("Отзыва с номером = " + id + " не существует."));
+        Feedback feedback = feedbackStorage.getFeedback(id);
         return FeedbackMapper.createFeedbackDto(feedback);
     }
 
     @Override
     public List<Feedback> getFeedbacksByItem(Integer itemId) {
-        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Данного предмета в базе не существует."));
+        Item item = itemStorage.getItem(itemId);
         return feedbackStorage.findAll().stream().filter(
                 feedback -> feedback.getItemId().equals(item.getId()))
                 .collect(toList());
@@ -61,7 +57,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     public List<Feedback> getFeedbacksByAuthor(Integer authorId) {
-        User author = userService.userFromStorage(authorId);
+        User author = userStorage.getUser(authorId);
         return feedbackStorage.findAll().stream().filter(
                 feedback -> feedback.getAuthor().getId().equals(author.getId()))
                 .collect(toList());

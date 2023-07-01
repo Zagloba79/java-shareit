@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface ItemRequestStorage {
     ItemRequest addRequest(ItemRequest request);
 
-    Optional<ItemRequest> getRequestById(int id);
+    ItemRequest getRequest(Integer id);
 
     ItemRequest update(ItemRequest request);
 

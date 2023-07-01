@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 
 import java.util.*;
 
@@ -22,9 +23,13 @@ public class InMemoryBookingStorage implements BookingStorage {
         return bookings.get(booking.getId());
     }
 
-    @Override
-    public Optional<Booking> getBookingById(int id) {
+    private Optional<Booking> getBookingOpt(Integer id) {
         return Optional.of(bookings.get(id));
+    }
+
+    public Booking getBooking(Integer id) {
+        return getBookingOpt(id).orElseThrow(() ->
+                new ObjectNotFoundException("Данного предмета в базе не существует."));
     }
 
     @Override

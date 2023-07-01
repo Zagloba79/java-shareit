@@ -2,6 +2,7 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 
@@ -24,9 +25,14 @@ public class InMemoryItemRequestStorage implements ItemRequestStorage {
         return requests.get(request.getId());
     }
 
-    @Override
-    public Optional<ItemRequest> getRequestById(int id) {
+    private Optional<ItemRequest> getRequestOpt(Integer id) {
         return Optional.of(requests.get(id));
+    }
+
+    @Override
+    public ItemRequest getRequest(Integer id) {
+        return getRequestOpt(id).orElseThrow(() ->
+                new ObjectNotFoundException("Запроса с " + id + " не существует."));
     }
 
     @Override

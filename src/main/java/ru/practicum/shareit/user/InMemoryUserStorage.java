@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
@@ -20,9 +21,14 @@ public class InMemoryUserStorage implements UserStorage {
         return users.get(user.getId());
     }
 
+    private Optional<User> getUserOpt(Integer id) {
+        return Optional.ofNullable(users.get(id));
+    }
+
     @Override
-    public Optional<User> getUser(int userId) {
-        return Optional.ofNullable(users.get(userId));
+    public User getUser(Integer id) {
+        return getUserOpt(id).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + id + " не существует."));
     }
 
     @Override

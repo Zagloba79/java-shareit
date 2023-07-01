@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.feedback.FeedbackServiceImpl;
+import ru.practicum.shareit.feedback.FeedbackService;
 import ru.practicum.shareit.feedback.FeedbackStorage;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.feedback.dto.FeedbackMapper;
@@ -13,7 +13,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequestStorage;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collections;
@@ -29,9 +29,9 @@ import static java.util.stream.Collectors.toList;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemStorage itemStorage;
-    private final UserService userService;
+    private final UserStorage userStorage;
+    private final FeedbackService feedbackService;
     private final FeedbackStorage feedbackStorage;
-    private final FeedbackServiceImpl feedbackService;
     private final ItemRequestStorage itemRequestStorage;
 
     static Predicate<Item> isAvailable = item ->
@@ -43,7 +43,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto create(ItemDto itemDto, Integer ownerId) {
-        User owner = userService.userFromStorage(ownerId);
+        User owner = userStorage.getUser(ownerId);
         Item item = ItemMapper.createItem(itemDto, owner);
         itemValidate(item);
         Optional<ItemRequest> request = itemRequestStorage.getItemRequestByItem(item);
@@ -54,8 +54,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto update(ItemDto itemDto, Integer itemId, Integer ownerId) {
-        Item item = itemFromStorage(itemId);
-        User owner = userService.userFromStorage(ownerId);
+        Item item = itemStorage.getItem(itemId);
+        User owner = userStorage.getUser(ownerId);
         if (!item.getOwner().equals(owner)) {
             throw new ObjectNotFoundException("Собственник не тот");
         }
@@ -75,14 +75,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto getItemById(Integer itemId, Integer ownerId) {
-        User owner = userService.userFromStorage(ownerId);
-        Item item = itemFromStorage(itemId);
+        User owner = userStorage.getUser(ownerId);
+        Item item = itemStorage.getItem(itemId);
         return ItemMapper.createItemDto(item);
     }
 
     @Override
     public List<ItemDto> getItemsByOwner(Integer ownerId) {
-        User owner = userService.userFromStorage(ownerId);
+        User owner = userStorage.getUser(ownerId);
         return itemStorage.getItemsByOwner(owner.getId()).stream()
                 .map(ItemMapper::createItemDto)
                 .collect(toList());
@@ -97,8 +97,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void deleteItem(Integer itemId, Integer ownerId) {
-        Item item = itemFromStorage(itemId);
-        User owner = userService.userFromStorage(ownerId);
+        Item item = itemStorage.getItem(itemId);
+        User owner = userStorage.getUser(ownerId);
         if (item.getOwner().getId().equals(owner.getId())) {
             itemStorage.deleteItem(itemId);
         }
@@ -107,7 +107,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getItemsByQuery(String text, Integer ownerId) {
-        User owner = userService.userFromStorage(ownerId);
+        User owner = userStorage.getUser(ownerId);
         if ((text != null) && (!text.isBlank())) {
             String lowerText = text.toLowerCase();
             return itemStorage.findAll().stream()
@@ -120,10 +120,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer itemId, Integer bookerId) {
-        User booker = userService.userFromStorage(bookerId);
+        User booker = userStorage.getUser(bookerId);
         feedbackService.createFeedback(feedbackDto, itemId, booker.getId());
-        return FeedbackMapper.createFeedbackDto(feedbackStorage.getFeedback(feedbackDto.getId()).orElseThrow(() ->
-                new ObjectNotFoundException("Данного предмета в базе не существует.")));
+        return FeedbackMapper.createFeedbackDto(feedbackStorage.getFeedback(feedbackDto.getId()));
     }
 
     private void itemValidate(Item item) {
@@ -136,11 +135,5 @@ public class ItemServiceImpl implements ItemService {
         if (item.getDescription() == null || item.getDescription().isBlank()) {
             throw new ValidationException("Некорректное описание предмета: " + item.getDescription());
         }
-    }
-
-    @Override
-    public Item itemFromStorage(Integer itemId) {
-        return itemStorage.getItemById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Данного предмета в базе не существует."));
     }
 }

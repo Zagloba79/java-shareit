@@ -6,10 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.exception.ObjectNotFoundException;
-import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
@@ -22,13 +21,13 @@ import static ru.practicum.shareit.booking.BookingStatus.*;
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
     private final BookingStorage bookingStorage;
-    private final UserService userService;
-    private final ItemService itemService;
+    private final UserStorage userStorage;
+    private final ItemStorage itemStorage;
 
     @Override
     public BookingDto addNewBooking(BookingDto bookingDto, int bookerId) {
         Item item = bookingDto.getItem();
-        User booker = userService.userFromStorage(bookerId);
+        User booker = userStorage.getUser(bookerId);
         Booking booking = new Booking();
         if (item.getAvailable().equals(false)) {
             log.info("This item has been rented");
@@ -40,13 +39,13 @@ public class BookingServiceImpl implements BookingService {
             booking.setStatus(WAITING);
             bookingStorage.create(booking);
         }
-        Booking bookingFromStorage = bookingFromStorage(booking.getId());
+        Booking bookingFromStorage = bookingStorage.getBooking(booking.getId());
         return BookingMapper.createBookingDto(bookingFromStorage);
     }
 
     @Override
     public void approveBooking(Booking booking, User owner) {
-        Item item = itemService.itemFromStorage(booking.getItem().getId());
+        Item item = itemStorage.getItem(booking.getItem().getId());
         if (booking.getStatus().equals(WAITING) && item.getOwner().equals(owner)) {
             booking.setStatus(APPROVED);
         }
@@ -54,12 +53,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public void rejectBooking(Booking booking, User owner) {
-        Item item = itemService.itemFromStorage(booking.getItem().getId());
+        Item item = itemStorage.getItem(booking.getItem().getId());
         if (booking.getStatus().equals(WAITING) && item.getOwner().equals(owner)) {
             booking.setStatus(REJECTED);
         }
     }
-
 
     @Override
     public void cancelBooking(Booking booking, User booker) {
@@ -71,7 +69,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getBookingByItem(Integer itemId, Integer bookerId) {
-        User booker = userService.userFromStorage(bookerId);
+        User booker = userStorage.getUser(bookerId);
         return bookingStorage.findAll().stream()
                 .filter(booking -> booking.getItem().getId().equals(itemId))
                 .map(BookingMapper::createBookingDto)
@@ -80,17 +78,16 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getBookingsByBooker(Integer bookerId) {
-        User booker = userService.userFromStorage(bookerId);
+        User booker = userStorage.getUser(bookerId);
         return bookingStorage.getBookingsByBooker(booker.getId()).stream()
                 .map(BookingMapper::createBookingDto)
                 .collect(toList());
     }
 
-
     @Override
     public BookingDto update(Integer bookingId, Integer userId, BookingStatus status) {
-        Booking booking = bookingFromStorage(bookingId);
-        User user = userService.userFromStorage(userId);
+        Booking booking = bookingStorage.getBooking(bookingId);
+        User user = userStorage.getUser(userId);
         switch (status) {
             case APPROVED:
                 approveBooking(booking, user);
@@ -107,7 +104,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getAllBookings(Integer userId) {
-        User user = userService.userFromStorage(userId);
+        User user = userStorage.getUser(userId);
         return bookingStorage.findAll().stream()
                 .map(BookingMapper::createBookingDto)
                 .collect(toList());
@@ -115,14 +112,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto getBookingById(Integer bookingId, Integer userId) {
-        User user = userService.userFromStorage(userId);
-        Booking booking = bookingFromStorage(bookingId);
+        User user = userStorage.getUser(userId);
+        Booking booking = bookingStorage.getBooking(bookingId);
         return BookingMapper.createBookingDto(booking);
-    }
-
-    @Override
-    public Booking bookingFromStorage(Integer bookingId) {
-        return bookingStorage.getBookingById(bookingId).orElseThrow(() ->
-                new ObjectNotFoundException("Резерва с " + bookingId + " не существует."));
     }
 }
