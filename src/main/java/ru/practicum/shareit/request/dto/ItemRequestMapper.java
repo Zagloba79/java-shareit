@@ -1,11 +1,11 @@
 package ru.practicum.shareit.request.dto;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.request.model.ItemRequest;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ItemRequestMapper {
-    private ItemRequestMapper() {
-    }
-
     public static ItemRequestDto createItemRequestDto(ItemRequest itemRequest) {
         ItemRequestDto itemRequestDto = new ItemRequestDto();
         itemRequestDto.setId(itemRequest.getId());

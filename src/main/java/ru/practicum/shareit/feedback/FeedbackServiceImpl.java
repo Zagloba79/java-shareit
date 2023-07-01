@@ -27,14 +27,14 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final UserService userService;
 
     @Override
-    public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer bookerId, Integer itemId) {
+    public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer authorId, Integer itemId) {
         Feedback feedback = new Feedback();
-        User author = userService.userFromStorage(bookerId);
-        Item item = itemStorage.getItemById(itemId).orElseThrow(() -> new ObjectNotFoundException("Данного предмета в базе не существует."));
-        for (Booking booking : bookingStorage.getBookingsByBooker(bookerId)) {
+        User author = userService.userFromStorage(authorId);
+        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
+                new ObjectNotFoundException("Данного предмета в базе не существует."));
+        for (Booking booking : bookingStorage.getBookingsByBooker(authorId)) {
             if (booking.getItem().getId().equals(item.getId()) && item.getAvailable().equals(true)) {
-                feedback.setItem(item);
-                feedback.setOwner(item.getOwner());
+                feedback.setItemId(itemId);
                 feedback.setAuthor(author);
                 feedback.setComment(feedbackDto.getComment());
                 feedbackStorage.create(feedback);
@@ -45,19 +45,25 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     public FeedbackDto getFeedbackById(Integer id) {
-        Feedback feedback = feedbackStorage.getFeedback(id).orElseThrow(() -> new ObjectNotFoundException("Отзыва с номером = " + id + " не существует."));
+        Feedback feedback = feedbackStorage.getFeedback(id).orElseThrow(() ->
+                new ObjectNotFoundException("Отзыва с номером = " + id + " не существует."));
         return FeedbackMapper.createFeedbackDto(feedback);
     }
 
     @Override
     public List<Feedback> getFeedbacksByItem(Integer itemId) {
-        Item item = itemStorage.getItemById(itemId).orElseThrow(() -> new ObjectNotFoundException("Данного предмета в базе не существует."));
-        return feedbackStorage.findAll().stream().filter(feedback -> feedback.getItem().getId().equals(item.getId())).collect(toList());
+        Item item = itemStorage.getItemById(itemId).orElseThrow(() ->
+                new ObjectNotFoundException("Данного предмета в базе не существует."));
+        return feedbackStorage.findAll().stream().filter(
+                feedback -> feedback.getItemId().equals(item.getId()))
+                .collect(toList());
     }
 
     @Override
-    public List<Feedback> getFeedbacksByBooker(Integer bookerId) {
-        User booker = userService.userFromStorage(bookerId);
-        return feedbackStorage.findAll().stream().filter(feedback -> feedback.getAuthor().getId().equals(booker.getId())).collect(toList());
+    public List<Feedback> getFeedbacksByAuthor(Integer authorId) {
+        User author = userService.userFromStorage(authorId);
+        return feedbackStorage.findAll().stream().filter(
+                feedback -> feedback.getAuthor().getId().equals(author.getId()))
+                .collect(toList());
     }
 }

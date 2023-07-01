@@ -12,7 +12,7 @@ import java.util.List;
 @Validated
 @RequiredArgsConstructor
 public class UserController {
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     @PostMapping
     public UserDto create(@RequestBody UserDto userDto) {

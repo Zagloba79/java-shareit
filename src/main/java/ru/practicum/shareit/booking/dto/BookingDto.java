@@ -5,7 +5,9 @@ import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
@@ -13,14 +15,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class BookingDto {
     private Integer id;
-    @NotBlank
+    @NotNull
+    @FutureOrPresent
     private LocalDateTime start;
-    @NotBlank
+    @NotNull
+    @Future
     private LocalDateTime end;
-    @NotBlank
+    @NotNull
     private Item item;
-    @NotBlank
+    @NotNull
     private User booker;
-    @NotBlank
+    @NotNull
     private BookingStatus status;
 }

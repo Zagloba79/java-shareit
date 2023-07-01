@@ -14,7 +14,7 @@ import static ru.practicum.shareit.Constants.USER_ID;
 @RequiredArgsConstructor
 @Validated
 public class BookingController {
-    private final BookingServiceImpl bookingService;
+    private final BookingService bookingService;
 
     @PostMapping
     public BookingDto create(@RequestBody BookingDto bookingDto,

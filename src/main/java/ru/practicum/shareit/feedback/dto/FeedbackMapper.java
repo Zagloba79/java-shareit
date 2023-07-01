@@ -1,27 +1,28 @@
 package ru.practicum.shareit.feedback.dto;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.feedback.model.Feedback;
 import ru.practicum.shareit.user.model.User;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FeedbackMapper {
-    private FeedbackMapper() {
-    }
-
     public static FeedbackDto createFeedbackDto(Feedback feedback) {
         FeedbackDto feedbackDto = new FeedbackDto();
         feedbackDto.setId(feedback.getId());
-        feedbackDto.setItem(feedback.getItem());
+        feedbackDto.setItemId(feedback.getItemId());
         feedbackDto.setAuthor(feedback.getAuthor());
         feedbackDto.setComment(feedback.getComment());
+        feedbackDto.setCreate(feedback.getCreate());
         return feedbackDto;
     }
 
-    public static Feedback createFeedback(FeedbackDto feedbackDto, User owner) {
+    public static Feedback createFeedback(FeedbackDto feedbackDto, User author) {
         Feedback feedback = new Feedback();
-        feedback.setItem(feedbackDto.getItem());
-        feedback.setOwner(owner);
-        feedback.setAuthor(feedbackDto.getAuthor());
+        feedback.setItemId(feedbackDto.getItemId());
+        feedback.setAuthor(author);
         feedback.setComment(feedbackDto.getComment());
+        feedback.setCreate(feedbackDto.getCreate());
         return feedback;
     }
 }
