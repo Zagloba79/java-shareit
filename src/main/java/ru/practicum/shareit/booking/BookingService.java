@@ -1,73 +1,28 @@
 package ru.practicum.shareit.booking;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.List;
 
-import static ru.practicum.shareit.booking.BookingStatus.*;
+public interface BookingService {
 
-@Service
-@Slf4j
-public class BookingService {
-    private int ids = 0;
-    public void addNewBooking(LocalDateTime start, LocalDateTime end, Item item, User booker) {
-        if (!item.isAvailable()) {
-            log.info("This item has been rented");
-        } else {
-            Booking booking = new Booking();
-            booking.setId(ids++);
-            booking.setStart(start);
-            booking.setEnd(end);
-            booking.setItem(item);
-            booking.setBooker(booker);
-            booking.setStatus(WAITING);
-            ArrayList<BookingStatus> statuses = new ArrayList<>();
-            statuses.add(WAITING);
-            booking.setStatuses(statuses);
-            ArrayList<Booking> history = item.getBookings().get(booker);
-            history.add(booking);
-        }
+    BookingDto addNewBooking(BookingDto bookingDto, int bookerId);
 
-    }
+    void approveBooking(Booking booking, User owner);
 
-    public void approveBooking(Item item, User owner, User booker) {
-        ArrayList<Booking> history = item.getBookings().get(booker);
-        for (Booking booking : history) {
-            if (booking.getStatus().equals(WAITING) && item.getOwner().equals(owner)) {
-                booking.setStatus(APPROVED);
-                booking.getStatuses().add(APPROVED);
-            }
-        }
-    }
+    void rejectBooking(Booking booking, User owner);
 
-    public void rejectBooking(Item item, User owner, User booker) {
-        ArrayList<Booking> history = item.getBookings().get(booker);
-        for (Booking booking : history) {
-            if (booking.getStatus().equals(WAITING) && item.getOwner().equals(owner)) {
-                booking.setStatus(REJECTED);
-                booking.getStatuses().add(REJECTED);
-            }
-        }
-    }
+    void cancelBooking(Booking booking, User booker);
 
-    public void cancelBooking(Item item, User owner, User booker) {
-        ArrayList<Booking> history = item.getBookings().get(booker);
-        for (Booking booking : history) {
-            if ((booking.getStatus().equals(WAITING) || booking.getStatus().equals(APPROVED))
-                    && item.getOwner().equals(owner)) {
-                booking.setStatus(CANCELED);
-                booking.getStatuses().add(CANCELED);
-            }
-        }
-    }
+    List<BookingDto> getBookingByItem(Integer itemId, Integer bookerId);
 
-    private Boolean validateBooking(Booking booking) {
-        boolean result = booking.getStart().isBefore(LocalDateTime.now()) && booking.getEnd().isAfter(LocalDateTime.now())
-                && booking.getStatus().equals(APPROVED);
-        return result;
-    }
+    List<BookingDto> getBookingsByBooker(Integer bookerId);
+
+    BookingDto update(Integer bookingId, Integer userId, BookingStatus status);
+
+    List<BookingDto> getAllBookings(Integer userId);
+
+    BookingDto getBookingById(Integer bookingId, Integer userId);
 }

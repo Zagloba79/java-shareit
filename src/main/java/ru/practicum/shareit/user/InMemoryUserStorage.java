@@ -1,46 +1,45 @@
 package ru.practicum.shareit.user;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
 
 @Component("userStorage")
-@Slf4j
+@RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
+
     private final Map<Integer, User> users = new HashMap<>();
+    private Integer userId = 1;
 
     @Override
     public User create(User user) {
+        user.setId(userId++);
         users.put(user.getId(), user);
-        return user;
+        return users.get(user.getId());
+    }
+
+    private Optional<User> getUserOpt(Integer id) {
+        return Optional.ofNullable(users.get(id));
     }
 
     @Override
-    public Optional<User> getUser(int userId) {
-        if (!users.containsKey(userId)) {
-            log.info("Пользователь с идентификатором {} не найден.", userId);
-            throw new ObjectNotFoundException("Нет такого пользователя");
-        }
-        return Optional.of(users.get(userId));
+    public User getUser(Integer id) {
+        return getUserOpt(id).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователя с " + id + " не существует."));
     }
 
     @Override
     public User update(User user) {
-        int id = user.getId();
-        if (!users.containsKey(id)) {
-            log.info("Пользователь с идентификатором {} не найден.", id);
-            throw new ObjectNotFoundException("Нет такого пользователя");
-        }
-        users.put(id, user);
-        return users.get(id);
+        users.put(user.getId(), user);
+        return users.get(user.getId());
     }
 
     @Override
     public void delete(User user) {
-        int id = user.getId();
-        users.remove(id);
+        users.remove(user.getId());
     }
 
     @Override

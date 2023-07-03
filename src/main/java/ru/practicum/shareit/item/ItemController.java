@@ -1,29 +1,62 @@
-//package ru.practicum.shareit.item;
-//
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.web.bind.annotation.PostMapping;
-//import org.springframework.web.bind.annotation.RequestBody;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RestController;
-//import ru.practicum.shareit.item.dto.ItemDto;
-//import ru.practicum.shareit.item.model.Item;
-//import ru.practicum.shareit.item.model.ItemService;
-//
-///**
-// * TODO Sprint add-controllers.
-// */
-//@RestController
-//@RequestMapping("/items")
-//public class ItemController {
-//    private final ItemService itemService;
-//
-//    @Autowired
-//    public ItemController(ItemService itemService) {
-//        this.itemService = itemService;
-//    }
-//
-//    @PostMapping
-//    public Item create(@RequestBody ItemDto itemDto) {
-//        return itemService.item;
-//    }
-//}
+package ru.practicum.shareit.item;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.feedback.FeedbackService;
+import ru.practicum.shareit.feedback.dto.FeedbackDto;
+import ru.practicum.shareit.item.dto.ItemDto;
+
+import java.util.List;
+
+import static ru.practicum.shareit.Constants.USER_ID;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/items")
+@Validated
+public class ItemController {
+    private final ItemService itemService;
+    private final FeedbackService feedbackService;
+
+    @PostMapping
+    public ItemDto create(@RequestBody ItemDto itemDto, @RequestHeader(USER_ID) Integer ownerId) {
+        return itemService.create(itemDto, ownerId);
+    }
+
+    @GetMapping("/{itemId}")
+    public ItemDto getItemById(@PathVariable Integer itemId, @RequestHeader(USER_ID) Integer ownerId) {
+        return itemService.getItemById(itemId, ownerId);
+    }
+
+    @GetMapping
+    public List<ItemDto> getItemsByOwner(@RequestHeader(USER_ID) Integer ownerId) {
+        if (ownerId != null) {
+            return itemService.getItemsByOwner(ownerId);
+        }
+        return itemService.findAll();
+    }
+
+    @PatchMapping("/{itemId}")
+    public ItemDto update(@RequestBody ItemDto itemDto, @PathVariable Integer itemId,
+                          @RequestHeader(USER_ID) Integer ownerId) {
+        return itemService.update(itemDto, itemId, ownerId);
+    }
+
+    @DeleteMapping("/{itemId}")
+    public void delete(@PathVariable Integer itemId, @RequestHeader(USER_ID) Integer ownerId) {
+        itemService.deleteItem(itemId, ownerId);
+    }
+
+    @GetMapping("/search")
+    public List<ItemDto> getItemsByQuery(@RequestParam String text, @RequestHeader(USER_ID) Integer ownerId) {
+        return itemService.getItemsByQuery(text, ownerId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public FeedbackDto createFeedback(@RequestBody FeedbackDto feedbackDto,
+                                      @RequestHeader(USER_ID) Integer bookerId,
+                                      @PathVariable Integer itemId) {
+        return feedbackService.createFeedback(feedbackDto, bookerId, itemId);
+    }
+}

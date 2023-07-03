@@ -1,22 +1,17 @@
 package ru.practicum.shareit.feedback;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.Booking;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.feedback.dto.FeedbackDto;
+import ru.practicum.shareit.feedback.model.Feedback;
 
-import static ru.practicum.shareit.booking.BookingStatus.APPROVED;
+import java.util.List;
 
-@Service
-@Slf4j
-public class FeedbackService {
-    public void addFeedback(Item item, User owner, User booker, String comment) {
-        for (Booking booking : item.getBookings().get(booker)) {
-            if (booking.getStatuses().contains(APPROVED) && item.isAvailable()) {
-                Feedback feedback = new Feedback(item, owner, booker, comment);
-                item.getFeedbacks().put(booker, feedback);
-            }
-        }
-    }
+public interface FeedbackService {
+
+    FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer authorId, Integer itemId);
+
+    FeedbackDto getFeedbackById(Integer id);
+
+    List<Feedback> getFeedbacksByItem(Integer itemId);
+
+    List<Feedback> getFeedbacksByAuthor(Integer authorId);
 }

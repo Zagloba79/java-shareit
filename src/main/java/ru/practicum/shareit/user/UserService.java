@@ -1,63 +1,18 @@
 package ru.practicum.shareit.user;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exception.ObjectNotFoundException;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.ItemStorage;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserMapper;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
+public interface UserService {
 
-@Slf4j
-@Service
-@AllArgsConstructor
-public class UserService {
-    private UserStorage userStorage;
-    private UserMapper userMapper;
-    private ItemStorage itemStorage;
+    UserDto createUser(UserDto userDto);
 
-    public User createUser(UserDto userDto) {
-        return userStorage.create(userMapper.createUser(userDto));
-    }
+    List<UserDto> findAll();
 
-    public List<UserDto> findAll() {
-        return userStorage.findAll().stream()
-                .map(userMapper::createUserDto)
-                .collect(toList());
-    }
+    UserDto getUser(Integer userId);
 
-    public UserDto getUser(int userId) {
-        return userMapper.createUserDto(userStorage.getUser(userId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + userId + " не существует.")));
-    }
+    UserDto update(UserDto userDto);
 
-    public UserDto update(UserDto userDto) {
-        User user = userMapper.createUser(userDto);
-        if (validateUser(user)) {
-            userStorage.update(user);
-        }
-        return userMapper.createUserDto(userStorage.getUser(user.getId()).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователя с " + user.getId() + " не существует.")));
-    }
-
-    public void delete(UserDto userDto) {
-        User user = userMapper.createUser(userDto);
-        if (validateUser(user)) {
-            for (Item item : itemStorage.findAll()) {
-                if (item.getOwner().equals(user)) {
-                    itemStorage.delete(item);
-                }
-            }
-            userStorage.delete(user);
-        }
-    }
-
-    private boolean validateUser(User user) {
-        return userStorage.findAll().contains(user);
-    }
+    void delete(Integer userId);
 }

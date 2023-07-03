@@ -1,25 +1,18 @@
 package ru.practicum.shareit.request;
 
-import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 
-import java.util.HashMap;
 
-@Data
-public class ItemRequestService {
-    @Autowired
-    ItemRequestStorage itemRequestStorage;
+import java.util.List;
 
-    int id = 0;
+public interface ItemRequestService {
+    ItemRequestDto addRequest(ItemRequestDto itemRequestDto, Integer requesterId);
 
-    public void add(User requester, Item item) {
-        ItemRequest request = new ItemRequest(id++, item, requester);
-        itemRequestStorage.add(request);
-    }
+    ItemRequestDto getRequestById(Integer id);
 
-    public void delete(ItemRequest request) {
-        itemRequestStorage.delete(request);
-    }
+    ItemRequestDto update(ItemRequestDto itemRequestDto, Integer itemId, Integer requesterId);
+
+    void delete(Integer itemId, Integer requesterId);
+
+    List<ItemRequestDto> getItemsByRequester(Integer requesterId);
 }
