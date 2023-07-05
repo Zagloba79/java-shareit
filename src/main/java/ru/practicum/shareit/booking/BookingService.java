@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface BookingService {
 
-    BookingDto addNewBooking(BookingDto bookingDto, int bookerId);
+    BookingDto addNewBooking(BookingDto bookingDto, Long bookerId);
 
     void approveBooking(Booking booking, User owner);
 
@@ -17,13 +17,13 @@ public interface BookingService {
 
     void cancelBooking(Booking booking, User booker);
 
-    List<BookingDto> getBookingByItem(Integer itemId, Integer bookerId);
+    List<BookingDto> getBookingByItem(Long itemId, Long bookerId);
 
-    List<BookingDto> getBookingsByBooker(Integer bookerId);
+    List<BookingDto> getBookingsByBooker(Long bookerId);
 
-    BookingDto update(Integer bookingId, Integer userId, BookingStatus status);
+    BookingDto update(Long bookingId, Long userId, BookingStatus status);
 
-    List<BookingDto> getAllBookings(Integer userId);
+    List<BookingDto> getAllBookings(Long userId);
 
-    BookingDto getBookingById(Integer bookingId, Integer userId);
+    BookingDto getBookingById(Long bookingId, Long userId);
 }

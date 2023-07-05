@@ -24,7 +24,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final UserStorage userStorage;
 
     @Override
-    public ItemRequestDto addRequest(ItemRequestDto itemRequestDto, Integer requesterId) {
+    public ItemRequestDto addRequest(ItemRequestDto itemRequestDto, Long requesterId) {
         User requester = userStorage.getUser(requesterId);
         ItemRequest request = ItemRequestMapper.createItemRequest(itemRequestDto);
         itemRequestStorage.addRequest(request);
@@ -33,16 +33,16 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public ItemRequestDto getRequestById(Integer itemRequestId) {
+    public ItemRequestDto getRequestById(Long itemRequestId) {
         ItemRequest itemRequest = itemRequestStorage.getRequest(itemRequestId);
         return ItemRequestMapper.createItemRequestDto(itemRequest);
     }
 
     @Override
-    public ItemRequestDto update(ItemRequestDto itemRequestDto, Integer itemId, Integer requesterId) {
+    public ItemRequestDto update(ItemRequestDto itemRequestDto, Long itemId, Long requesterId) {
         Item item = itemStorage.getItem(itemId);
         User requester = userStorage.getUser(requesterId);
-        Integer itemRequestId = itemRequestDto.getId();
+        Long itemRequestId = itemRequestDto.getId();
         ItemRequest itemRequest = itemRequestStorage.getRequest(itemRequestId);
         if (itemRequest.getRequester().equals(requester)) {
             ItemRequest request = ItemRequestMapper.createItemRequest(itemRequestDto);
@@ -53,7 +53,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public void delete(Integer itemRequestId, Integer requesterId) {
+    public void delete(Long itemRequestId, Long requesterId) {
         User requester = userStorage.getUser(requesterId);
         ItemRequest itemRequest = itemRequestStorage.getRequest(itemRequestId);
         if (itemRequest.getRequester().equals(requester)) {
@@ -62,7 +62,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public List<ItemRequestDto> getItemsByRequester(Integer requesterId) {
+    public List<ItemRequestDto> getItemsByRequester(Long requesterId) {
         return itemRequestStorage.getItemRequestsByRequester(requesterId).stream()
                 .map(ItemRequestMapper::createItemRequestDto)
                 .collect(toList());

@@ -26,7 +26,7 @@ public class BookingServiceImpl implements BookingService {
     private final ItemStorage itemStorage;
 
     @Override
-    public BookingDto addNewBooking(BookingDto bookingDto, int bookerId) {
+    public BookingDto addNewBooking(BookingDto bookingDto, Long bookerId) {
         Item item = bookingDto.getItem();
         User booker = userStorage.getUser(bookerId);
         Booking booking = new Booking();
@@ -69,7 +69,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getBookingByItem(Integer itemId, Integer bookerId) {
+    public List<BookingDto> getBookingByItem(Long itemId, Long bookerId) {
         User booker = userStorage.getUser(bookerId);
         return bookingStorage.findAll().stream()
                 .filter(booking -> booking.getItem().getId().equals(itemId))
@@ -78,7 +78,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getBookingsByBooker(Integer bookerId) {
+    public List<BookingDto> getBookingsByBooker(Long bookerId) {
         User booker = userStorage.getUser(bookerId);
         return bookingStorage.getBookingsByBooker(booker.getId()).stream()
                 .map(BookingMapper::createBookingDto)
@@ -86,7 +86,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto update(Integer bookingId, Integer userId, BookingStatus status) {
+    public BookingDto update(Long bookingId, Long userId, BookingStatus status) {
         Booking booking = bookingStorage.getBooking(bookingId);
         User user = userStorage.getUser(userId);
         switch (status) {
@@ -104,7 +104,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllBookings(Integer userId) {
+    public List<BookingDto> getAllBookings(Long userId) {
         User user = userStorage.getUser(userId);
         return bookingStorage.findAll().stream()
                 .map(BookingMapper::createBookingDto)
@@ -112,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto getBookingById(Integer bookingId, Integer userId) {
+    public BookingDto getBookingById(Long bookingId, Long userId) {
         User user = userStorage.getUser(userId);
         Booking booking = bookingStorage.getBooking(bookingId);
         return BookingMapper.createBookingDto(booking);

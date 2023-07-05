@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 public class Feedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     @Column(nullable = false)
-    private Integer itemId;
+    private Long itemId;
     private User author;
     @Column(length=1000)
     private String comment;

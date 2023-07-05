@@ -17,7 +17,7 @@ public class ItemRequest {
     @MapsId
     @OneToOne
     @JoinColumn(name = "request_id")
-    private Integer id;
+    private Long id;
     @Column(length=1000, nullable = false)
     private String description;
     private User requester;

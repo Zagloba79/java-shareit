@@ -26,7 +26,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final UserStorage userStorage;
 
     @Override
-    public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer authorId, Integer itemId) {
+    public FeedbackDto createFeedback(FeedbackDto feedbackDto, Long authorId, Long itemId) {
         Feedback feedback = new Feedback();
         User author = userStorage.getUser(authorId);
         Item item = itemStorage.getItem(itemId);
@@ -42,13 +42,13 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public FeedbackDto getFeedbackById(Integer id) {
+    public FeedbackDto getFeedbackById(Long id) {
         Feedback feedback = feedbackStorage.getFeedback(id);
         return FeedbackMapper.createFeedbackDto(feedback);
     }
 
     @Override
-    public List<Feedback> getFeedbacksByItem(Integer itemId) {
+    public List<Feedback> getFeedbacksByItem(Long itemId) {
         Item item = itemStorage.getItem(itemId);
         return feedbackStorage.findAll().stream().filter(
                 feedback -> feedback.getItemId().equals(item.getId()))
@@ -56,7 +56,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public List<Feedback> getFeedbacksByAuthor(Integer authorId) {
+    public List<Feedback> getFeedbacksByAuthor(Long authorId) {
         User author = userStorage.getUser(authorId);
         return feedbackStorage.findAll().stream().filter(
                 feedback -> feedback.getAuthor().getId().equals(author.getId()))

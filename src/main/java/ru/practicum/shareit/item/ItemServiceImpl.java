@@ -42,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
                     item.getDescription().toLowerCase().contains(text));
 
     @Override
-    public ItemDto create(ItemDto itemDto, Integer ownerId) {
+    public ItemDto create(ItemDto itemDto, Long ownerId) {
         User owner = userStorage.getUser(ownerId);
         Item item = ItemMapper.createItem(itemDto, owner);
         itemValidate(item);
@@ -53,7 +53,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto update(ItemDto itemDto, Integer itemId, Integer ownerId) {
+    public ItemDto update(ItemDto itemDto, Long itemId, Long ownerId) {
         Item item = itemStorage.getItem(itemId);
         User owner = userStorage.getUser(ownerId);
         if (!item.getOwner().equals(owner)) {
@@ -74,14 +74,14 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(Integer itemId, Integer ownerId) {
+    public ItemDto getItemById(Long itemId, Long ownerId) {
         User owner = userStorage.getUser(ownerId);
         Item item = itemStorage.getItem(itemId);
         return ItemMapper.createItemDto(item);
     }
 
     @Override
-    public List<ItemDto> getItemsByOwner(Integer ownerId) {
+    public List<ItemDto> getItemsByOwner(Long ownerId) {
         User owner = userStorage.getUser(ownerId);
         return itemStorage.getItemsByOwner(owner.getId()).stream()
                 .map(ItemMapper::createItemDto)
@@ -96,7 +96,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void deleteItem(Integer itemId, Integer ownerId) {
+    public void deleteItem(Long itemId, Long ownerId) {
         Item item = itemStorage.getItem(itemId);
         User owner = userStorage.getUser(ownerId);
         if (item.getOwner().getId().equals(owner.getId())) {
@@ -106,7 +106,7 @@ public class ItemServiceImpl implements ItemService {
 
 
     @Override
-    public List<ItemDto> getItemsByQuery(String text, Integer ownerId) {
+    public List<ItemDto> getItemsByQuery(String text, Long ownerId) {
         User owner = userStorage.getUser(ownerId);
         if ((text != null) && (!text.isBlank())) {
             String lowerText = text.toLowerCase();
@@ -119,7 +119,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer itemId, Integer bookerId) {
+    public FeedbackDto createFeedback(FeedbackDto feedbackDto, Long itemId, Long bookerId) {
         User booker = userStorage.getUser(bookerId);
         feedbackService.createFeedback(feedbackDto, itemId, booker.getId());
         return FeedbackMapper.createFeedbackDto(feedbackStorage.getFeedback(feedbackDto.getId()));

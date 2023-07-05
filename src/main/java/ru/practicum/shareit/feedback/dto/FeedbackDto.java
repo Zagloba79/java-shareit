@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class FeedbackDto {
-    private Integer id;
-    private Integer itemId;
+    private Long id;
+    private Long itemId;
     private User author;
     @NotBlank
     private String comment;

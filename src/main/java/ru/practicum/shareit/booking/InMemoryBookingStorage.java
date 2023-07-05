@@ -13,8 +13,8 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class InMemoryBookingStorage implements BookingStorage {
 
-    private final Map<Integer, Booking> bookings = new HashMap<>();
-    private Integer bookingId = 1;
+    private final Map<Long, Booking> bookings = new HashMap<>();
+    private Long bookingId = 1L;
 
     @Override
     public Booking create(Booking booking) {
@@ -23,18 +23,18 @@ public class InMemoryBookingStorage implements BookingStorage {
         return bookings.get(booking.getId());
     }
 
-    private Optional<Booking> getBookingOpt(Integer id) {
+    private Optional<Booking> getBookingOpt(Long id) {
         return Optional.of(bookings.get(id));
     }
 
     @Override
-    public Booking getBooking(Integer id) {
+    public Booking getBooking(Long id) {
         return getBookingOpt(id).orElseThrow(() ->
                 new ObjectNotFoundException("Данного предмета в базе не существует."));
     }
 
     @Override
-    public void deleteBooking(int id) {
+    public void deleteBooking(Long id) {
         bookings.remove(id);
     }
 
@@ -44,7 +44,7 @@ public class InMemoryBookingStorage implements BookingStorage {
     }
 
     @Override
-    public List<Booking> getBookingsByBooker(int bookingId) {
+    public List<Booking> getBookingsByBooker(Long bookingId) {
         return findAll().stream()
                 .filter(booking -> booking.getBooker().getId() == bookingId)
                 .collect(toList());

@@ -20,17 +20,17 @@ public class ItemController {
     private final FeedbackService feedbackService;
 
     @PostMapping
-    public ItemDto create(@RequestBody ItemDto itemDto, @RequestHeader(USER_ID) Integer ownerId) {
+    public ItemDto create(@RequestBody ItemDto itemDto, @RequestHeader(USER_ID) Long ownerId) {
         return itemService.create(itemDto, ownerId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@PathVariable Integer itemId, @RequestHeader(USER_ID) Integer ownerId) {
+    public ItemDto getItemById(@PathVariable Long itemId, @RequestHeader(USER_ID) Long ownerId) {
         return itemService.getItemById(itemId, ownerId);
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByOwner(@RequestHeader(USER_ID) Integer ownerId) {
+    public List<ItemDto> getItemsByOwner(@RequestHeader(USER_ID) Long ownerId) {
         if (ownerId != null) {
             return itemService.getItemsByOwner(ownerId);
         }
@@ -38,25 +38,25 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestBody ItemDto itemDto, @PathVariable Integer itemId,
-                          @RequestHeader(USER_ID) Integer ownerId) {
+    public ItemDto update(@RequestBody ItemDto itemDto, @PathVariable Long itemId,
+                          @RequestHeader(USER_ID) Long ownerId) {
         return itemService.update(itemDto, itemId, ownerId);
     }
 
     @DeleteMapping("/{itemId}")
-    public void delete(@PathVariable Integer itemId, @RequestHeader(USER_ID) Integer ownerId) {
+    public void delete(@PathVariable Long itemId, @RequestHeader(USER_ID) Long ownerId) {
         itemService.deleteItem(itemId, ownerId);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getItemsByQuery(@RequestParam String text, @RequestHeader(USER_ID) Integer ownerId) {
+    public List<ItemDto> getItemsByQuery(@RequestParam String text, @RequestHeader(USER_ID) Long ownerId) {
         return itemService.getItemsByQuery(text, ownerId);
     }
 
     @PostMapping("/{itemId}/comment")
     public FeedbackDto createFeedback(@RequestBody FeedbackDto feedbackDto,
-                                      @RequestHeader(USER_ID) Integer bookerId,
-                                      @PathVariable Integer itemId) {
+                                      @RequestHeader(USER_ID) Long bookerId,
+                                      @PathVariable Long itemId) {
         return feedbackService.createFeedback(feedbackDto, bookerId, itemId);
     }
 }

@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface FeedbackService {
 
-    FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer authorId, Integer itemId);
+    FeedbackDto createFeedback(FeedbackDto feedbackDto, Long authorId, Long itemId);
 
-    FeedbackDto getFeedbackById(Integer id);
+    FeedbackDto getFeedbackById(Long id);
 
-    List<Feedback> getFeedbacksByItem(Integer itemId);
+    List<Feedback> getFeedbacksByItem(Long itemId);
 
-    List<Feedback> getFeedbacksByAuthor(Integer authorId);
+    List<Feedback> getFeedbacksByAuthor(Long authorId);
 }

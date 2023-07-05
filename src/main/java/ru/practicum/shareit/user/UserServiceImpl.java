@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.ValidationException;
@@ -9,7 +10,6 @@ import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
@@ -17,6 +17,7 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
+@EnableJpaRepositories
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userStorage;
@@ -31,7 +32,7 @@ public class UserServiceImpl implements UserService {
         }
         User user = UserMapper.createUser(userDto);
         userValidator(user);
-        userStorage.create(user);
+        userStorage.saveAndFlush(user);
         return UserMapper.createUserDto(user);
     }
 
@@ -43,14 +44,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUser(Integer userId) {
-        User user = userStorage.getUser(userId);
+    public UserDto getUser(Long userId) {
+        User user = userStorage.getReferenceById(userId);
         return UserMapper.createUserDto(user);
     }
 
     @Override
     public UserDto update(UserDto userDto) {
-        User user = userStorage.getUser(userDto.getId());
+        User user = userStorage.getReferenceById(userDto.getId());
         User userToUpdate = UserMapper.createUser(userDto);
         if (userToUpdate.getName() != null) {
             user.setName(userToUpdate.getName());
@@ -58,14 +59,14 @@ public class UserServiceImpl implements UserService {
         if (emailValidate(userToUpdate.getEmail(), userToUpdate.getId())) {
             user.setEmail(userToUpdate.getEmail());
         }
-        userStorage.update(user);
-        User updatedUser = userStorage.getUser(user.getId());
+        userStorage.saveAndFlush(user);
+        User updatedUser = userStorage.getReferenceById(user.getId());
         return UserMapper.createUserDto(updatedUser);
     }
 
     @Override
-    public void delete(Integer userId) {
-        User user = userStorage.getUser(userId);
+    public void delete(Long userId) {
+        User user = userStorage.getReferenceById(userId);
         for (Item item : itemStorage.getItemsByOwner(user.getId())) {
             itemStorage.deleteItem(item.getId());
         }
@@ -81,7 +82,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private boolean emailValidate(String email, Integer id) {
+    private boolean emailValidate(String email, Long id) {
         if (email == null || !email.contains("@") || !email.contains(".")) {
             return false;
         }

@@ -15,8 +15,8 @@ import static java.util.stream.Collectors.toList;
 @Component
 @RequiredArgsConstructor
 public class InMemoryItemRequestStorage implements ItemRequestStorage {
-    private final HashMap<Integer, ItemRequest> requests = new HashMap<>();
-    private Integer itemRequestId = 1;
+    private final HashMap<Long, ItemRequest> requests = new HashMap<>();
+    private Long itemRequestId = 1L;
 
     @Override
     public ItemRequest addRequest(ItemRequest request) {
@@ -25,12 +25,12 @@ public class InMemoryItemRequestStorage implements ItemRequestStorage {
         return requests.get(request.getId());
     }
 
-    private Optional<ItemRequest> getRequestOpt(Integer id) {
+    private Optional<ItemRequest> getRequestOpt(Long id) {
         return Optional.of(requests.get(id));
     }
 
     @Override
-    public ItemRequest getRequest(Integer id) {
+    public ItemRequest getRequest(Long id) {
         return getRequestOpt(id).orElseThrow(() ->
                 new ObjectNotFoundException("Запроса с " + id + " не существует."));
     }
@@ -50,7 +50,7 @@ public class InMemoryItemRequestStorage implements ItemRequestStorage {
     }
 
     @Override
-    public List<ItemRequest> getItemRequestsByRequester(int requesterId) {
+    public List<ItemRequest> getItemRequestsByRequester(Long requesterId) {
         return requests.values().stream()
                 .filter(itemRequest -> itemRequest.getRequester().getId() == requesterId)
                 .collect(toList());

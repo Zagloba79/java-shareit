@@ -17,7 +17,7 @@ public class Item {
     @MapsId
     @OneToOne
     @JoinColumn(name = "item_id")
-    private Integer id;
+    private Long id;
     @Column(nullable = false)
     private String name;
     @Column(length=1000, nullable = false)

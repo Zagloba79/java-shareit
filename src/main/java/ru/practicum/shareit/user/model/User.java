@@ -18,7 +18,7 @@ public class User {
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
     @JoinColumn(name = "requester_id", referencedColumnName = "id")
     @JoinColumn(name = "booker_id", referencedColumnName = "id")
-    private Integer id;
+    private Long id;
     @Column(nullable = false, unique=true)
     private String name;
     @Column(length=512, nullable = false, unique=true)

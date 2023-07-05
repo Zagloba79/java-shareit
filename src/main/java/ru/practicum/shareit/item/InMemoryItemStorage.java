@@ -14,8 +14,8 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 @RequiredArgsConstructor
 public class InMemoryItemStorage implements ItemStorage {
-    private final Map<Integer, Item> items = new HashMap<>();
-    private Integer itemId = 1;
+    private final Map<Long, Item> items = new HashMap<>();
+    private Long itemId = 1L;
 
     @Override
     public Item create(Item item) {
@@ -24,18 +24,18 @@ public class InMemoryItemStorage implements ItemStorage {
         return items.get(item.getId());
     }
 
-    private Optional<Item> getItemOpt(Integer id) {
+    private Optional<Item> getItemOpt(Long id) {
         return Optional.ofNullable(items.get(id));
     }
 
     @Override
-    public Item getItem(Integer id) {
+    public Item getItem(Long id) {
         return getItemOpt(id).orElseThrow(() ->
                 new ObjectNotFoundException("Данного предмета в базе не существует."));
     }
 
     @Override
-    public void deleteItem(int id) {
+    public void deleteItem(Long id) {
         items.remove(id);
     }
 
@@ -45,7 +45,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public List<Item> getItemsByOwner(int ownerId) {
+    public List<Item> getItemsByOwner(Long ownerId) {
         return findAll().stream()
                 .filter(item -> item.getOwner().getId().equals(ownerId))
                 .collect(toList());

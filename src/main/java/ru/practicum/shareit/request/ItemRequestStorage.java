@@ -9,13 +9,13 @@ import java.util.Optional;
 public interface ItemRequestStorage {
     ItemRequest addRequest(ItemRequest request);
 
-    ItemRequest getRequest(Integer id);
+    ItemRequest getRequest(Long id);
 
     ItemRequest update(ItemRequest request);
 
     Optional<ItemRequest> getItemRequestByItem(Item item);
 
-    List<ItemRequest> getItemRequestsByRequester(int requesterId);
+    List<ItemRequest> getItemRequestsByRequester(Long requesterId);
 
     void delete(ItemRequest request);
 }

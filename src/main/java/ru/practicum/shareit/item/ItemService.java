@@ -6,19 +6,19 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import java.util.List;
 
 public interface ItemService {
-    ItemDto create(ItemDto itemDto, Integer ownerId);
+    ItemDto create(ItemDto itemDto, Long ownerId);
 
-    ItemDto getItemById(Integer itemId, Integer ownerId);
+    ItemDto getItemById(Long itemId, Long ownerId);
 
-    List<ItemDto> getItemsByOwner(Integer ownerId);
+    List<ItemDto> getItemsByOwner(Long ownerId);
 
     List<ItemDto> findAll();
 
-    void deleteItem(Integer itemId, Integer ownerId);
+    void deleteItem(Long itemId, Long ownerId);
 
-    List<ItemDto> getItemsByQuery(String text, Integer ownerId);
+    List<ItemDto> getItemsByQuery(String text, Long ownerId);
 
-    FeedbackDto createFeedback(FeedbackDto feedbackDto, Integer itemId, Integer userId);
+    FeedbackDto createFeedback(FeedbackDto feedbackDto, Long itemId, Long userId);
 
-    ItemDto update(ItemDto itemDto, Integer itemId, Integer ownerId);
+    ItemDto update(ItemDto itemDto, Long itemId, Long ownerId);
 }

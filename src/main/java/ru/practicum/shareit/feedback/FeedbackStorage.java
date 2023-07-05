@@ -17,8 +17,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FeedbackStorage {
 
-    private Map<Integer, Feedback> feedbacks;
-    private Integer feedbackId = 1;
+    private Map<Long, Feedback> feedbacks;
+    private Long feedbackId = 1L;
 
     public Feedback create(Feedback feedback) {
         feedback.setId(feedbackId++);
@@ -26,11 +26,11 @@ public class FeedbackStorage {
         return feedbacks.get(feedback.getId());
     }
 
-    private Optional<Feedback> getFeedbackOpt(Integer id) {
+    private Optional<Feedback> getFeedbackOpt(Long id) {
         return Optional.of(feedbacks.get(id));
     }
 
-    public Feedback getFeedback(Integer id) {
+    public Feedback getFeedback(Long id) {
         return getFeedbackOpt(id).orElseThrow(() ->
                 new ObjectNotFoundException("Данного предмета в базе не существует."));
     }
@@ -41,7 +41,7 @@ public class FeedbackStorage {
         return FeedbackMapper.createFeedbackDto(feedbacks.get(f.getId()));
     }
 
-    public void delete(int id) {
+    public void delete(Long id) {
         feedbacks.remove(id);
     }
 

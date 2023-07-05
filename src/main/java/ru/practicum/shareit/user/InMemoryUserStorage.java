@@ -11,8 +11,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
 
-    private final Map<Integer, User> users = new HashMap<>();
-    private Integer userId = 1;
+    private final Map<Long, User> users = new HashMap<>();
+    private Long userId = 1L;
 
     @Override
     public User create(User user) {
@@ -21,12 +21,12 @@ public class InMemoryUserStorage implements UserStorage {
         return users.get(user.getId());
     }
 
-    private Optional<User> getUserOpt(Integer id) {
+    private Optional<User> getUserOpt(Long id) {
         return Optional.ofNullable(users.get(id));
     }
 
     @Override
-    public User getUser(Integer id) {
+    public User getUser(Long id) {
         return getUserOpt(id).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователя с " + id + " не существует."));
     }

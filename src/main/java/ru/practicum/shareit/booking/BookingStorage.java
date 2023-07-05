@@ -9,11 +9,11 @@ public interface BookingStorage {
 
     List<Booking> findAll();
 
-    Booking getBooking(Integer bookingId);
+    Booking getBooking(Long bookingId);
 
-    void deleteBooking(int itemId);
+    void deleteBooking(Long itemId);
 
-    List<Booking> getBookingsByBooker(int bookingId);
+    List<Booking> getBookingsByBooker(Long bookingId);
 
     Booking update(Booking booking);
 }

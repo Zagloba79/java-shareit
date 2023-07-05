@@ -7,13 +7,13 @@ import java.util.List;
 public interface ItemStorage {
     Item create(Item item);
 
-    void deleteItem(int itemId);
+    void deleteItem(Long itemId);
 
-    Item getItem(Integer id);
+    Item getItem(Long id);
 
     List<Item> findAll();
 
     Item update(Item item);
 
-    List<Item> getItemsByOwner(int ownerId);
+    List<Item> getItemsByOwner(Long ownerId);
 }
