@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserStorage;
@@ -14,7 +15,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static ru.practicum.shareit.booking.BookingStatus.*;
+import static ru.practicum.shareit.booking.model.BookingStatus.*;
 
 @Service
 @Slf4j

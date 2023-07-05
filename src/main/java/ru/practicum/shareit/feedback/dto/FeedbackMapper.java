@@ -13,7 +13,7 @@ public final class FeedbackMapper {
         feedbackDto.setItemId(feedback.getItemId());
         feedbackDto.setAuthor(feedback.getAuthor());
         feedbackDto.setComment(feedback.getComment());
-        feedbackDto.setCreate(feedback.getCreate());
+        feedbackDto.setCreate(feedback.getCreated());
         return feedbackDto;
     }
 
@@ -22,7 +22,7 @@ public final class FeedbackMapper {
         feedback.setItemId(feedbackDto.getItemId());
         feedback.setAuthor(author);
         feedback.setComment(feedbackDto.getComment());
-        feedback.setCreate(feedbackDto.getCreate());
+        feedback.setCreated(feedbackDto.getCreate());
         return feedback;
     }
 }
