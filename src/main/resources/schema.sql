@@ -1,5 +1,5 @@
 DROP ALL OBJECTS;
---TODO Дописать Констрейны
+--TODO Дописать Констрейнты
 
 CREATE TABLE user_state (
   id INTEGER PRIMARY KEY,
