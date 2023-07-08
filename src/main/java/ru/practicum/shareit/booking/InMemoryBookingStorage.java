@@ -46,7 +46,7 @@ public class InMemoryBookingStorage implements BookingStorage {
     @Override
     public List<Booking> getBookingsByBooker(Long bookingId) {
         return findAll().stream()
-                .filter(booking -> booking.getBooker().getId() == bookingId)
+                .filter(booking -> Objects.equals(booking.getBooker().getId(), bookingId))
                 .collect(toList());
     }
 

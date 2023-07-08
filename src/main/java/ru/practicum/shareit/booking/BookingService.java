@@ -11,19 +11,19 @@ public interface BookingService {
 
     BookingDto addNewBooking(BookingDto bookingDto, Long bookerId);
 
-    void approveBooking(Booking booking, User owner);
+    void approveBooking(Booking booking, Long ownerId);
 
-    void rejectBooking(Booking booking, User owner);
+    void rejectBooking(Booking booking, Long ownerId);
 
-    void cancelBooking(Booking booking, User booker);
+    void cancelBooking(Booking booking, Long bookerId);
 
-    List<BookingDto> getBookingByItem(Long itemId, Long bookerId);
+    List<BookingDto> getBookingsDtoByItem(Long itemId, Long bookerId);
 
-    List<BookingDto> getBookingsByBooker(Long bookerId);
+    List<BookingDto> getBookingsDtoByBooker(Long bookerId);
 
-    BookingDto update(Long bookingId, Long userId, BookingStatus status);
+    BookingDto update(Long bookingId, Long userId, boolean approved);
 
-    List<BookingDto> getAllBookings(Long userId);
+    List<BookingDto> getAllBookingsDto(Long userId);
 
-    BookingDto getBookingById(Long bookingId, Long userId);
+    BookingDto getBookingDtoById(Long bookingId, Long userId);
 }

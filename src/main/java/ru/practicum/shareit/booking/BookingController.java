@@ -25,29 +25,29 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public BookingDto update(@PathVariable Long bookingId,
-                             @RequestHeader(USER_ID) Long userId, @RequestParam BookingStatus status) {
-        return bookingService.update(bookingId, userId, status);
+                             @RequestHeader(USER_ID) Long userId, @RequestParam boolean approved) {
+        return bookingService.update(bookingId, userId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public BookingDto getBookingById(@PathVariable Long bookingId,
                                      @RequestHeader(USER_ID) Long userId) {
-        return bookingService.getBookingById(bookingId, userId);
+        return bookingService.getBookingDtoById(bookingId, userId);
     }
 
     @GetMapping
     public List<BookingDto> getBookings(@RequestHeader(USER_ID) Long userId) {
-        return bookingService.getAllBookings(userId);
+        return bookingService.getAllBookingsDto(userId);
     }
 
     @GetMapping("/{bookerId}")
     public List<BookingDto> getBookingsByBooker(@RequestHeader(USER_ID) Long bookerId) {
-        return bookingService.getBookingsByBooker(bookerId);
+        return bookingService.getBookingsDtoByBooker(bookerId);
     }
 
     @GetMapping("/{itemId}")
     public List<BookingDto> getBookingByItem(@PathVariable Long itemId,
                                              @RequestHeader(USER_ID) Long bookerId) {
-        return bookingService.getBookingByItem(itemId, bookerId);
+        return bookingService.getBookingsDtoByItem(itemId, bookerId);
     }
 }

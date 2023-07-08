@@ -8,12 +8,12 @@ import ru.practicum.shareit.feedback.FeedbackService;
 import ru.practicum.shareit.feedback.FeedbackStorage;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.feedback.dto.FeedbackMapper;
+import ru.practicum.shareit.handler.OptionalHandler;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequestStorage;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collections;
@@ -28,8 +28,8 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
+    private final OptionalHandler optionalHandler;
+    private final ItemRepository itemRepository;
     private final FeedbackService feedbackService;
     private final FeedbackStorage feedbackStorage;
     private final ItemRequestStorage itemRequestStorage;
@@ -43,19 +43,19 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto create(ItemDto itemDto, Long ownerId) {
-        User owner = userStorage.getUser(ownerId);
+        User owner = optionalHandler.getUserFromOpt(ownerId);
         Item item = ItemMapper.createItem(itemDto, owner);
         itemValidate(item);
         Optional<ItemRequest> request = itemRequestStorage.getItemRequestByItem(item);
         request.ifPresent(item::setRequest);
-        itemStorage.create(item);
+        itemRepository.save(item);
         return ItemMapper.createItemDto(item);
     }
 
     @Override
     public ItemDto update(ItemDto itemDto, Long itemId, Long ownerId) {
-        Item item = itemStorage.getItem(itemId);
-        User owner = userStorage.getUser(ownerId);
+        Item item = optionalHandler.getItemFromOpt(itemId);
+        User owner = optionalHandler.getUserFromOpt(ownerId);
         if (!item.getOwner().equals(owner)) {
             throw new ObjectNotFoundException("Собственник не тот");
         }
@@ -69,48 +69,49 @@ public class ItemServiceImpl implements ItemService {
         if (itemToUpdate.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
-        Item updatedItem = itemStorage.update(item);
-        return ItemMapper.createItemDto(updatedItem);
+        itemRepository.save(item);
+        return ItemMapper.createItemDto(itemToUpdate);
     }
 
     @Override
     public ItemDto getItemById(Long itemId, Long ownerId) {
-        User owner = userStorage.getUser(ownerId);
-        Item item = itemStorage.getItem(itemId);
+        User owner = optionalHandler.getUserFromOpt(ownerId);
+        Item item = optionalHandler.getItemFromOpt(itemId);
         return ItemMapper.createItemDto(item);
     }
 
     @Override
     public List<ItemDto> getItemsByOwner(Long ownerId) {
-        User owner = userStorage.getUser(ownerId);
-        return itemStorage.getItemsByOwner(owner.getId()).stream()
+        User owner = optionalHandler.getUserFromOpt(ownerId);
+        return itemRepository.findAll().stream()
+                .filter(item -> item.getOwner().getId().equals(ownerId))
                 .map(ItemMapper::createItemDto)
                 .collect(toList());
     }
 
     @Override
     public List<ItemDto> findAll() {
-        return itemStorage.findAll().stream()
+        return itemRepository.findAll().stream()
                 .map(ItemMapper::createItemDto)
                 .collect(toList());
     }
 
     @Override
     public void deleteItem(Long itemId, Long ownerId) {
-        Item item = itemStorage.getItem(itemId);
-        User owner = userStorage.getUser(ownerId);
+        Item item = optionalHandler.getItemFromOpt(itemId);
+        User owner = optionalHandler.getUserFromOpt(ownerId);
         if (item.getOwner().getId().equals(owner.getId())) {
-            itemStorage.deleteItem(itemId);
+            itemRepository.deleteById(itemId);
         }
     }
 
 
     @Override
     public List<ItemDto> getItemsByQuery(String text, Long ownerId) {
-        User owner = userStorage.getUser(ownerId);
+        User owner = optionalHandler.getUserFromOpt(ownerId);
         if ((text != null) && (!text.isBlank())) {
             String lowerText = text.toLowerCase();
-            return itemStorage.findAll().stream()
+            return itemRepository.findAll().stream()
                     .filter(item -> isAvailable.test(item) && (isMatch.test(item, lowerText)))
                     .map(ItemMapper::createItemDto)
                     .collect(toList());
@@ -120,7 +121,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public FeedbackDto createFeedback(FeedbackDto feedbackDto, Long itemId, Long bookerId) {
-        User booker = userStorage.getUser(bookerId);
+        User booker = optionalHandler.getUserFromOpt(bookerId);
         feedbackService.createFeedback(feedbackDto, itemId, booker.getId());
         return FeedbackMapper.createFeedbackDto(feedbackStorage.getFeedback(feedbackDto.getId()));
     }

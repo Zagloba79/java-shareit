@@ -16,12 +16,12 @@ public class UserController {
 
     @PostMapping
     public UserDto create(@RequestBody UserDto userDto) {
-        return userService.createUser(userDto);
+        return userService.create(userDto);
     }
 
     @GetMapping("/{userId}")
     public UserDto findById(@PathVariable Long userId) {
-        return userService.getUser(userId);
+        return userService.getUserDto(userId);
     }
 
     @GetMapping
@@ -33,7 +33,7 @@ public class UserController {
     public UserDto update(@RequestBody UserDto userDto,
                           @PathVariable Long userId) {
         userDto.setId(userId);
-        return userService.update(userDto);
+        return userService.update(userDto, userId);
     }
 
     @DeleteMapping("/{userId}")

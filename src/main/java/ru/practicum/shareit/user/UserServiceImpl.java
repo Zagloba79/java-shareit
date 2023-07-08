@@ -1,12 +1,12 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.handler.OptionalHandler;
+import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -17,41 +17,46 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
-@EnableJpaRepositories
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userStorage;
-    private final ItemStorage itemStorage;
+    private final OptionalHandler optionalHandler;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
 
     @Override
-    public UserDto createUser(UserDto userDto) {
-        for (User thisUser : userStorage.findAll()) {
+    public UserDto create(UserDto userDto) {
+        for (User thisUser : userRepository.findAll()) {
             if (thisUser.getEmail().equals(userDto.getEmail())) {
                 throw new UserAlreadyExistsException("Пользователь с таким Email уже зарегистрирован");
             }
         }
         User user = UserMapper.createUser(userDto);
         userValidator(user);
-        userStorage.saveAndFlush(user);
+        userRepository.save(user);
         return UserMapper.createUserDto(user);
     }
 
     @Override
     public List<UserDto> findAll() {
-        return userStorage.findAll().stream()
+        return userRepository.findAll().stream()
                 .map(UserMapper::createUserDto)
                 .collect(toList());
     }
 
     @Override
-    public UserDto getUser(Long userId) {
-        User user = userStorage.getReferenceById(userId);
+    public UserDto getUserDto(Long userId) {
+        User user = optionalHandler.getUserFromOpt(userId);
         return UserMapper.createUserDto(user);
     }
 
     @Override
-    public UserDto update(UserDto userDto) {
-        User user = userStorage.getReferenceById(userDto.getId());
+    public User getUser(Long userId) {
+        return optionalHandler.getUserFromOpt(userId);
+    }
+
+    @Override
+    public UserDto update(UserDto userDto, Long id) {
+        User user = getUser(userDto.getId());
         User userToUpdate = UserMapper.createUser(userDto);
         if (userToUpdate.getName() != null) {
             user.setName(userToUpdate.getName());
@@ -59,18 +64,20 @@ public class UserServiceImpl implements UserService {
         if (emailValidate(userToUpdate.getEmail(), userToUpdate.getId())) {
             user.setEmail(userToUpdate.getEmail());
         }
-        userStorage.saveAndFlush(user);
-        User updatedUser = userStorage.getReferenceById(user.getId());
-        return UserMapper.createUserDto(updatedUser);
+        userRepository.save(user);
+        return UserMapper.createUserDto(getUser(user.getId()));
     }
 
     @Override
     public void delete(Long userId) {
-        User user = userStorage.getReferenceById(userId);
-        for (Item item : itemStorage.getItemsByOwner(user.getId())) {
-            itemStorage.deleteItem(item.getId());
+        User user = optionalHandler.getUserFromOpt(userId);
+        List<Item> itemsByOwner = itemRepository.findAll().stream()
+                .filter(item -> item.getOwner().getId().equals(userId))
+                .collect(toList());
+        for (Item item : itemsByOwner) {
+            itemRepository.deleteById(item.getId());
         }
-        userStorage.delete(user);
+        userRepository.delete(user);
     }
 
     private void userValidator(User user) {
@@ -86,7 +93,7 @@ public class UserServiceImpl implements UserService {
         if (email == null || !email.contains("@") || !email.contains(".")) {
             return false;
         }
-        for (User user : userStorage.findAll()) {
+        for (User user : userRepository.findAll()) {
             if (!user.getId().equals(id) && user.getEmail().equals(email)) {
                 throw new UserAlreadyExistsException("Пользователь с таким Email уже зарегистрирован");
             }

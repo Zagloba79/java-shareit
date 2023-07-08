@@ -14,5 +14,5 @@ public interface ItemRequestService {
 
     void delete(Long itemId, Long requesterId);
 
-    List<ItemRequestDto> getItemsByRequester(Long requesterId);
+    List<ItemRequestDto> getRequestsDtoByRequester(Long requesterId);
 }
