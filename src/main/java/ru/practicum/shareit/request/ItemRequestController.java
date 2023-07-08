@@ -5,8 +5,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 
-import java.util.List;
-
 import static ru.practicum.shareit.Constants.USER_ID;
 
 @RestController
@@ -26,11 +24,6 @@ public class ItemRequestController {
     public ItemRequestDto getItemRequestById(@PathVariable Long itemRequestId,
                                              @RequestHeader(USER_ID) Long requesterId) {
         return itemRequestService.getRequestById(itemRequestId);
-    }
-
-    @GetMapping("/{requesterId}")
-    public List<ItemRequestDto> getItemRequestsByRequester(@RequestHeader(USER_ID) Long requesterId) {
-        return itemRequestService.getItemsByRequester(requesterId);
     }
 
     @PatchMapping("/{itemRequestId}")

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ValidationException;
@@ -27,7 +28,7 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public BookingDto addNewBooking(BookingDto bookingDto, Long bookerId) {
+    public BookingDto create(NewBookingDto bookingDto, Long bookerId) {
         Item item = optionalHandler.getItemFromOpt(bookingDto.getItem().getId());
         User booker = optionalHandler.getUserFromOpt(bookerId);
         Booking booking = new Booking();

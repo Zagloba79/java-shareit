@@ -20,6 +20,7 @@ public class ItemRequest {
     private Long id;
     @Column(length=1000, nullable = false)
     private String description;
+    @Column
     private User requester;
     @Column(nullable = false)
     private LocalDate created;
