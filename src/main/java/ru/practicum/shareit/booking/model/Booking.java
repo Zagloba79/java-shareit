@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "bookings")
-public class Booking {
+public class Booking implements Comparable<Booking> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,4 +24,9 @@ public class Booking {
     private User booker;
     @Enumerated(EnumType.STRING)
     private BookingStatus status;
+
+    @Override
+    public int compareTo(Booking o) {
+        return 0;
+    }
 }
