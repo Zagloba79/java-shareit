@@ -17,6 +17,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiPredicate;
@@ -86,6 +87,7 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findAll().stream()
                 .filter(item -> item.getOwner().getId().equals(ownerId))
                 .map(ItemMapper::createItemDto)
+                .sorted(Comparator.comparing(ItemDto::getId))
                 .collect(toList());
     }
 
@@ -93,6 +95,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> findAll() {
         return itemRepository.findAll().stream()
                 .map(ItemMapper::createItemDto)
+                .sorted(Comparator.comparing(ItemDto::getId))
                 .collect(toList());
     }
 
@@ -114,6 +117,7 @@ public class ItemServiceImpl implements ItemService {
             return itemRepository.findAll().stream()
                     .filter(item -> isAvailable.test(item) && (isMatch.test(item, lowerText)))
                     .map(ItemMapper::createItemDto)
+                    .sorted(Comparator.comparing(ItemDto::getId))
                     .collect(toList());
         }
         return Collections.EMPTY_LIST;

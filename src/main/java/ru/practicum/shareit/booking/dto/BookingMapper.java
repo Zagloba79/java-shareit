@@ -18,13 +18,12 @@ public final class BookingMapper {
         return bookingDto;
     }
 
-    public static Booking createBooking(BookingDto bookingDto, User booker) {
+    public static Booking createNewBooking(NewBookingDto bookingDto, User booker) {
         Booking booking = new Booking();
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
         booking.setItem(bookingDto.getItem());
         booking.setBooker(booker);
-        booking.setStatus(bookingDto.getStatus());
         return booking;
     }
 }

@@ -35,10 +35,7 @@ public class BookingServiceImpl implements BookingService {
         if (item.getAvailable().equals(false)) {
             log.info("This item has been rented");
         } else {
-            booking.setStart(bookingDto.getStart());
-            booking.setEnd(bookingDto.getEnd());
-            booking.setItem(item);
-            booking.setBooker(booker);
+            BookingMapper.createNewBooking(bookingDto, booker);
             booking.setStatus(WAITING);
             bookingRepository.save(booking);
         }
