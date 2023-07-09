@@ -2,6 +2,8 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.feedback.FeedbackService;
@@ -11,15 +13,14 @@ import ru.practicum.shareit.feedback.dto.FeedbackMapper;
 import ru.practicum.shareit.handler.OptionalHandler;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithDatesDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.NearestBookings;
 import ru.practicum.shareit.request.ItemRequestStorage;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -34,6 +35,7 @@ public class ItemServiceImpl implements ItemService {
     private final FeedbackService feedbackService;
     private final FeedbackStorage feedbackStorage;
     private final ItemRequestStorage itemRequestStorage;
+    private final BookingService bookingService;
 
     static Predicate<Item> isAvailable = item ->
             Boolean.TRUE.equals(item.getAvailable());
@@ -82,13 +84,24 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getItemsByOwner(Long ownerId) {
+    public List<ItemWithDatesDto> getItemsByOwner(Long ownerId) {
         User owner = optionalHandler.getUserFromOpt(ownerId);
-        return itemRepository.findAll().stream()
+        List<ItemDto> itemsByOwner = itemRepository.findAll().stream()
                 .filter(item -> item.getOwner().getId().equals(ownerId))
                 .map(ItemMapper::createItemDto)
                 .sorted(Comparator.comparing(ItemDto::getId))
                 .collect(toList());
+        List<ItemWithDatesDto> itemsWithDates = new ArrayList<>();
+        for (ItemDto itemDto : itemsByOwner) {
+            ItemWithDatesDto itemWithDatesDto = new ItemWithDatesDto();
+            itemWithDatesDto.setId(itemDto.getId());
+            itemWithDatesDto.setName(itemDto.getName());
+            itemWithDatesDto.setDescription(itemDto.getDescription());
+            itemWithDatesDto.setAvailable(itemDto.getAvailable());
+            itemWithDatesDto.setDates(bookingService.getBookingsBeforeAndAfterNow(itemDto.getId(), ownerId));
+            itemsWithDates.add(itemWithDatesDto);
+        }
+        return itemsWithDates;
     }
 
     @Override

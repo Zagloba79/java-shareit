@@ -12,16 +12,10 @@ import javax.persistence.*;
 public class User {
     @Id // TODO надо дописать про каскад
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @MapsId
-    @OneToMany
-    @JoinColumn(name = "author_id", referencedColumnName = "id")
-    @JoinColumn(name = "owner_id", referencedColumnName = "id")
-    @JoinColumn(name = "requester_id", referencedColumnName = "id")
-    @JoinColumn(name = "booker_id", referencedColumnName = "id")
     private Long id;
-    @Column(nullable = false, unique=true)
+    @Column(nullable = false, unique = true)
     private String name;
-    @Column(length=512, nullable = false, unique=true)
+    @Column(length = 512, nullable = false, unique = true)
     private String email;
     @Enumerated(EnumType.STRING)
     private UserState state;

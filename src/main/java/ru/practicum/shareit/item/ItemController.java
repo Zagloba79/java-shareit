@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.feedback.FeedbackService;
 import ru.practicum.shareit.feedback.dto.FeedbackDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithDatesDto;
 
+import java.util.Collections;
 import java.util.List;
 
 import static ru.practicum.shareit.Constants.USER_ID;
@@ -30,11 +32,11 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByOwner(@RequestHeader(USER_ID) Long ownerId) {
+    public List<ItemWithDatesDto> getItemsByOwner(@RequestHeader(USER_ID) Long ownerId) {
         if (ownerId != null) {
             return itemService.getItemsByOwner(ownerId);
         }
-        return itemService.findAll();
+        return Collections.EMPTY_LIST;
     }
 
     @PatchMapping("/{itemId}")
@@ -53,10 +55,10 @@ public class ItemController {
         return itemService.getItemsByQuery(text, ownerId);
     }
 
-    @PostMapping("/{itemId}/comment")
-    public FeedbackDto createFeedback(@RequestBody FeedbackDto feedbackDto,
-                                      @RequestHeader(USER_ID) Long bookerId,
-                                      @PathVariable Long itemId) {
-        return feedbackService.createFeedback(feedbackDto, bookerId, itemId);
-    }
+//    @PostMapping("/{itemId}/comment")
+//    public Comment createComment(@RequestBody CommentDto commentDto,
+//                                      @RequestHeader(USER_ID) Long bookerId,
+//                                      @PathVariable Long itemId) {
+//        return feedbackService.createFeedback(commentDto, bookerId, itemId);
+//    }
 }

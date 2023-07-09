@@ -15,11 +15,13 @@ public class Feedback {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable =false)
+    @Column(name = "item_id", nullable = false)
     private Long itemId;
+    @OneToOne
+    @JoinColumn(name = "author_id")
     private User author;
     @Column(length = 1000)
     private String comment;
-    @Column(nullable =false)
+    @Column(nullable = false)
     private LocalDateTime created;
 }

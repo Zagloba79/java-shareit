@@ -14,16 +14,15 @@ import javax.persistence.*;
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @MapsId
-    @OneToOne
-    @JoinColumn(name = "item_id")
     private Long id;
     @Column(nullable = false)
     private String name;
-    @Column(length=1000, nullable = false)
+    @Column(length = 1000, nullable = false)
     private String description;
     @Column(nullable = false)
     private Boolean available;
+    @OneToOne
+    @JoinColumn(name = "owner_id")
     private User owner;
     private ItemRequest request;
 }

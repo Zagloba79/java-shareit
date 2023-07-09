@@ -10,9 +10,12 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handler.OptionalHandler;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.model.NearestBookings;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -78,6 +81,26 @@ public class BookingServiceImpl implements BookingService {
                 .filter(booking -> booking.getItem().getId().equals(itemId))
                 .map(BookingMapper::createBookingDto)
                 .collect(toList());
+    }
+
+    @Override
+    public NearestBookings getBookingsBeforeAndAfterNow(Long itemId, Long ownerId) {
+        LocalDateTime timeIsNow = LocalDateTime.now();
+        NearestBookings neededBookings = new NearestBookings();
+        List<BookingDto> bookings = getBookingsDtoByItem(itemId, ownerId);
+        List<BookingDto> bookingsBefore = bookings.stream()
+                .filter(booking -> booking.getEnd().isBefore(timeIsNow))
+                .sorted((b1, b2) -> b2.getEnd().compareTo(b1.getEnd()))
+                .collect(toList());
+        neededBookings.setPreviousBookingStart(bookingsBefore.get(0).getStart());
+        neededBookings.setPreviousBookingEnd(bookingsBefore.get(0).getEnd());
+        List<BookingDto> bookingsAfter = bookings.stream()
+                .filter(booking -> booking.getStart().isAfter(timeIsNow))
+                .sorted(Comparator.comparing(BookingDto::getStart))
+                .collect(toList());
+        neededBookings.setNextBookingStart(bookingsAfter.get(0).getStart());
+        neededBookings.setNextBookingEnd(bookingsAfter.get(0).getEnd());
+        return neededBookings;
     }
 
     @Override
