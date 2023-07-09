@@ -14,11 +14,8 @@ import java.time.LocalDate;
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @MapsId
-    @OneToOne
-    @JoinColumn(name = "request_id")
     private Long id;
-    @Column(length=1000, nullable = false)
+    @Column(length = 1000, nullable = false)
     private String description;
     @Column
     private User requester;

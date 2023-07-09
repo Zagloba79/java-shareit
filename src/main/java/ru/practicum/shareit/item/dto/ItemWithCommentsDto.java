@@ -3,16 +3,16 @@ package ru.practicum.shareit.item.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.item.model.NearestBookings;
+import ru.practicum.shareit.item.model.Comment;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class ItemWithDatesDto {
-    @NotNull
+public class ItemWithCommentsDto {
     private Long id;
     @NotBlank
     private String name;
@@ -20,6 +20,5 @@ public class ItemWithDatesDto {
     private String description;
     @NotNull
     private Boolean available;
-    @NotNull
-    private NearestBookings dates;
+    private List<Comment> comments;
 }

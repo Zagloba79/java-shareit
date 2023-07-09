@@ -20,7 +20,11 @@ public class Booking implements Comparable<Booking> {
     private LocalDateTime start;
     @Column(name = "end_date", nullable = false)
     private LocalDateTime end;
+    @OneToOne
+    @JoinColumn(name = "item_id")
     private Item item;
+    @OneToOne
+    @JoinColumn(name = "booker_id")
     private User booker;
     @Enumerated(EnumType.STRING)
     private BookingStatus status;

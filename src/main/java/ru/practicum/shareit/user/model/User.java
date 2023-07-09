@@ -20,9 +20,3 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserState state;
 }
-
-//    @OneToMany
-//    @JoinColumn(name = "TEACHER_ID", referencedColumnName = "ID")
-//    private List<Course> courses;
-//    Использование этой аннотации сообщит JPA, что COURSE должна иметь столбец внешнего ключа TEACHER_ID
-//    который ссылается на столбец ID таблицы TEACHER

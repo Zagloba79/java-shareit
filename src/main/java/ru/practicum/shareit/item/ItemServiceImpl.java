@@ -70,31 +70,32 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto getItemById(Long itemId, Long ownerId) {
+    public ItemWithCommentsDto getItemById(Long itemId, Long ownerId) {
         User owner = optionalHandler.getUserFromOpt(ownerId);
         Item item = optionalHandler.getItemFromOpt(itemId);
-        return ItemMapper.createItemDto(item);
+        List<Comment> comments = getCommentsByItem(itemId);
+        return ItemMapper.createItemWithCommentsDto(item, comments);
     }
 
     @Override
-    public List<ItemWithDatesDto> getItemsByOwner(Long ownerId) {
+    public List<ItemWithDatesAndCommentsDto> getItemsByOwner(Long ownerId) {
         User owner = optionalHandler.getUserFromOpt(ownerId);
         List<ItemDto> itemsByOwner = itemRepository.findAll().stream()
                 .filter(item -> item.getOwner().getId().equals(ownerId))
                 .map(ItemMapper::createItemDto)
-                .sorted(Comparator.comparing(ItemDto::getId))
                 .collect(toList());
-        List<ItemWithDatesDto> itemsWithDates = new ArrayList<>();
+        List<ItemWithDatesAndCommentsDto> itemsWithDatesAndComments = new ArrayList<>();
         for (ItemDto itemDto : itemsByOwner) {
-            ItemWithDatesDto itemWithDatesDto = new ItemWithDatesDto();
-            itemWithDatesDto.setId(itemDto.getId());
-            itemWithDatesDto.setName(itemDto.getName());
-            itemWithDatesDto.setDescription(itemDto.getDescription());
-            itemWithDatesDto.setAvailable(itemDto.getAvailable());
-            itemWithDatesDto.setDates(bookingService.getBookingsBeforeAndAfterNow(itemDto.getId(), ownerId));
-            itemsWithDates.add(itemWithDatesDto);
+            ItemWithDatesAndCommentsDto item = new ItemWithDatesAndCommentsDto();
+            item.setId(itemDto.getId());
+            item.setName(itemDto.getName());
+            item.setDescription(itemDto.getDescription());
+            item.setAvailable(itemDto.getAvailable());
+            item.setDates(bookingService.getBookingsBeforeAndAfterNow(itemDto.getId(), ownerId));
+            item.setComments(getCommentsByItem(item.getId()));
+            itemsWithDatesAndComments.add(item);
         }
-        return itemsWithDates;
+        return itemsWithDatesAndComments;
     }
 
     @Override
@@ -133,9 +134,15 @@ public class ItemServiceImpl implements ItemService {
         Item item = optionalHandler.getItemFromOpt(itemId);
         User author = optionalHandler.getUserFromOpt(authorId);
         authorValidate(itemId, authorId);
-        Comment comment = CommentMapper.createComment(commentDto, item, author);
+        Comment comment = CommentMapper.createComment(commentDto);
         commentRepository.save(comment);
         return CommentMapper.createCommentDto(comment);
+    }
+
+    private List<Comment> getCommentsByItem(Long itemId) {
+        return commentRepository.findAll().stream()
+                .filter(comment -> comment.getItem().getId().equals(itemId))
+                .collect(toList());
     }
 
     private void itemValidate(Item item) {
@@ -154,8 +161,8 @@ public class ItemServiceImpl implements ItemService {
         if (bookingService.getBookingsDtoByItem(itemId, authorId).stream()
                 .filter(bookingDto -> bookingDto.getBooker().getId().equals(authorId))
                 .noneMatch(bookingDto -> bookingDto.getStatus().equals(APPROVED))) {
-            throw new ValidationException
-                    ("Юзер с id = " + authorId + " никогда не арендовал предмет с id = " + itemId);
+            throw new ValidationException(
+                    "Юзер с id = " + authorId + " никогда не арендовал предмет с id = " + itemId);
         }
     }
 }

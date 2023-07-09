@@ -1,4 +1,3 @@
---TODO Дописать Констрейнты
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
 

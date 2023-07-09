@@ -17,7 +17,7 @@ public class CommentMapper {
         return commentDto;
     }
 
-    public static Comment createComment(CommentDto commentDto, Item item, User author) {
+    public static Comment createComment(CommentDto commentDto) {
         Comment comment = new Comment();
         comment.setId(commentDto.getId());
         comment.setText(commentDto.getText());
