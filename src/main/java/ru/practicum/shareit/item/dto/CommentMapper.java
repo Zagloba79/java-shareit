@@ -5,12 +5,6 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import javax.persistence.Column;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.validation.constraints.NotBlank;
-import java.time.LocalDateTime;
-
 @UtilityClass
 public class CommentMapper {
     public static CommentDto createCommentDto(Comment comment) {
