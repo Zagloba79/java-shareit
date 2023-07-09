@@ -14,8 +14,6 @@ import ru.practicum.shareit.item.model.NearestBookings;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 
@@ -85,21 +83,16 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public NearestBookings getBookingsBeforeAndAfterNow(Long itemId, Long ownerId) {
-        LocalDateTime timeIsNow = LocalDateTime.now();
+        LocalDateTime presentTime = LocalDateTime.now();
         NearestBookings neededBookings = new NearestBookings();
-        List<BookingDto> bookings = getBookingsDtoByItem(itemId, ownerId);
-        List<BookingDto> bookingsBefore = bookings.stream()
-                .filter(booking -> booking.getEnd().isBefore(timeIsNow))
-                .sorted((b1, b2) -> b2.getEnd().compareTo(b1.getEnd()))
-                .collect(toList());
-        neededBookings.setPreviousBookingStart(bookingsBefore.get(0).getStart());
-        neededBookings.setPreviousBookingEnd(bookingsBefore.get(0).getEnd());
-        List<BookingDto> bookingsAfter = bookings.stream()
-                .filter(booking -> booking.getStart().isAfter(timeIsNow))
-                .sorted(Comparator.comparing(BookingDto::getStart))
-                .collect(toList());
-        neededBookings.setNextBookingStart(bookingsAfter.get(0).getStart());
-        neededBookings.setNextBookingEnd(bookingsAfter.get(0).getEnd());
+        Booking previousBooking = bookingRepository
+                .findFirstByItem_IdAndEndBeforeOrderByEndDesc(itemId, presentTime);
+        neededBookings.setPreviousBookingStart(previousBooking.getStart());
+        neededBookings.setPreviousBookingEnd(previousBooking.getEnd());
+        Booking nextBooking = bookingRepository
+                .findFirstByItem_IdAndStartAfterOrderByStartAsc(itemId, presentTime);
+        neededBookings.setNextBookingStart(nextBooking.getStart());
+        neededBookings.setNextBookingEnd(nextBooking.getEnd());
         return neededBookings;
     }
 

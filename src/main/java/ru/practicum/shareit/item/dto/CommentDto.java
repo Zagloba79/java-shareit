@@ -1,31 +1,26 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
-@Table(name = "comments")
-public class Comment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class CommentDto {
     private Long id;
     @NotBlank
     private String text;
-    @OneToOne
-    @JoinColumn(name = "item_id")
+    @NotNull
     private Item item;
-    @OneToOne
-    @JoinColumn(name = "author_id")
+    @NotNull
     private User author;
-    @Column(nullable = false)
+    @NotNull
     private LocalDateTime created;
 }

@@ -3,19 +3,12 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.feedback.FeedbackService;
-import ru.practicum.shareit.feedback.FeedbackStorage;
-import ru.practicum.shareit.feedback.dto.FeedbackDto;
-import ru.practicum.shareit.feedback.dto.FeedbackMapper;
 import ru.practicum.shareit.handler.OptionalHandler;
-import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemWithDatesDto;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.model.NearestBookings;
 import ru.practicum.shareit.request.ItemRequestStorage;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
@@ -25,6 +18,7 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
+import static ru.practicum.shareit.booking.model.BookingStatus.APPROVED;
 
 @Service
 @RequiredArgsConstructor
@@ -32,10 +26,9 @@ public class ItemServiceImpl implements ItemService {
 
     private final OptionalHandler optionalHandler;
     private final ItemRepository itemRepository;
-    private final FeedbackService feedbackService;
-    private final FeedbackStorage feedbackStorage;
     private final ItemRequestStorage itemRequestStorage;
     private final BookingService bookingService;
+    private final CommentRepository commentRepository;
 
     static Predicate<Item> isAvailable = item ->
             Boolean.TRUE.equals(item.getAvailable());
@@ -45,7 +38,7 @@ public class ItemServiceImpl implements ItemService {
                     item.getDescription().toLowerCase().contains(text));
 
     @Override
-    public ItemDto create(ItemDto itemDto, Long ownerId) {
+    public ItemDto createItem(ItemDto itemDto, Long ownerId) {
         User owner = optionalHandler.getUserFromOpt(ownerId);
         Item item = ItemMapper.createItem(itemDto, owner);
         itemValidate(item);
@@ -56,7 +49,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto update(ItemDto itemDto, Long itemId, Long ownerId) {
+    public ItemDto updateItem(ItemDto itemDto, Long itemId, Long ownerId) {
         Item item = optionalHandler.getItemFromOpt(itemId);
         User owner = optionalHandler.getUserFromOpt(ownerId);
         if (!item.getOwner().equals(owner)) {
@@ -121,7 +114,6 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-
     @Override
     public List<ItemDto> getItemsByQuery(String text, Long ownerId) {
         User owner = optionalHandler.getUserFromOpt(ownerId);
@@ -137,10 +129,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public FeedbackDto createFeedback(FeedbackDto feedbackDto, Long itemId, Long bookerId) {
-        User booker = optionalHandler.getUserFromOpt(bookerId);
-        feedbackService.createFeedback(feedbackDto, itemId, booker.getId());
-        return FeedbackMapper.createFeedbackDto(feedbackStorage.getFeedback(feedbackDto.getId()));
+    public CommentDto createComment(CommentDto commentDto, Long itemId, Long authorId) {
+        Item item = optionalHandler.getItemFromOpt(itemId);
+        User author = optionalHandler.getUserFromOpt(authorId);
+        authorValidate(itemId, authorId);
+        Comment comment = CommentMapper.createComment(commentDto, item, author);
+        commentRepository.save(comment);
+        return CommentMapper.createCommentDto(comment);
     }
 
     private void itemValidate(Item item) {
@@ -152,6 +147,15 @@ public class ItemServiceImpl implements ItemService {
         }
         if (item.getDescription() == null || item.getDescription().isBlank()) {
             throw new ValidationException("Некорректное описание предмета: " + item.getDescription());
+        }
+    }
+
+    private void authorValidate(Long itemId, Long authorId) {
+        if (bookingService.getBookingsDtoByItem(itemId, authorId).stream()
+                .filter(bookingDto -> bookingDto.getBooker().getId().equals(authorId))
+                .noneMatch(bookingDto -> bookingDto.getStatus().equals(APPROVED))) {
+            throw new ValidationException
+                    ("Юзер с id = " + authorId + " никогда не арендовал предмет с id = " + itemId);
         }
     }
 }

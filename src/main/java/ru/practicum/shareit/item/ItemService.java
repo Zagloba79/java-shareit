@@ -1,13 +1,13 @@
 package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.feedback.dto.FeedbackDto;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithDatesDto;
 
 import java.util.List;
 
 public interface ItemService {
-    ItemDto create(ItemDto itemDto, Long ownerId);
+    ItemDto createItem(ItemDto itemDto, Long ownerId);
 
     ItemDto getItemById(Long itemId, Long ownerId);
 
@@ -19,7 +19,7 @@ public interface ItemService {
 
     List<ItemDto> getItemsByQuery(String text, Long ownerId);
 
-    FeedbackDto createFeedback(FeedbackDto feedbackDto, Long itemId, Long userId);
+    CommentDto createComment(CommentDto feedbackDto, Long itemId, Long userId);
 
-    ItemDto update(ItemDto itemDto, Long itemId, Long ownerId);
+    ItemDto updateItem(ItemDto itemDto, Long itemId, Long ownerId);
 }
