@@ -21,16 +21,10 @@ public class Item {
     private String description;
     @Column(nullable = false)
     private Boolean available;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
     @OneToOne
     @JoinColumn(name = "request_id")
     private ItemRequest request;
 }
-
-//    @ElementCollection
-//    @CollectionTable(name="tags", joinColumns=@JoinColumn(name="item_id"))
-//    @Column(name="name")
-//    private Set<String> tags = new HashSet<>();
-//    https://practicum.yandex.ru/learn/java-developer/courses/ec5e03ed-e12f-43c5-93d1-638a79454e03/sprints/93440/topics/40bf15e5-a64b-400c-b9cc-eea2ee6d32e9/lessons/5e8e7972-490b-44d0-9374-68d743852e87/

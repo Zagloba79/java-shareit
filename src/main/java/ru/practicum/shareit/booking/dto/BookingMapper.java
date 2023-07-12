@@ -3,7 +3,10 @@ package ru.practicum.shareit.booking.dto;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BookingMapper {
@@ -18,11 +21,11 @@ public final class BookingMapper {
         return bookingDto;
     }
 
-    public static Booking createNewBooking(NewBookingDto bookingDto, User booker) {
+    public static Booking createNewBooking(LocalDateTime start, LocalDateTime end, Item item, User booker) {
         Booking booking = new Booking();
-        booking.setStart(bookingDto.getStart());
-        booking.setEnd(bookingDto.getEnd());
-        booking.setItem(bookingDto.getItem());
+        booking.setStart(start);
+        booking.setEnd(end);
+        booking.setItem(item);
         booking.setBooker(booker);
         return booking;
     }

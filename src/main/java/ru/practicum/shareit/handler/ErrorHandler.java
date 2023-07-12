@@ -16,7 +16,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleMissingRequestHeaderException(final MissingRequestHeaderException e) {
         return new ErrorResponse(
-                "Хэдер пустой"
+                e.getMessage()
         );
     }
 
@@ -24,7 +24,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleObjectNotFoundException(final ObjectNotFoundException e) {
         return new ErrorResponse(
-                "Объект не найден"
+                e.getMessage()
         );
     }
 
@@ -32,7 +32,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleUserAlreadyExistsException(final UserAlreadyExistsException e) {
         return new ErrorResponse(
-                "Такой юзер уже есть"
+                e.getMessage()
         );
     }
 
@@ -40,7 +40,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
         return new ErrorResponse(
-                "Юзер не отвалидировался"
+                e.getMessage()
         );
     }
 
@@ -49,7 +49,7 @@ public class ErrorHandler {
     public ErrorResponse handleThrowable(final Exception e) {
         e.printStackTrace();
         return new ErrorResponse(
-                "Произошла непредвиденная ошибка."
+                e.getMessage()
         );
     }
 }

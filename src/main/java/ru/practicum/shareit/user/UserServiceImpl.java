@@ -25,15 +25,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
-        for (User thisUser : userRepository.findAll()) {
-            if (thisUser.getEmail().equals(userDto.getEmail())) {
-                throw new UserAlreadyExistsException("Пользователь с таким Email уже зарегистрирован");
-            }
-        }
         User user = UserMapper.createUser(userDto);
         userValidator(user);
-        userRepository.save(user);
-        return UserMapper.createUserDto(user);
+        User savedUser = userRepository.save(user);
+        return UserMapper.createUserDto(savedUser);
     }
 
     @Override

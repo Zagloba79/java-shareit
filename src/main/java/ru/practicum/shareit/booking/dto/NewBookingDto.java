@@ -15,14 +15,12 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class NewBookingDto {
-    @NotNull
     @FutureOrPresent
     private LocalDateTime start;
-    @NotNull
     @Future
     private LocalDateTime end;
     @NotNull
-    private Item item;
+    private Long itemId;
     @NotNull
     private User booker;
 }

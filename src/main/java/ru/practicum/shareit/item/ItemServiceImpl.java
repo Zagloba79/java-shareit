@@ -39,9 +39,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto createItem(ItemDto itemDto, Long ownerId) {
+        itemValidate(itemDto);
         User owner = optionalHandler.getUserFromOpt(ownerId);
         Item item = ItemMapper.createItem(itemDto, owner);
-        itemValidate(item);
         Optional<ItemRequest> request = itemRequestStorage.getItemRequestByItem(item);
         request.ifPresent(item::setRequest);
         itemRepository.save(item);
@@ -55,18 +55,17 @@ public class ItemServiceImpl implements ItemService {
         if (!item.getOwner().equals(owner)) {
             throw new ObjectNotFoundException("Собственник не тот");
         }
-        Item itemToUpdate = ItemMapper.createItem(itemDto, owner);
-        if (itemToUpdate.getName() != null) {
-            item.setName(itemToUpdate.getName());
+        if (itemDto.getName() != null) {
+            item.setName(itemDto.getName());
         }
-        if (itemToUpdate.getDescription() != null) {
-            item.setDescription(itemToUpdate.getDescription());
+        if (itemDto.getDescription() != null) {
+            item.setDescription(itemDto.getDescription());
         }
-        if (itemToUpdate.getAvailable() != null) {
+        if (itemDto.getAvailable() != null) {
             item.setAvailable(itemDto.getAvailable());
         }
         itemRepository.save(item);
-        return ItemMapper.createItemDto(itemToUpdate);
+        return ItemMapper.createItemDto(item);
     }
 
     @Override
@@ -91,7 +90,7 @@ public class ItemServiceImpl implements ItemService {
             item.setName(itemDto.getName());
             item.setDescription(itemDto.getDescription());
             item.setAvailable(itemDto.getAvailable());
-            item.setDates(bookingService.getBookingsBeforeAndAfterNow(itemDto.getId(), ownerId));
+            //item.setDates(bookingService.getBookingsBeforeAndAfterNow(itemDto.getId(), ownerId));
             item.setComments(getCommentsByItem(item.getId()));
             itemsWithDatesAndComments.add(item);
         }
@@ -145,15 +144,15 @@ public class ItemServiceImpl implements ItemService {
                 .collect(toList());
     }
 
-    private void itemValidate(Item item) {
-        if (item.getAvailable() == null) {
-            throw new ValidationException("Поле статуса не заполнено");
+    private void itemValidate(ItemDto itemDto) {
+        if (itemDto.getName() == null || itemDto.getName().isBlank()) {
+            throw new ValidationException("Некорректное название предмета: " + itemDto.getName());
         }
-        if (item.getName() == null || item.getName().isBlank()) {
-            throw new ValidationException("Некорректное название предмета: " + item.getName());
+        if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
+            throw new ValidationException("Некорректное описание предмета: " + itemDto.getDescription());
         }
-        if (item.getDescription() == null || item.getDescription().isBlank()) {
-            throw new ValidationException("Некорректное описание предмета: " + item.getDescription());
+        if (itemDto.getAvailable() == null) {
+            throw new ValidationException("Некорректный статус предмета: ");
         }
     }
 

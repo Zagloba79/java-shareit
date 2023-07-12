@@ -31,16 +31,18 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto create(NewBookingDto bookingDto, Long bookerId) {
-        Item item = optionalHandler.getItemFromOpt(bookingDto.getItem().getId());
         User booker = optionalHandler.getUserFromOpt(bookerId);
-        Booking booking = new Booking();
-        if (item.getAvailable().equals(false)) {
-            log.info("This item has been rented");
-        } else {
-            BookingMapper.createNewBooking(bookingDto, booker);
-            booking.setStatus(WAITING);
-            bookingRepository.save(booking);
-        }
+        Long itemId = bookingDto.getItemId();
+        Item item = optionalHandler.getItemFromOpt(itemId);
+        itemValidate(item);
+        bookingValidate(bookingDto);
+        Booking booking = BookingMapper.createNewBooking(
+                bookingDto.getStart(),
+                bookingDto.getEnd(),
+                item,
+                booker);
+        booking.setStatus(WAITING);
+        bookingRepository.save(booking);
         Booking bookingFromRepository = optionalHandler.getBookingFromOpt(booking.getId());
         return BookingMapper.createBookingDto(bookingFromRepository);
     }
@@ -82,39 +84,24 @@ public class BookingServiceImpl implements BookingService {
                 .collect(toList());
     }
 
-//    @Override
-//    public NearestBookings getBookingsBeforeAndAfterNow(Long itemId, Long ownerId) {
-//        LocalDateTime presentTime = LocalDateTime.now();
-//        NearestBookings neededBookings = new NearestBookings();
-//        Booking previousBooking = bookingRepository
-//                .findFirstByItem_IdAndEndBeforeOrderByEndDesc(itemId, presentTime);
-//        neededBookings.setPreviousBookingStart(previousBooking.getStart());
-//        neededBookings.setPreviousBookingEnd(previousBooking.getEnd());
-//        Booking nextBooking = bookingRepository
-//                .findFirstByItem_IdAndStartAfterOrderByStartAsc(itemId, presentTime);
-//        neededBookings.setNextBookingStart(nextBooking.getStart());
-//        neededBookings.setNextBookingEnd(nextBooking.getEnd());
-//        return neededBookings;
-//    }
-
     @Override
     public NearestBookings getBookingsBeforeAndAfterNow(Long itemId, Long ownerId) {
-        LocalDateTime timeIsNow = LocalDateTime.now();
-        NearestBookings neededBookings = new NearestBookings();
+        LocalDateTime presentTime = LocalDateTime.now();
+        NearestBookings nearestBookings = new NearestBookings();
         List<BookingDto> bookings = getBookingsDtoByItem(itemId, ownerId);
         List<BookingDto> bookingsBefore = bookings.stream()
-                .filter(booking -> booking.getEnd().isBefore(timeIsNow))
+                .filter(booking -> booking.getEnd().isBefore(presentTime))
                 .sorted((b1, b2) -> b2.getEnd().compareTo(b1.getEnd()))
                 .collect(toList());
-        neededBookings.setPreviousBookingStart(bookingsBefore.get(0).getStart());
-        neededBookings.setPreviousBookingEnd(bookingsBefore.get(0).getEnd());
+        nearestBookings.setPreviousBookingStart(bookingsBefore.get(0).getStart());
+        nearestBookings.setPreviousBookingEnd(bookingsBefore.get(0).getEnd());
         List<BookingDto> bookingsAfter = bookings.stream()
-                .filter(booking -> booking.getStart().isAfter(timeIsNow))
+                .filter(booking -> booking.getStart().isAfter(presentTime))
                 .sorted(Comparator.comparing(BookingDto::getStart))
                 .collect(toList());
-        neededBookings.setNextBookingStart(bookingsAfter.get(0).getStart());
-        neededBookings.setNextBookingEnd(bookingsAfter.get(0).getEnd());
-        return neededBookings;
+        nearestBookings.setNextBookingStart(bookingsAfter.get(0).getStart());
+        nearestBookings.setNextBookingEnd(bookingsAfter.get(0).getEnd());
+        return nearestBookings;
     }
 
     @Override
@@ -207,5 +194,22 @@ public class BookingServiceImpl implements BookingService {
         }
         bookings.sort((b1, b2) -> b2.getStart().compareTo(b1.getStart()));
         return bookings;
+    }
+
+    private void itemValidate(Item item) {
+        if (item.getAvailable() == null || !item.getAvailable()) {
+            throw new ValidationException("Некорректный статус предмета: ");
+        }
+    }
+
+    private void bookingValidate(NewBookingDto bookingDto) {
+        if (bookingDto.getStart() == null ||
+                bookingDto.getEnd() == null ||
+                bookingDto.getStart().isBefore(LocalDateTime.now()) ||
+                bookingDto.getEnd().isBefore(LocalDateTime.now()) ||
+                bookingDto.getEnd().isBefore(bookingDto.getStart()) ||
+                bookingDto.getStart().equals(bookingDto.getEnd())) {
+            throw new ValidationException("даты попутаны");
+        }
     }
 }
