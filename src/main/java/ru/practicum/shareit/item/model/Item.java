@@ -24,7 +24,8 @@ public class Item {
     @OneToOne
     @JoinColumn(name = "owner_id")
     private User owner;
-    @Column(nullable = false)
+    @OneToOne
+    @JoinColumn(name = "request_id")
     private ItemRequest request;
 }
 

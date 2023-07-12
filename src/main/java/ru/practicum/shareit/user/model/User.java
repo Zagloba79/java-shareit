@@ -10,13 +10,11 @@ import javax.persistence.*;
 @Entity
 @Table(name = "users")
 public class User {
-    @Id // TODO надо дописать про каскад
+    @Id //  надо дописать про каскад
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false, unique = true)
     private String name;
     @Column(length = 512, nullable = false, unique = true)
     private String email;
-    @Enumerated(EnumType.STRING)
-    private UserState state;
 }
