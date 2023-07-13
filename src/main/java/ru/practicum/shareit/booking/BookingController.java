@@ -25,7 +25,7 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public BookingDto update(@PathVariable Long bookingId,
-                             @RequestHeader(USER_ID) Long userId, @RequestParam boolean approved) {
+                             @RequestHeader(USER_ID) Long userId, @RequestParam Boolean approved) {
         return bookingService.update(bookingId, userId, approved);
     }
 
@@ -36,10 +36,10 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getBookingsByBookerAndState(
+    public List<BookingDto> getBookingsByUserAndState(
             @RequestParam(name = "state", defaultValue = "ALL") String state,
              @RequestHeader(USER_ID) Long userId) {
-        return bookingService.getBookingsDtoByBookerAndState(state, userId);
+        return bookingService.getBookingsDtoByUserAndState(state, userId);
     }
 
     @GetMapping("/owner")
@@ -47,11 +47,5 @@ public class BookingController {
             @RequestParam(name = "state", defaultValue = "ALL") String state,
              @RequestHeader(USER_ID) Long userId) {
         return bookingService.getBookingsDtoByOwnerAndState(state, userId);
-    }
-
-    @GetMapping("/{itemId}")
-    public List<BookingDto> getBookingByItem(@PathVariable Long itemId,
-                                             @RequestHeader(USER_ID) Long bookerId) {
-        return bookingService.getBookingsDtoByItem(itemId, bookerId);
     }
 }

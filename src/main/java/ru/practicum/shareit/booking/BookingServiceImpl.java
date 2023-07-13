@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handler.OptionalHandler;
 import ru.practicum.shareit.item.model.Item;
@@ -14,6 +15,7 @@ import ru.practicum.shareit.item.model.NearestBookings;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -31,11 +33,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto create(NewBookingDto bookingDto, Long bookerId) {
+        LocalDateTime presentTime = LocalDateTime.now().minusMinutes(10);
         User booker = optionalHandler.getUserFromOpt(bookerId);
         Long itemId = bookingDto.getItemId();
         Item item = optionalHandler.getItemFromOpt(itemId);
         itemValidate(item);
-        bookingValidate(bookingDto);
+        bookingValidate(bookingDto, presentTime);
         Booking booking = BookingMapper.createNewBooking(
                 bookingDto.getStart(),
                 bookingDto.getEnd(),
@@ -43,32 +46,28 @@ public class BookingServiceImpl implements BookingService {
                 booker);
         booking.setStatus(WAITING);
         bookingRepository.save(booking);
-        Booking bookingFromRepository = optionalHandler.getBookingFromOpt(booking.getId());
-        return BookingMapper.createBookingDto(bookingFromRepository);
+        return BookingMapper.createBookingDto(booking);
     }
 
     @Override
-    public void approveBooking(Booking booking, Long ownerId) {
+    public void approveBooking(Booking booking, User owner) {
         Item item = optionalHandler.getItemFromOpt(booking.getItem().getId());
-        User owner = optionalHandler.getUserFromOpt(ownerId);
         if (booking.getStatus().equals(WAITING) && item.getOwner().equals(owner)) {
             booking.setStatus(APPROVED);
         }
     }
 
     @Override
-    public void rejectBooking(Booking booking, Long ownerId) {
+    public void rejectBooking(Booking booking, User owner) {
         Item item = optionalHandler.getItemFromOpt(booking.getItem().getId());
-        User owner = optionalHandler.getUserFromOpt(ownerId);
         if (booking.getStatus().equals(WAITING) && item.getOwner().equals(owner)) {
             booking.setStatus(REJECTED);
         }
     }
 
     @Override
-    public void cancelBooking(Booking booking, Long bookerId) {
+    public void cancelBooking(Booking booking, User booker) {
         Item item = optionalHandler.getItemFromOpt(booking.getItem().getId());
-        User booker = optionalHandler.getUserFromOpt(bookerId);
         if ((booking.getStatus().equals(WAITING) || booking.getStatus().equals(APPROVED))
                 && booking.getBooker().equals(booker)) {
             booking.setStatus(CANCELED);
@@ -105,20 +104,28 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto update(Long bookingId, Long userId, boolean approved) {
+    public BookingDto update(Long bookingId, Long userId, Boolean approved) {
         Booking booking = optionalHandler.getBookingFromOpt(bookingId);
+        if (booking.getStatus().equals(APPROVED)) {
+            throw new ValidationException("Booking is approved");
+        }
         User user = optionalHandler.getUserFromOpt(userId);
         if (booking.getItem().getOwner().getId().equals(userId)) {
             if (approved) {
-                approveBooking(booking, userId);
+                approveBooking(booking, user);
             } else {
-                rejectBooking(booking, userId);
+                rejectBooking(booking, user);
             }
         } else if (booking.getBooker().getId().equals(userId)) {
-            cancelBooking(booking, userId);
+            if (approved) {
+                cancelBooking(booking, user);
+            } else {
+                throw new ObjectNotFoundException("Левый чувак");
+            }
         } else {
             throw new ValidationException("Левый чувак");
         }
+        bookingRepository.save(booking);
         return BookingMapper.createBookingDto(booking);
     }
 
@@ -126,9 +133,9 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto getBookingDtoById(Long bookingId, Long userId) {
         User user = optionalHandler.getUserFromOpt(userId);
         Booking booking = optionalHandler.getBookingFromOpt(bookingId);
-        if (!booking.getBooker().getId().equals(user.getId()) ||
+        if (!booking.getBooker().getId().equals(user.getId()) &&
                 !booking.getItem().getOwner().getId().equals(user.getId())) {
-            throw new ValidationException("Левый чувак");
+            throw new ObjectNotFoundException("Левый чувак");
         }
         return BookingMapper.createBookingDto(booking);
     }
@@ -140,21 +147,29 @@ public class BookingServiceImpl implements BookingService {
                 .filter(booking -> booking.getBooker().getId().equals(bookerId))
                 .map(BookingMapper::createBookingDto)
                 .collect(toList());
-        return sortedByState(state, listByUser);
+        return filterByStateAndSortByStart(state, listByUser);
     }
 
     @Override
     public List<BookingDto> getBookingsDtoByOwnerAndState(String state, Long ownerId) {
-        User booker = optionalHandler.getUserFromOpt(ownerId);
+        User owner = optionalHandler.getUserFromOpt(ownerId);
         List<BookingDto> listByUser = bookingRepository.findAll().stream()
                 .filter(booking -> booking.getItem().getOwner().getId().equals(ownerId))
                 .map(BookingMapper::createBookingDto)
                 .collect(toList());
-        return sortedByState(state, listByUser);
+        return filterByStateAndSortByStart(state, listByUser);
     }
 
+    @Override
+    public List<BookingDto> getBookingsDtoByUserAndState(String state, Long userId) {
+        List<BookingDto> listByBooker = getBookingsDtoByBookerAndState(state, userId);
+        List<BookingDto> listByOwner = getBookingsDtoByOwnerAndState(state, userId);
+        List<BookingDto> list = new ArrayList<>(listByBooker);
+        list.addAll(listByOwner);
+        return filterByStateAndSortByStart(state, list);
+    }
 
-    private List<BookingDto> sortedByState(String state, List<BookingDto> listByUser) {
+    private List<BookingDto> filterByStateAndSortByStart(String state, List<BookingDto> listByUser) {
         List<BookingDto> bookings;
         switch (state) {
             case "ALL":
@@ -190,7 +205,7 @@ public class BookingServiceImpl implements BookingService {
                         .collect(toList());
                 break;
             default:
-                throw new ValidationException("Неизвестное нам слово - " + state);
+                throw new ValidationException("Unknown state: " + state);
         }
         bookings.sort((b1, b2) -> b2.getStart().compareTo(b1.getStart()));
         return bookings;
@@ -202,12 +217,16 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private void bookingValidate(NewBookingDto bookingDto) {
+    private void bookingValidate(NewBookingDto bookingDto, LocalDateTime presentTime) {
         if (bookingDto.getStart() == null ||
-                bookingDto.getEnd() == null ||
-                bookingDto.getStart().isBefore(LocalDateTime.now()) ||
-                bookingDto.getEnd().isBefore(LocalDateTime.now()) ||
-                bookingDto.getEnd().isBefore(bookingDto.getStart()) ||
+                bookingDto.getEnd() == null) {
+            throw new ValidationException("даты не заполнены");
+        }
+        if (bookingDto.getStart().isBefore(presentTime) ||
+                bookingDto.getEnd().isBefore(presentTime)) {
+            throw new ValidationException("даты в прошлом");
+        }
+        if (bookingDto.getEnd().isBefore(bookingDto.getStart()) ||
                 bookingDto.getStart().equals(bookingDto.getEnd())) {
             throw new ValidationException("даты попутаны");
         }
