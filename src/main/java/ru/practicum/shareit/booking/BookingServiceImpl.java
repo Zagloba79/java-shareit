@@ -107,7 +107,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto update(Long bookingId, Long userId, Boolean approved) {
         Booking booking = optionalHandler.getBookingFromOpt(bookingId);
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            throw new ObjectNotFoundException("Левый чувак");
+            throw new OperationIsNotSupported("Левый чувак");
         }
         if (booking.getStatus().equals(REJECTED) || booking.getStatus().equals(CANCELED)) {
             throw new ValidationException("Booking is deleted");
