@@ -26,6 +26,6 @@ public class Comment {
     @OneToOne
     @JoinColumn(name = "author_id")
     private User author;
-    @Column(nullable = false)
+    @Column
     private LocalDateTime created;
 }

@@ -14,6 +14,7 @@ import ru.practicum.shareit.request.ItemRequestStorage;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
@@ -131,10 +132,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto createComment(CommentDto commentDto, Long authorId, Long itemId) {
+        if (commentDto.getText().isBlank()) {
+            throw new ValidationException("Пустой текст");
+        }
         Item item = optionalHandler.getItemFromOpt(itemId);
         User author = optionalHandler.getUserFromOpt(authorId);
         authorValidate(itemId, authorId);
-        Comment comment = CommentMapper.createComment(commentDto);
+        Comment comment = CommentMapper.createNewComment(commentDto);
+        comment.setCreated(LocalDateTime.now());
+        comment.setItem(item);
+        comment.setAuthor(author);
         commentRepository.save(comment);
         return CommentMapper.createCommentDto(comment);
     }
@@ -161,6 +168,7 @@ public class ItemServiceImpl implements ItemService {
         List<BookingDto> bookings = bookingService.getBookingsDtoByItem(itemId, authorId).stream()
                 .filter(bookingDto -> bookingDto.getBooker().getId().equals(authorId))
                 .filter(bookingDto -> bookingDto.getStatus().equals(APPROVED))
+                .filter(bookingDto -> bookingDto.getStart().isBefore(LocalDateTime.now()))
                 .collect(toList());
         if (bookings.size() == 0) {
             throw new ValidationException(

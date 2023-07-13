@@ -2,8 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.model.Comment;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 @UtilityClass
 public class CommentMapper {
@@ -11,8 +9,6 @@ public class CommentMapper {
         CommentDto commentDto = new CommentDto();
         commentDto.setId(comment.getId());
         commentDto.setText(comment.getText());
-        commentDto.setItem(comment.getItem());
-        commentDto.setAuthor(comment.getAuthor());
         commentDto.setCreated(comment.getCreated());
         return commentDto;
     }
@@ -21,8 +17,13 @@ public class CommentMapper {
         Comment comment = new Comment();
         comment.setId(commentDto.getId());
         comment.setText(commentDto.getText());
-        comment.setItem(commentDto.getItem());
-        comment.setAuthor(commentDto.getAuthor());
+        comment.setCreated(commentDto.getCreated());
+        return comment;
+    }
+
+    public static Comment createNewComment(CommentDto commentDto) {
+        Comment comment = new Comment();
+        comment.setText(commentDto.getText());
         comment.setCreated(commentDto.getCreated());
         return comment;
     }
