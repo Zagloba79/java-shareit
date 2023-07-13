@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handler.OptionalHandler;
@@ -129,7 +130,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public CommentDto createComment(CommentDto commentDto, Long itemId, Long authorId) {
+    public CommentDto createComment(CommentDto commentDto, Long authorId, Long itemId) {
         Item item = optionalHandler.getItemFromOpt(itemId);
         User author = optionalHandler.getUserFromOpt(authorId);
         authorValidate(itemId, authorId);
@@ -157,9 +158,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void authorValidate(Long itemId, Long authorId) {
-        if (bookingService.getBookingsDtoByItem(itemId, authorId).stream()
+        List<BookingDto> bookings = bookingService.getBookingsDtoByItem(itemId, authorId).stream()
                 .filter(bookingDto -> bookingDto.getBooker().getId().equals(authorId))
-                .noneMatch(bookingDto -> bookingDto.getStatus().equals(APPROVED))) {
+                .filter(bookingDto -> bookingDto.getStatus().equals(APPROVED))
+                .collect(toList());
+        if (bookings.size() == 0) {
             throw new ValidationException(
                     "Юзер с id = " + authorId + " никогда не арендовал предмет с id = " + itemId);
         }

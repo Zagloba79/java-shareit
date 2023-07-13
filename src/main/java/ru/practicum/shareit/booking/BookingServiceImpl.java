@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
+import ru.practicum.shareit.exception.OperationIsNotSupported;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handler.OptionalHandler;
 import ru.practicum.shareit.item.model.Item;
@@ -33,12 +34,15 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto create(NewBookingDto bookingDto, Long bookerId) {
-        LocalDateTime presentTime = LocalDateTime.now().minusMinutes(10);
+        LocalDateTime presentTime = LocalDateTime.now();
+        bookingValidate(bookingDto, presentTime);
         User booker = optionalHandler.getUserFromOpt(bookerId);
         Long itemId = bookingDto.getItemId();
         Item item = optionalHandler.getItemFromOpt(itemId);
-        itemValidate(item);
-        bookingValidate(bookingDto, presentTime);
+        if (item.getOwner().getId().equals(bookerId)) {
+            throw new OperationIsNotSupported("Букер не может быть владельцем");
+        }
+        itemIsAvailable(item);
         Booking booking = BookingMapper.createNewBooking(
                 bookingDto.getStart(),
                 bookingDto.getEnd(),
@@ -50,26 +54,22 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void approveBooking(Booking booking, User owner) {
-        Item item = optionalHandler.getItemFromOpt(booking.getItem().getId());
-        if (booking.getStatus().equals(WAITING) && item.getOwner().equals(owner)) {
+    public void approveBooking(Booking booking) {
+        if (booking.getStatus().equals(WAITING)) {
             booking.setStatus(APPROVED);
         }
     }
 
     @Override
-    public void rejectBooking(Booking booking, User owner) {
-        Item item = optionalHandler.getItemFromOpt(booking.getItem().getId());
-        if (booking.getStatus().equals(WAITING) && item.getOwner().equals(owner)) {
+    public void rejectBooking(Booking booking) {
+        if (booking.getStatus().equals(WAITING)) {
             booking.setStatus(REJECTED);
         }
     }
 
     @Override
-    public void cancelBooking(Booking booking, User booker) {
-        Item item = optionalHandler.getItemFromOpt(booking.getItem().getId());
-        if ((booking.getStatus().equals(WAITING) || booking.getStatus().equals(APPROVED))
-                && booking.getBooker().equals(booker)) {
+    public void cancelBooking(Booking booking) {
+        if (booking.getStatus().equals(WAITING)) {
             booking.setStatus(CANCELED);
         }
     }
@@ -106,24 +106,19 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto update(Long bookingId, Long userId, Boolean approved) {
         Booking booking = optionalHandler.getBookingFromOpt(bookingId);
+        if (!booking.getItem().getOwner().getId().equals(userId)) {
+            throw new ObjectNotFoundException("Левый чувак");
+        }
+        if (booking.getStatus().equals(REJECTED) || booking.getStatus().equals(CANCELED)) {
+            throw new ValidationException("Booking is deleted");
+        }
         if (booking.getStatus().equals(APPROVED)) {
             throw new ValidationException("Booking is approved");
         }
-        User user = optionalHandler.getUserFromOpt(userId);
-        if (booking.getItem().getOwner().getId().equals(userId)) {
-            if (approved) {
-                approveBooking(booking, user);
-            } else {
-                rejectBooking(booking, user);
-            }
-        } else if (booking.getBooker().getId().equals(userId)) {
-            if (approved) {
-                cancelBooking(booking, user);
-            } else {
-                throw new ObjectNotFoundException("Левый чувак");
-            }
+        if (approved) {
+            approveBooking(booking);
         } else {
-            throw new ValidationException("Левый чувак");
+            rejectBooking(booking);
         }
         bookingRepository.save(booking);
         return BookingMapper.createBookingDto(booking);
@@ -177,21 +172,18 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case "CURRENT":
                 bookings = listByUser.stream()
-                        .filter(bookingDto -> bookingDto.getStatus().equals(APPROVED) &&
-                                (bookingDto.getStart().isBefore(LocalDateTime.now()) &&
-                                        bookingDto.getEnd().isAfter(LocalDateTime.now())))
+                        .filter(bookingDto -> bookingDto.getStart().isBefore(LocalDateTime.now()) &&
+                                bookingDto.getEnd().isAfter(LocalDateTime.now()))
                         .collect(toList());
                 break;
             case "PAST":
                 bookings = listByUser.stream()
-                        .filter(bookingDto -> bookingDto.getStatus().equals(APPROVED) &&
-                                bookingDto.getEnd().isBefore(LocalDateTime.now()))
+                        .filter(bookingDto -> bookingDto.getEnd().isBefore(LocalDateTime.now()))
                         .collect(toList());
                 break;
             case "FUTURE":
                 bookings = listByUser.stream()
-                        .filter(bookingDto -> bookingDto.getStatus().equals(APPROVED) &&
-                                bookingDto.getStart().isAfter(LocalDateTime.now()))
+                        .filter(bookingDto -> bookingDto.getStart().isAfter(LocalDateTime.now()))
                         .collect(toList());
                 break;
             case "WAITING":
@@ -211,7 +203,7 @@ public class BookingServiceImpl implements BookingService {
         return bookings;
     }
 
-    private void itemValidate(Item item) {
+    private void itemIsAvailable(Item item) {
         if (item.getAvailable() == null || !item.getAvailable()) {
             throw new ValidationException("Некорректный статус предмета: ");
         }

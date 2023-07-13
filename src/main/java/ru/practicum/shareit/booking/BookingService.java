@@ -12,11 +12,11 @@ public interface BookingService {
 
     BookingDto create(NewBookingDto bookingDto, Long bookerId);
 
-    void approveBooking(Booking booking, User owner);
+    void approveBooking(Booking booking);
 
-    void rejectBooking(Booking booking, User owner);
+    void rejectBooking(Booking booking);
 
-    void cancelBooking(Booking booking, User booker);
+    void cancelBooking(Booking booking);
 
     List<BookingDto> getBookingsDtoByItem(Long itemId, Long bookerId);
 
