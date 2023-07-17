@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -86,6 +87,7 @@ public class ItemServiceImpl implements ItemService {
         List<Item> itemsByOwner = itemRepository.findByOwnerId(ownerId);
         List<ItemWithCommentsAndBookingsDto> convertedItems = itemsByOwner.stream()
                 .map(ItemMapper::createItemWithCommentsAndBookingsDto)
+                .sorted(Comparator.comparing(ItemWithCommentsAndBookingsDto::getId))
                 .collect(toList());
         List<ItemWithCommentsAndBookingsDto> itemsWithCommentsAndBookings =
                 new ArrayList<>();
@@ -94,13 +96,16 @@ public class ItemServiceImpl implements ItemService {
             addDatesToItem(itemWithCommentsAndBookingsDto);
             itemsWithCommentsAndBookings.add(itemWithCommentsAndBookingsDto);
         }
+
         return itemsWithCommentsAndBookings;
     }
 
     private void addCommentsToItem(ItemWithCommentsAndBookingsDto item) {
         List<Comment> comments = commentRepository.findByItemId(item.getId());
         if (comments != null) {
-            item.setComments(comments);
+            item.setComments(comments.stream()
+                    .map(CommentMapper::createCommentDto)
+                    .collect(toList()));
         }
     }
 
@@ -108,7 +113,7 @@ public class ItemServiceImpl implements ItemService {
         Long itemId = item.getId();
         BookingForDatesDto previousBooking = bookingService.getPreviousBooking(itemId);
         if (previousBooking != null) {
-            item.setPreviousBooking(previousBooking);
+            item.setLastBooking(previousBooking);
         }
         BookingForDatesDto nextBooking = bookingService.getNextBooking(itemId);
         if (nextBooking != null) {

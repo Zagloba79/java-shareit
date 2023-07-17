@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.dto.BookingForDatesDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.OperationIsNotSupported;
 import ru.practicum.shareit.exception.ValidationException;
@@ -17,6 +18,8 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -109,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
                 bookings = bookingRepository.findByBookerId(userId, sortByStartDesc);
                 break;
             case "CURRENT":
-                bookings = bookingRepository.findByBookerIdAndStartIsBeforeAndEndIsAfter(
+                bookings = bookingRepository.findByBookerIdAndAndStartIsBeforeAndEndIsAfter(
                         userId,
                         presentTime,
                         presentTime,
@@ -200,18 +203,20 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingForDatesDto getPreviousBooking(Long itemId) {
-        Booking previousBooking = bookingRepository.findFirstByItemIdAndEndBeforeOrderByEndDesc(
+        Booking previousBooking = bookingRepository.
+                findFirstByItemIdAndStatusIsAndEndBeforeOrderByEndDesc(
                 itemId,
+                APPROVED,
                 LocalDateTime.now());
-        BookingForDatesDto previousBookingDto = BookingMapper.createBookingForDatesDto(previousBooking);
-        return previousBookingDto;
+        return BookingMapper.createBookingForDatesDto(previousBooking);
     }
 
     @Override
     public BookingForDatesDto getNextBooking(Long itemId) {
         return BookingMapper.createBookingForDatesDto(
-                bookingRepository.findFirstByItemIdAndStartAfterOrderByStartAsc(
+                bookingRepository.findFirstByItemIdAndStatusIsAndStartAfterOrderByStartAsc(
                         itemId,
+                        APPROVED,
                         LocalDateTime.now()));
     }
 

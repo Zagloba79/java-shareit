@@ -28,6 +28,7 @@ public final class BookingMapper {
             bookingForDatesDto.setId(booking.getId());
             bookingForDatesDto.setStart(booking.getStart());
             bookingForDatesDto.setEnd(booking.getEnd());
+            bookingForDatesDto.setBookerId(booking.getBooker().getId());
             return bookingForDatesDto;
         } else {
             return null;

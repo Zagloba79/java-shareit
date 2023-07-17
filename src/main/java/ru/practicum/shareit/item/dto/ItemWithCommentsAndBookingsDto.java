@@ -21,7 +21,7 @@ public class ItemWithCommentsAndBookingsDto {
     private String description;
     @NotNull
     private Boolean available;
-    private List<Comment> comments;
-    private BookingForDatesDto previousBooking;
+    private List<CommentDto> comments;
+    private BookingForDatesDto lastBooking;
     private BookingForDatesDto nextBooking;
 }
