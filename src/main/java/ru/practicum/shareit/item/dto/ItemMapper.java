@@ -2,11 +2,8 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
-
-import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ItemMapper {
@@ -19,14 +16,14 @@ public final class ItemMapper {
         return itemDto;
     }
 
-    public static ItemWithCommentsDto createItemWithCommentsDto(Item item, List<Comment> comments) {
-        ItemWithCommentsDto itemWithCommentsDto = new ItemWithCommentsDto();
-        itemWithCommentsDto.setId(item.getId());
-        itemWithCommentsDto.setName(item.getName());
-        itemWithCommentsDto.setDescription(item.getDescription());
-        itemWithCommentsDto.setAvailable(item.getAvailable());
-        itemWithCommentsDto.setComments(comments);
-        return itemWithCommentsDto;
+    public static ItemWithCommentsAndBookingsDto createItemWithCommentsAndBookingsDto(Item item) {
+        ItemWithCommentsAndBookingsDto itemWithCommentsAndBookingsDto =
+                new ItemWithCommentsAndBookingsDto();
+        itemWithCommentsAndBookingsDto.setId(item.getId());
+        itemWithCommentsAndBookingsDto.setName(item.getName());
+        itemWithCommentsAndBookingsDto.setDescription(item.getDescription());
+        itemWithCommentsAndBookingsDto.setAvailable(item.getAvailable());
+        return itemWithCommentsAndBookingsDto;
     }
 
     public static Item createItem(ItemDto itemDto, User owner) {

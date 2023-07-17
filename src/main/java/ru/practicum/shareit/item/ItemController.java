@@ -5,8 +5,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemWithCommentsDto;
-import ru.practicum.shareit.item.dto.ItemWithDatesAndCommentsDto;
+import ru.practicum.shareit.item.dto.ItemWithCommentsAndBookingsDto;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,12 +25,12 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemWithCommentsDto getItemById(@PathVariable Long itemId, @RequestHeader(USER_ID) Long ownerId) {
+    public ItemWithCommentsAndBookingsDto getItemById(@PathVariable Long itemId, @RequestHeader(USER_ID) Long ownerId) {
         return itemService.getItemById(itemId, ownerId);
     }
 
     @GetMapping
-    public List<ItemWithDatesAndCommentsDto> getItemsByOwner(@RequestHeader(USER_ID) Long ownerId) {
+    public List<ItemWithCommentsAndBookingsDto> getItemsByOwner(@RequestHeader(USER_ID) Long ownerId) {
         if (ownerId != null) {
             return itemService.getItemsByOwner(ownerId);
         }

@@ -21,6 +21,7 @@ public class BookingDto {
     private Item item;
     @NotNull
     private User booker;
+    private Long bookerId;
     @NotNull
     private BookingStatus status;
 }

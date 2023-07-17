@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.booking.dto.BookingForDatesDto;
 import ru.practicum.shareit.item.model.Comment;
 
 import javax.validation.constraints.NotBlank;
@@ -12,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ItemWithCommentsDto {
+public class ItemWithCommentsAndBookingsDto {
     private Long id;
     @NotBlank
     private String name;
@@ -21,4 +22,6 @@ public class ItemWithCommentsDto {
     @NotNull
     private Boolean available;
     private List<Comment> comments;
+    private BookingForDatesDto previousBooking;
+    private BookingForDatesDto nextBooking;
 }

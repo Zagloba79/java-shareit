@@ -17,8 +17,21 @@ public final class BookingMapper {
         bookingDto.setEnd(booking.getEnd());
         bookingDto.setItem(booking.getItem());
         bookingDto.setBooker(booking.getBooker());
+        bookingDto.setBookerId(booking.getBooker().getId());
         bookingDto.setStatus(booking.getStatus());
         return bookingDto;
+    }
+
+    public static BookingForDatesDto createBookingForDatesDto(Booking booking) {
+        BookingForDatesDto bookingForDatesDto = new BookingForDatesDto();
+        if (booking != null) {
+            bookingForDatesDto.setId(booking.getId());
+            bookingForDatesDto.setStart(booking.getStart());
+            bookingForDatesDto.setEnd(booking.getEnd());
+            return bookingForDatesDto;
+        } else {
+            return null;
+        }
     }
 
     public static Booking createNewBooking(LocalDateTime start, LocalDateTime end, Item item, User booker) {

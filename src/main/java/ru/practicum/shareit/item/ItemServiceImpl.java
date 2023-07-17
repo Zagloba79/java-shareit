@@ -1,48 +1,45 @@
 package ru.practicum.shareit.item;
 
-import lombok.RequiredArgsConstructor;
+import static java.util.stream.Collectors.toList;
+
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.function.Predicate;
+
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
 import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingForDatesDto;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.handler.OptionalHandler;
-import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.handler.EntityHandler;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentMapper;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.ItemWithCommentsAndBookingsDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequestStorage;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
-
-import static java.util.stream.Collectors.toList;
-import static ru.practicum.shareit.booking.model.BookingStatus.APPROVED;
-
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-
-    private final OptionalHandler optionalHandler;
+    private final EntityHandler handler;
     private final ItemRepository itemRepository;
     private final ItemRequestStorage itemRequestStorage;
     private final BookingService bookingService;
     private final CommentRepository commentRepository;
-
     static Predicate<Item> isAvailable = item ->
             Boolean.TRUE.equals(item.getAvailable());
-    static BiPredicate<Item, String> isMatch = (item, text) -> (item.getName() != null &&
-            item.getName().toLowerCase().contains(text)) ||
-            (item.getDescription() != null &&
-                    item.getDescription().toLowerCase().contains(text));
 
     @Override
     public ItemDto createItem(ItemDto itemDto, Long ownerId) {
-        itemValidate(itemDto);
-        User owner = optionalHandler.getUserFromOpt(ownerId);
+        handler.itemValidate(itemDto);
+        User owner = handler.getUserFromOpt(ownerId);
         Item item = ItemMapper.createItem(itemDto, owner);
         Optional<ItemRequest> request = itemRequestStorage.getItemRequestByItem(item);
         request.ifPresent(item::setRequest);
@@ -52,8 +49,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(ItemDto itemDto, Long itemId, Long ownerId) {
-        Item item = optionalHandler.getItemFromOpt(itemId);
-        User owner = optionalHandler.getUserFromOpt(ownerId);
+        Item item = handler.getItemFromOpt(itemId);
+        User owner = handler.getUserFromOpt(ownerId);
         if (!item.getOwner().equals(owner)) {
             throw new ObjectNotFoundException("Собственник не тот");
         }
@@ -71,32 +68,52 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemWithCommentsDto getItemById(Long itemId, Long ownerId) {
-        User owner = optionalHandler.getUserFromOpt(ownerId);
-        Item item = optionalHandler.getItemFromOpt(itemId);
-        List<Comment> comments = getCommentsByItem(itemId);
-        return ItemMapper.createItemWithCommentsDto(item, comments);
+    public ItemWithCommentsAndBookingsDto getItemById(Long itemId, Long ownerId) {
+        User user = handler.getUserFromOpt(ownerId);
+        Item item = handler.getItemFromOpt(itemId);
+        ItemWithCommentsAndBookingsDto itemWithCommentsAndBookingsDto =
+                ItemMapper.createItemWithCommentsAndBookingsDto(item);
+        addCommentsToItem(itemWithCommentsAndBookingsDto);
+        if (item.getOwner().getId().equals(user.getId())) {
+            addDatesToItem(itemWithCommentsAndBookingsDto);
+        }
+        return itemWithCommentsAndBookingsDto;
     }
 
     @Override
-    public List<ItemWithDatesAndCommentsDto> getItemsByOwner(Long ownerId) {
-        User owner = optionalHandler.getUserFromOpt(ownerId);
-        List<ItemDto> itemsByOwner = itemRepository.findAll().stream()
-                .filter(item -> item.getOwner().getId().equals(ownerId))
-                .map(ItemMapper::createItemDto)
+    public List<ItemWithCommentsAndBookingsDto> getItemsByOwner(Long ownerId) {
+        User owner = handler.getUserFromOpt(ownerId);
+        List<Item> itemsByOwner = itemRepository.findByOwnerId(ownerId);
+        List<ItemWithCommentsAndBookingsDto> convertedItems = itemsByOwner.stream()
+                .map(ItemMapper::createItemWithCommentsAndBookingsDto)
                 .collect(toList());
-        List<ItemWithDatesAndCommentsDto> itemsWithDatesAndComments = new ArrayList<>();
-        for (ItemDto itemDto : itemsByOwner) {
-            ItemWithDatesAndCommentsDto item = new ItemWithDatesAndCommentsDto();
-            item.setId(itemDto.getId());
-            item.setName(itemDto.getName());
-            item.setDescription(itemDto.getDescription());
-            item.setAvailable(itemDto.getAvailable());
-            //item.setDates(bookingService.getBookingsBeforeAndAfterNow(itemDto.getId(), ownerId));
-            item.setComments(getCommentsByItem(item.getId()));
-            itemsWithDatesAndComments.add(item);
+        List<ItemWithCommentsAndBookingsDto> itemsWithCommentsAndBookings =
+                new ArrayList<>();
+        for (ItemWithCommentsAndBookingsDto itemWithCommentsAndBookingsDto : convertedItems) {
+            addCommentsToItem(itemWithCommentsAndBookingsDto);
+            addDatesToItem(itemWithCommentsAndBookingsDto);
+            itemsWithCommentsAndBookings.add(itemWithCommentsAndBookingsDto);
         }
-        return itemsWithDatesAndComments;
+        return itemsWithCommentsAndBookings;
+    }
+
+    private void addCommentsToItem(ItemWithCommentsAndBookingsDto item) {
+        List<Comment> comments = commentRepository.findByItemId(item.getId());
+        if (comments != null) {
+            item.setComments(comments);
+        }
+    }
+
+    private void addDatesToItem(ItemWithCommentsAndBookingsDto item) {
+        Long itemId = item.getId();
+        BookingForDatesDto previousBooking = bookingService.getPreviousBooking(itemId);
+        if (previousBooking != null) {
+            item.setPreviousBooking(previousBooking);
+        }
+        BookingForDatesDto nextBooking = bookingService.getNextBooking(itemId);
+        if (nextBooking != null) {
+            item.setNextBooking(nextBooking);
+        }
     }
 
     @Override
@@ -109,8 +126,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public void deleteItem(Long itemId, Long ownerId) {
-        Item item = optionalHandler.getItemFromOpt(itemId);
-        User owner = optionalHandler.getUserFromOpt(ownerId);
+        Item item = handler.getItemFromOpt(itemId);
+        User owner = handler.getUserFromOpt(ownerId);
         if (item.getOwner().getId().equals(owner.getId())) {
             itemRepository.deleteById(itemId);
         }
@@ -118,13 +135,13 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> getItemsByQuery(String text, Long ownerId) {
-        User owner = optionalHandler.getUserFromOpt(ownerId);
+        User owner = handler.getUserFromOpt(ownerId);
         if ((text != null) && (!text.isBlank())) {
             String lowerText = text.toLowerCase();
-            return itemRepository.findAll().stream()
-                    .filter(item -> isAvailable.test(item) && (isMatch.test(item, lowerText)))
+            return itemRepository.getItemsByQuery(lowerText).stream()
+                    .filter(item -> isAvailable.test(item))
                     .map(ItemMapper::createItemDto)
-                    .sorted(Comparator.comparing(ItemDto::getId))
+                    //.sorted(Comparator.comparing(ItemDto::getId))
                     .collect(toList());
         }
         return Collections.EMPTY_LIST;
@@ -135,9 +152,9 @@ public class ItemServiceImpl implements ItemService {
         if (commentDto.getText().isBlank()) {
             throw new ValidationException("Пустой текст");
         }
-        Item item = optionalHandler.getItemFromOpt(itemId);
-        User author = optionalHandler.getUserFromOpt(authorId);
-        authorValidate(itemId, authorId);
+        Item item = handler.getItemFromOpt(itemId);
+        User author = handler.getUserFromOpt(authorId);
+        handler.authorValidate(authorId, itemId);
         Comment comment = CommentMapper.createNewComment(commentDto);
         comment.setCreated(LocalDateTime.now());
         comment.setItem(item);
@@ -147,32 +164,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private List<Comment> getCommentsByItem(Long itemId) {
-        return commentRepository.findAll().stream()
-                .filter(comment -> comment.getItem().getId().equals(itemId))
-                .collect(toList());
-    }
-
-    private void itemValidate(ItemDto itemDto) {
-        if (itemDto.getName() == null || itemDto.getName().isBlank()) {
-            throw new ValidationException("Некорректное название предмета: " + itemDto.getName());
-        }
-        if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
-            throw new ValidationException("Некорректное описание предмета: " + itemDto.getDescription());
-        }
-        if (itemDto.getAvailable() == null) {
-            throw new ValidationException("Некорректный статус предмета: ");
-        }
-    }
-
-    private void authorValidate(Long itemId, Long authorId) {
-        List<BookingDto> bookings = bookingService.getBookingsDtoByItem(itemId, authorId).stream()
-                .filter(bookingDto -> bookingDto.getBooker().getId().equals(authorId))
-                .filter(bookingDto -> bookingDto.getStatus().equals(APPROVED))
-                .filter(bookingDto -> bookingDto.getStart().isBefore(LocalDateTime.now()))
-                .collect(toList());
-        if (bookings.size() == 0) {
-            throw new ValidationException(
-                    "Юзер с id = " + authorId + " никогда не арендовал предмет с id = " + itemId);
-        }
+        return new ArrayList<>(commentRepository.findByItemId(itemId));
     }
 }

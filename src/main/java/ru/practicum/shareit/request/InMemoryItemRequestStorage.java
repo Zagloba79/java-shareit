@@ -8,6 +8,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -52,7 +53,7 @@ public class InMemoryItemRequestStorage implements ItemRequestStorage {
     @Override
     public List<ItemRequest> getItemRequestsByRequester(Long requesterId) {
         return requests.values().stream()
-                .filter(itemRequest -> itemRequest.getRequester().getId() == requesterId)
+                .filter(itemRequest -> Objects.equals(itemRequest.getRequester().getId(), requesterId))
                 .collect(toList());
     }
 

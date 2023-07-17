@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.handler.OptionalHandler;
+import ru.practicum.shareit.handler.EntityHandler;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final OptionalHandler optionalHandler;
+    private final EntityHandler entityHandler;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
@@ -40,13 +40,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserDto(Long userId) {
-        User user = optionalHandler.getUserFromOpt(userId);
+        User user = entityHandler.getUserFromOpt(userId);
         return UserMapper.createUserDto(user);
     }
 
     @Override
     public User getUser(Long userId) {
-        return optionalHandler.getUserFromOpt(userId);
+        return entityHandler.getUserFromOpt(userId);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Long userId) {
-        User user = optionalHandler.getUserFromOpt(userId);
+        User user = entityHandler.getUserFromOpt(userId);
         List<Item> itemsByOwner = itemRepository.findAll().stream()
                 .filter(item -> item.getOwner().getId().equals(userId))
                 .collect(toList());
