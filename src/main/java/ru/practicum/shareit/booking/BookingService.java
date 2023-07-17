@@ -19,7 +19,7 @@ public interface BookingService {
 
     List<BookingDto> getBookingsByOwnerAndState(String state, Long userId);
 
-    BookingForDataDto getPreviousBooking(Long itemId);
+    BookingForDataDto getLastBooking(Long itemId);
 
     BookingForDataDto getNextBooking(Long itemId);
 

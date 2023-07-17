@@ -199,13 +199,20 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingForDataDto getPreviousBooking(Long itemId) {
-        Booking previousBooking = bookingRepository
-                .findFirstByItemIdAndEndBeforeOrderByEndDesc(
-                itemId,
-                //APPROVED,
-                LocalDateTime.now());
-        return BookingMapper.createBookingForDatesDto(previousBooking);
+    public BookingForDataDto getLastBooking(Long itemId) {
+        Booking lastBooking = bookingRepository
+                .findFirstByItemIdAndStatusIsAndEndBeforeOrderByEndDesc(
+                        itemId,
+                        APPROVED,
+                        LocalDateTime.now());
+        if (lastBooking == null) {
+            lastBooking = bookingRepository
+                    .findByItemIdAndStatusIsAndStartBeforeAndEndAfter(itemId,
+                            APPROVED,
+                            LocalDateTime.now(),
+                            LocalDateTime.now());
+        }
+        return BookingMapper.createBookingForDatesDto(lastBooking);
     }
 
     @Override

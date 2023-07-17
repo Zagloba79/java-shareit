@@ -110,7 +110,7 @@ public class ItemServiceImpl implements ItemService {
 
     private void addBookingsDataToItem(ItemWithCommentsAndBookingsDto item) {
         Long itemId = item.getId();
-        BookingForDataDto previousBooking = bookingService.getPreviousBooking(itemId);
+        BookingForDataDto previousBooking = bookingService.getLastBooking(itemId);
         if (previousBooking != null) {
             item.setLastBooking(previousBooking);
         }
