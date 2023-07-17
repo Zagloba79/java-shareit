@@ -234,5 +234,4 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> getBookingsByItemId(Long itemId) {
         return bookingRepository.findByItemId(itemId);
     }
-
 }
