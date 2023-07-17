@@ -207,7 +207,7 @@ public class BookingServiceImpl implements BookingService {
                         LocalDateTime.now());
         if (lastBooking == null) {
             lastBooking = bookingRepository
-                    .findByItemIdAndStatusIsAndStartBeforeAndEndAfter(itemId,
+                    .findByItemIdAndStatusIsStartBeforeAndEndAfter(itemId,
                             APPROVED,
                             LocalDateTime.now(),
                             LocalDateTime.now());
