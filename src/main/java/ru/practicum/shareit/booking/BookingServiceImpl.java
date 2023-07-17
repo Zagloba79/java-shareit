@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingForDatesDto;
+import ru.practicum.shareit.booking.dto.BookingForDataDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -199,17 +199,17 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingForDatesDto getPreviousBooking(Long itemId) {
+    public BookingForDataDto getPreviousBooking(Long itemId) {
         Booking previousBooking = bookingRepository
-                .findFirstByItemIdAndStatusIsAndEndBeforeOrderByEndDesc(
+                .findFirstByItemIdAndEndBeforeOrderByEndDesc(
                 itemId,
-                APPROVED,
+                //APPROVED,
                 LocalDateTime.now());
         return BookingMapper.createBookingForDatesDto(previousBooking);
     }
 
     @Override
-    public BookingForDatesDto getNextBooking(Long itemId) {
+    public BookingForDataDto getNextBooking(Long itemId) {
         return BookingMapper.createBookingForDatesDto(
                 bookingRepository.findFirstByItemIdAndStatusIsAndStartAfterOrderByStartAsc(
                         itemId,

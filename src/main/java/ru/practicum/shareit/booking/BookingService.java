@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingForDatesDto;
+import ru.practicum.shareit.booking.dto.BookingForDataDto;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 
@@ -19,9 +19,9 @@ public interface BookingService {
 
     List<BookingDto> getBookingsByOwnerAndState(String state, Long userId);
 
-    BookingForDatesDto getPreviousBooking(Long itemId);
+    BookingForDataDto getPreviousBooking(Long itemId);
 
-    BookingForDatesDto getNextBooking(Long itemId);
+    BookingForDataDto getNextBooking(Long itemId);
 
     List<Booking> getBookingsByOwnerId(Long ownerId);
 

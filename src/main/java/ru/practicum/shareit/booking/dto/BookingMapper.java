@@ -22,14 +22,14 @@ public final class BookingMapper {
         return bookingDto;
     }
 
-    public static BookingForDatesDto createBookingForDatesDto(Booking booking) {
-        BookingForDatesDto bookingForDatesDto = new BookingForDatesDto();
+    public static BookingForDataDto createBookingForDatesDto(Booking booking) {
+        BookingForDataDto bookingForDataDto = new BookingForDataDto();
         if (booking != null) {
-            bookingForDatesDto.setId(booking.getId());
-            bookingForDatesDto.setStart(booking.getStart());
-            bookingForDatesDto.setEnd(booking.getEnd());
-            bookingForDatesDto.setBookerId(booking.getBooker().getId());
-            return bookingForDatesDto;
+            bookingForDataDto.setId(booking.getId());
+            bookingForDataDto.setStart(booking.getStart());
+            bookingForDataDto.setEnd(booking.getEnd());
+            bookingForDataDto.setBookerId(booking.getBooker().getId());
+            return bookingForDataDto;
         } else {
             return null;
         }

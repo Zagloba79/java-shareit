@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import ru.practicum.shareit.booking.BookingService;
-import ru.practicum.shareit.booking.dto.BookingForDatesDto;
+import ru.practicum.shareit.booking.dto.BookingForDataDto;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handler.EntityHandler;
@@ -75,7 +75,7 @@ public class ItemServiceImpl implements ItemService {
                 ItemMapper.createItemWithCommentsAndBookingsDto(item);
         addCommentsToItem(itemWithCommentsAndBookingsDto);
         if (item.getOwner().getId().equals(user.getId())) {
-            addDatesToItem(itemWithCommentsAndBookingsDto);
+            addBookingsDataToItem(itemWithCommentsAndBookingsDto);
         }
         return itemWithCommentsAndBookingsDto;
     }
@@ -92,7 +92,7 @@ public class ItemServiceImpl implements ItemService {
                 new ArrayList<>();
         for (ItemWithCommentsAndBookingsDto itemWithCommentsAndBookingsDto : convertedItems) {
             addCommentsToItem(itemWithCommentsAndBookingsDto);
-            addDatesToItem(itemWithCommentsAndBookingsDto);
+            addBookingsDataToItem(itemWithCommentsAndBookingsDto);
             itemsWithCommentsAndBookings.add(itemWithCommentsAndBookingsDto);
         }
 
@@ -108,13 +108,13 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private void addDatesToItem(ItemWithCommentsAndBookingsDto item) {
+    private void addBookingsDataToItem(ItemWithCommentsAndBookingsDto item) {
         Long itemId = item.getId();
-        BookingForDatesDto previousBooking = bookingService.getPreviousBooking(itemId);
+        BookingForDataDto previousBooking = bookingService.getPreviousBooking(itemId);
         if (previousBooking != null) {
             item.setLastBooking(previousBooking);
         }
-        BookingForDatesDto nextBooking = bookingService.getNextBooking(itemId);
+        BookingForDataDto nextBooking = bookingService.getNextBooking(itemId);
         if (nextBooking != null) {
             item.setNextBooking(nextBooking);
         }
