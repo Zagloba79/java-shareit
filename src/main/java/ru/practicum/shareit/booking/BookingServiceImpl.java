@@ -110,7 +110,7 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case "CURRENT":
                 bookings = bookingRepository.findByBookerIdAndAndStartIsBeforeAndEndIsAfter(
-                        userId,
+                        user.getId(),
                         presentTime,
                         presentTime,
                         sortByStartDesc);
@@ -156,7 +156,7 @@ public class BookingServiceImpl implements BookingService {
         switch (state) {
             case "ALL":
                 bookings = bookingRepository.findByItem_OwnerId(
-                        userId,
+                        user.getId(),
                         sortByStartDesc);
                 break;
             case "CURRENT":
@@ -207,7 +207,7 @@ public class BookingServiceImpl implements BookingService {
                         LocalDateTime.now());
         if (lastBooking == null) {
             lastBooking = bookingRepository
-                    .findByItemIdAndStatusIsStartBeforeAndEndAfter(itemId,
+                    .findByItemIdAndStatusIsAndStartBeforeAndEndAfter(itemId,
                             APPROVED,
                             LocalDateTime.now(),
                             LocalDateTime.now());
