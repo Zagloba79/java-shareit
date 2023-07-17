@@ -1,5 +1,4 @@
-DROP SCHEMA public CASCADE;
-CREATE SCHEMA public;
+DROP TABLE IF EXISTS users, items, bookings, item_request, comments;
 
 CREATE TABLE IF NOT EXISTS users (
   id BIGSERIAL NOT NULL,
