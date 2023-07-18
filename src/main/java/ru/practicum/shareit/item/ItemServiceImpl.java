@@ -21,7 +21,6 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemWithCommentsAndBookingsDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 
 @Service
@@ -29,7 +28,6 @@ import ru.practicum.shareit.user.model.User;
 public class ItemServiceImpl implements ItemService {
     private final EntityHandler handler;
     private final ItemRepository itemRepository;
-    private final ItemRequestRepository itemRequestRepository;
     private final BookingService bookingService;
     private final CommentRepository commentRepository;
     static Predicate<Item> isAvailable = item ->
@@ -80,7 +78,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<ItemWithCommentsAndBookingsDto> getItemsByOwner(Long ownerId) {
         User owner = handler.getUserFromOpt(ownerId);
-        List<Item> itemsByOwner = itemRepository.findByOwnerId(ownerId);
+        List<Item> itemsByOwner = itemRepository.findByOwnerId(owner.getId());
         List<ItemWithCommentsAndBookingsDto> convertedItems = itemsByOwner.stream()
                 .map(ItemMapper::createItemWithCommentsAndBookingsDto)
                 .sorted(Comparator.comparing(ItemWithCommentsAndBookingsDto::getId))
@@ -142,7 +140,6 @@ public class ItemServiceImpl implements ItemService {
             return itemRepository.getItemsByQuery(lowerText).stream()
                     .filter(item -> isAvailable.test(item))
                     .map(ItemMapper::createItemDto)
-                    //.sorted(Comparator.comparing(ItemDto::getId))
                     .collect(toList());
         }
         return Collections.EMPTY_LIST;
@@ -162,9 +159,5 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(author);
         commentRepository.save(comment);
         return CommentMapper.createCommentDto(comment);
-    }
-
-    private List<Comment> getCommentsByItem(Long itemId) {
-        return new ArrayList<>(commentRepository.findByItemId(itemId));
     }
 }

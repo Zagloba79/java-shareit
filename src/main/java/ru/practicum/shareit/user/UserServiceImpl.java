@@ -52,12 +52,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto update(UserDto userDto, Long id) {
         User user = getUser(userDto.getId());
-        User userToUpdate = UserMapper.createUser(userDto);
-        if (userToUpdate.getName() != null) {
-            user.setName(userToUpdate.getName());
+        User userFromDto = UserMapper.createUser(userDto);
+        if (userFromDto.getName() != null) {
+            user.setName(userFromDto.getName());
         }
-        if (emailValidate(userToUpdate.getEmail(), userToUpdate.getId())) {
-            user.setEmail(userToUpdate.getEmail());
+        if (emailValidate(userFromDto.getEmail(), userFromDto.getId())) {
+            user.setEmail(userFromDto.getEmail());
         }
         userRepository.save(user);
         return UserMapper.createUserDto(getUser(user.getId()));
@@ -66,9 +66,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Long userId) {
         User user = entityHandler.getUserFromOpt(userId);
-        List<Item> itemsByOwner = itemRepository.findAll().stream()
-                .filter(item -> item.getOwner().getId().equals(userId))
-                .collect(toList());
+        List<Item> itemsByOwner = itemRepository.findByOwnerId(userId);
         for (Item item : itemsByOwner) {
             itemRepository.deleteById(item.getId());
         }
