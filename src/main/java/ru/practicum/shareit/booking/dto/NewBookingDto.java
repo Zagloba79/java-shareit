@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
@@ -20,6 +19,4 @@ public class NewBookingDto {
     private LocalDateTime end;
     @NotNull
     private Long itemId;
-    @NotNull
-    private User booker;
 }

@@ -29,7 +29,6 @@ public class ErrorHandler {
         );
     }
 
-
     @ExceptionHandler(OperationIsNotSupported.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleObjectNotFoundException(final OperationIsNotSupported e) {
