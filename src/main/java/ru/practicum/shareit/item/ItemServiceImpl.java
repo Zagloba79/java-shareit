@@ -21,7 +21,7 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemWithCommentsAndBookingsDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.ItemRequestStorage;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
@@ -30,7 +30,7 @@ import ru.practicum.shareit.user.model.User;
 public class ItemServiceImpl implements ItemService {
     private final EntityHandler handler;
     private final ItemRepository itemRepository;
-    private final ItemRequestStorage itemRequestStorage;
+    private final ItemRequestRepository itemRequestRepository;
     private final BookingService bookingService;
     private final CommentRepository commentRepository;
     static Predicate<Item> isAvailable = item ->
@@ -41,8 +41,6 @@ public class ItemServiceImpl implements ItemService {
         handler.itemValidate(itemDto);
         User owner = handler.getUserFromOpt(ownerId);
         Item item = ItemMapper.createItem(itemDto, owner);
-        Optional<ItemRequest> request = itemRequestStorage.getItemRequestByItem(item);
-        request.ifPresent(item::setRequest);
         itemRepository.save(item);
         return ItemMapper.createItemDto(item);
     }

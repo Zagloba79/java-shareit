@@ -87,15 +87,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto getBookingById(Long bookingId, Long userId) {
-        User user = handler.getUserFromOpt(userId);
-        Booking booking = handler.getBookingFromOpt(bookingId);
-        if (booking.getBooker().getId().equals(user.getId()) ||
-                booking.getItem().getOwner().getId().equals(user.getId())) {
-            return BookingMapper.createBookingDto(booking);
-        } else {
+    public BookingDto getBookingById(Long id, Long userId) {
+        Booking booking = bookingRepository.findByIdAndBookerId(id, userId);
+        if (booking == null) {
+            booking = bookingRepository.findByIdAndItem_OwnerId(id, userId);
+        }
+        if (booking == null) {
             throw new ObjectNotFoundException("Вы - левый чувак");
         }
+        return BookingMapper.createBookingDto(booking);
     }
 
     @Override

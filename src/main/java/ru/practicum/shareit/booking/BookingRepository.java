@@ -56,4 +56,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
                                                                 Long userId,
                                                                 LocalDateTime end,
                                                                 BookingStatus status);
+
+    Booking findByIdAndBookerId(Long id, Long userId);
+
+    Booking findByIdAndItem_OwnerId(Long id, Long userId);
 }
