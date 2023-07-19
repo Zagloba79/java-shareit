@@ -8,30 +8,29 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByBookerId(Long bookerId, Sort sort);
 
     List<Booking> findByBookerIdAndAndStartIsBeforeAndEndIsAfter(Long bookerId,
-                                                              LocalDateTime start,
-                                                              LocalDateTime end,
-                                                              Sort sort);
+                                                                 LocalDateTime start,
+                                                                 LocalDateTime end,
+                                                                 Sort sort);
 
     List<Booking> findByBookerIdAndEndIsBefore(Long bookerId, LocalDateTime end, Sort sort);
 
     List<Booking> findByBookerIdAndStartIsAfter(Long bookerId, LocalDateTime start, Sort sort);
-
-    List<Booking> findByItemId(Long itemId);
 
     List<Booking> findByBookerIdAndStatus(Long bookerId, BookingStatus status, Sort sort);
 
     List<Booking> findByItem_OwnerId(Long ownerId, Sort sort);
 
     List<Booking> findByItem_OwnerIdAndStartIsBeforeAndEndIsAfter(Long ownerId,
-                                                                   LocalDateTime start,
-                                                                   LocalDateTime end,
-                                                                   Sort sort);
+                                                                  LocalDateTime start,
+                                                                  LocalDateTime end,
+                                                                  Sort sort);
 
     List<Booking> findByItem_OwnerIdAndEndIsBefore(Long bookerId, LocalDateTime end, Sort sort);
 
@@ -59,5 +58,5 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Booking findByIdAndBookerId(Long id, Long userId);
 
-    Booking findByIdAndItem_OwnerId(Long id, Long userId);
+    Optional<Booking> findByIdAndItem_OwnerId(Long id, Long userId);
 }

@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingForDataDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
@@ -90,10 +89,8 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto getBookingById(Long id, Long userId) {
         Booking booking = bookingRepository.findByIdAndBookerId(id, userId);
         if (booking == null) {
-            booking = bookingRepository.findByIdAndItem_OwnerId(id, userId);
-        }
-        if (booking == null) {
-            throw new ObjectNotFoundException("Вы - левый чувак");
+            booking = bookingRepository.findByIdAndItem_OwnerId(id, userId).orElseThrow(() ->
+                    new ObjectNotFoundException("Вы - левый чувак"));
         }
         return BookingMapper.createBookingDto(booking);
     }
@@ -196,42 +193,5 @@ public class BookingServiceImpl implements BookingService {
         return bookings.stream()
                 .map(BookingMapper::createBookingDto)
                 .collect(toList());
-    }
-
-    @Override
-    public BookingForDataDto getLastBooking(Long itemId) {
-        Booking lastBooking = bookingRepository
-                .findFirstByItemIdAndStatusIsAndEndBeforeOrderByEndDesc(
-                        itemId,
-                        APPROVED,
-                        LocalDateTime.now());
-        if (lastBooking == null) {
-            lastBooking = bookingRepository
-                    .findByItemIdAndStatusIsAndStartBeforeAndEndAfter(itemId,
-                            APPROVED,
-                            LocalDateTime.now(),
-                            LocalDateTime.now());
-        }
-        return BookingMapper.createBookingForDatesDto(lastBooking);
-    }
-
-    @Override
-    public BookingForDataDto getNextBooking(Long itemId) {
-        return BookingMapper.createBookingForDatesDto(
-                bookingRepository.findFirstByItemIdAndStatusIsAndStartAfterOrderByStartAsc(
-                        itemId,
-                        APPROVED,
-                        LocalDateTime.now()));
-    }
-
-    @Override
-    public List<Booking> getBookingsByOwnerId(Long ownerId) {
-        Sort sortByStartDesc = Sort.by(Sort.Direction.DESC, "start");
-        return bookingRepository.findByItem_OwnerId(ownerId, sortByStartDesc);
-    }
-
-    @Override
-    public List<Booking> getBookingsByItemId(Long itemId) {
-        return bookingRepository.findByItemId(itemId);
     }
 }

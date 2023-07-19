@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import static java.util.stream.Collectors.toList;
+import static ru.practicum.shareit.booking.model.BookingStatus.APPROVED;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -9,8 +10,10 @@ import java.util.function.Predicate;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import ru.practicum.shareit.booking.BookingService;
+import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingForDataDto;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handler.EntityHandler;
@@ -28,7 +31,7 @@ import ru.practicum.shareit.user.model.User;
 public class ItemServiceImpl implements ItemService {
     private final EntityHandler handler;
     private final ItemRepository itemRepository;
-    private final BookingService bookingService;
+    private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     static Predicate<Item> isAvailable = item ->
             Boolean.TRUE.equals(item.getAvailable());
@@ -90,7 +93,6 @@ public class ItemServiceImpl implements ItemService {
             addBookingsDataToItem(itemWithCommentsAndBookingsDto);
             itemsWithCommentsAndBookings.add(itemWithCommentsAndBookingsDto);
         }
-
         return itemsWithCommentsAndBookings;
     }
 
@@ -105,11 +107,15 @@ public class ItemServiceImpl implements ItemService {
 
     private void addBookingsDataToItem(ItemWithCommentsAndBookingsDto item) {
         Long itemId = item.getId();
-        BookingForDataDto previousBooking = bookingService.getLastBooking(itemId);
+        BookingForDataDto previousBooking = getLastBookingForItem(itemId);
         if (previousBooking != null) {
             item.setLastBooking(previousBooking);
         }
-        BookingForDataDto nextBooking = bookingService.getNextBooking(itemId);
+        BookingForDataDto nextBooking = BookingMapper.createBookingForDatesDto(
+                bookingRepository.findFirstByItemIdAndStatusIsAndStartAfterOrderByStartAsc(
+                        itemId,
+                        APPROVED,
+                        LocalDateTime.now()));
         if (nextBooking != null) {
             item.setNextBooking(nextBooking);
         }
@@ -159,5 +165,21 @@ public class ItemServiceImpl implements ItemService {
         comment.setAuthor(author);
         commentRepository.save(comment);
         return CommentMapper.createCommentDto(comment);
+    }
+
+    private BookingForDataDto getLastBookingForItem(Long itemId) {
+        Booking lastBooking = bookingRepository
+                .findByItemIdAndStatusIsAndStartBeforeAndEndAfter(itemId,
+                        APPROVED,
+                        LocalDateTime.now(),
+                        LocalDateTime.now());
+        if (lastBooking == null) {
+            lastBooking = bookingRepository
+                    .findFirstByItemIdAndStatusIsAndEndBeforeOrderByEndDesc(
+                            itemId,
+                            APPROVED,
+                            LocalDateTime.now());
+        }
+        return BookingMapper.createBookingForDatesDto(lastBooking);
     }
 }
