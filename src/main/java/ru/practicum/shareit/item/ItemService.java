@@ -13,8 +13,6 @@ public interface ItemService {
 
     List<ItemWithCommentsAndBookingsDto> getItemsByOwner(Long ownerId);
 
-    List<ItemDto> findAll();
-
     void deleteItem(Long itemId, Long ownerId);
 
     List<ItemDto> getItemsByQuery(String text, Long ownerId);

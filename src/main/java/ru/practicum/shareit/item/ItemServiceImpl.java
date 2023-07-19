@@ -122,14 +122,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findAll() {
-        return itemRepository.findAll().stream()
-                .map(ItemMapper::createItemDto)
-                .sorted(Comparator.comparing(ItemDto::getId))
-                .collect(toList());
-    }
-
-    @Override
     public void deleteItem(Long itemId, Long ownerId) {
         Item item = handler.getItemFromOpt(itemId);
         User owner = handler.getUserFromOpt(ownerId);
