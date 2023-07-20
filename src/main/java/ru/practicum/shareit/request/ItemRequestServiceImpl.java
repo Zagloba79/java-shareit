@@ -2,12 +2,11 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.ItemStorage;
+import ru.practicum.shareit.handler.EntityHandler;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.UserStorage;
 import ru.practicum.shareit.user.model.User;
 
 
@@ -19,51 +18,52 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
 
-    private final ItemRequestStorage itemRequestStorage;
-    private final ItemStorage itemStorage;
-    private final UserStorage userStorage;
+    private final ItemRequestRepository requestRepository;
+    private final EntityHandler entityHandler;
 
     @Override
-    public ItemRequestDto addRequest(ItemRequestDto itemRequestDto, Integer requesterId) {
-        User requester = userStorage.getUser(requesterId);
-        ItemRequest request = ItemRequestMapper.createItemRequest(itemRequestDto);
-        itemRequestStorage.addRequest(request);
-        ItemRequest requestFromStorage = itemRequestStorage.getRequest(request.getId());
-        return ItemRequestMapper.createItemRequestDto(requestFromStorage);
+    public ItemRequestDto addRequest(ItemRequestDto requestDto, Long requesterId) {
+        User requester = entityHandler.getUserFromOpt(requesterId);
+        ItemRequest request = ItemRequestMapper.createItemRequest(requestDto);
+        requestRepository.save(request);
+        ItemRequest requestFromRepository = entityHandler.getRequestFromOpt(request.getId());
+        return ItemRequestMapper.createItemRequestDto(requestFromRepository);
     }
 
     @Override
-    public ItemRequestDto getRequestById(Integer itemRequestId) {
-        ItemRequest itemRequest = itemRequestStorage.getRequest(itemRequestId);
+    public ItemRequestDto getRequestById(Long requestId) {
+        ItemRequest itemRequest = entityHandler.getRequestFromOpt(requestId);
         return ItemRequestMapper.createItemRequestDto(itemRequest);
     }
 
     @Override
-    public ItemRequestDto update(ItemRequestDto itemRequestDto, Integer itemId, Integer requesterId) {
-        Item item = itemStorage.getItem(itemId);
-        User requester = userStorage.getUser(requesterId);
-        Integer itemRequestId = itemRequestDto.getId();
-        ItemRequest itemRequest = itemRequestStorage.getRequest(itemRequestId);
+    public ItemRequestDto update(ItemRequestDto itemRequestDto, Long itemId, Long requesterId) {
+        Item item = entityHandler.getItemFromOpt(itemId);
+        User requester = entityHandler.getUserFromOpt(requesterId);
+        Long requestId = itemRequestDto.getId();
+        ItemRequest itemRequest = entityHandler.getRequestFromOpt(requestId);
         if (itemRequest.getRequester().equals(requester)) {
             ItemRequest request = ItemRequestMapper.createItemRequest(itemRequestDto);
-            itemRequestStorage.update(request);
+            requestRepository.save(request);
         }
-        ItemRequest itemRequestFromStorage = itemRequestStorage.getRequest(itemRequestId);
+        ItemRequest itemRequestFromStorage = entityHandler.getRequestFromOpt(requestId);
         return ItemRequestMapper.createItemRequestDto(itemRequestFromStorage);
     }
 
     @Override
-    public void delete(Integer itemRequestId, Integer requesterId) {
-        User requester = userStorage.getUser(requesterId);
-        ItemRequest itemRequest = itemRequestStorage.getRequest(itemRequestId);
+    public void delete(Long requestId, Long requesterId) {
+        User requester = entityHandler.getUserFromOpt(requesterId);
+        ItemRequest itemRequest = entityHandler.getRequestFromOpt(requestId);
         if (itemRequest.getRequester().equals(requester)) {
-            itemRequestStorage.delete(itemRequest);
+            requestRepository.deleteById(requestId);
         }
     }
 
     @Override
-    public List<ItemRequestDto> getItemsByRequester(Integer requesterId) {
-        return itemRequestStorage.getItemRequestsByRequester(requesterId).stream()
+    public List<ItemRequestDto> getRequestsDtoByRequester(Long requesterId) {
+        User requester = entityHandler.getUserFromOpt(requesterId);
+        return requestRepository.findAll().stream()
+                .filter(itemRequest -> itemRequest.getRequester().getId().equals(requesterId))
                 .map(ItemRequestMapper::createItemRequestDto)
                 .collect(toList());
     }
