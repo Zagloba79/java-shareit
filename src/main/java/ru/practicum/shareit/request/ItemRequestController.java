@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestWithAnswersDto;
+
+import java.util.List;
 
 import static ru.practicum.shareit.Constants.USER_ID;
 
@@ -20,19 +23,33 @@ public class ItemRequestController {
         return itemRequestService.addRequest(itemRequestDto, requesterId);
     }
 
-    @GetMapping("/{itemRequestId}")
-    public ItemRequestDto getItemRequestById(@PathVariable Long itemRequestId,
-                                             @RequestHeader(USER_ID) Long requesterId) {
-        return itemRequestService.getRequestById(itemRequestId);
+    @GetMapping
+    public List<ItemRequestWithAnswersDto> getAllRequestsByRequester(
+            @RequestHeader(USER_ID) Long userId) {
+        return itemRequestService.getRequestsByRequester(userId);
     }
 
-    @PatchMapping("/{itemRequestId}")
+    @GetMapping("/all")
+    public List<ItemRequestDto> getRequestsWithAnswersInQuantity(
+            @RequestParam(defaultValue = "0") Integer from,
+            @RequestParam Integer size,
+            @RequestHeader(USER_ID) Long userId) {
+        return itemRequestService.getRequestsInQuantity(userId, from, size);
+    }
+
+    @GetMapping("/{requestId}")
+    public ItemRequestWithAnswersDto getRequestById(@PathVariable Long itemRequestId,
+                                             @RequestHeader(USER_ID) Long requesterId) {
+        return itemRequestService.getRequestById(itemRequestId, requesterId);
+    }
+
+    @PatchMapping("/{requestId}")
     public ItemRequestDto update(@RequestBody ItemRequestDto itemRequestDto, @PathVariable Long itemId,
                                  @RequestHeader(USER_ID) Long requesterId) {
         return itemRequestService.update(itemRequestDto, itemId, requesterId);
     }
 
-    @DeleteMapping("/{itemRequestId}")
+    @DeleteMapping("/{requestId}")
     public void delete(@PathVariable Long itemId, @RequestHeader(USER_ID) Long requesterId) {
         itemRequestService.delete(itemId, requesterId);
     }

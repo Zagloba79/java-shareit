@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto create(UserDto userDto) {
         User user = UserMapper.createUser(userDto);
-        userValidator(user);
+        userValidate(user);
         User savedUser = userRepository.save(user);
         return UserMapper.createUserDto(savedUser);
     }
@@ -73,7 +73,7 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-    private void userValidator(User user) {
+    private void userValidate(User user) {
         if (user.getEmail() == null || !user.getEmail().contains("@") || !user.getEmail().contains(".")) {
             throw new ValidationException("Некорректный e-mail пользователя: " + user.getEmail());
         }

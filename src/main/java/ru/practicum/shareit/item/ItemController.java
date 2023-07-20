@@ -20,8 +20,10 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto create(@RequestBody ItemDto itemDto, @RequestHeader(USER_ID) Long ownerId) {
-        return itemService.createItem(itemDto, ownerId);
+    public ItemDto create(@RequestBody ItemDto itemDto,
+                          @RequestHeader(USER_ID) Long ownerId,
+                          @RequestParam(name = "requestId", defaultValue = "null") Long requestId) {
+        return itemService.createItem(itemDto, ownerId, requestId);
     }
 
     @GetMapping("/{itemId}")

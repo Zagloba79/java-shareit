@@ -26,6 +26,17 @@ public final class ItemMapper {
         return itemWithCommentsAndBookingsDto;
     }
 
+    public static ItemForAnswerDto createItemForAnswerDto(Item item, Long requestId) {
+        ItemForAnswerDto itemForAnswerDto =
+                new ItemForAnswerDto();
+        itemForAnswerDto.setId(item.getId());
+        itemForAnswerDto.setName(item.getName());
+        itemForAnswerDto.setDescription(item.getDescription());
+        itemForAnswerDto.setRequestId(requestId);
+        itemForAnswerDto.setAvailable(item.getAvailable());
+        return itemForAnswerDto;
+    }
+
     public static Item createItem(ItemDto itemDto, User owner) {
         Item item = new Item();
         item.setName(itemDto.getName());

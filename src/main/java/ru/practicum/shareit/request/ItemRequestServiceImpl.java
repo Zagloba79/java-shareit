@@ -1,70 +1,118 @@
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.handler.EntityHandler;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.dto.ItemForAnswerDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
+import ru.practicum.shareit.request.dto.ItemRequestWithAnswersDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestRepository requestRepository;
-    private final EntityHandler entityHandler;
+    private final ItemRepository itemRepository;
+    private final EntityHandler handler;
 
     @Override
     public ItemRequestDto addRequest(ItemRequestDto requestDto, Long requesterId) {
-        User requester = entityHandler.getUserFromOpt(requesterId);
+        User requester = handler.getUserFromOpt(requesterId);
         ItemRequest request = ItemRequestMapper.createItemRequest(requestDto);
         requestRepository.save(request);
-        ItemRequest requestFromRepository = entityHandler.getRequestFromOpt(request.getId());
+        ItemRequest requestFromRepository = handler.getRequestFromOpt(request.getId());
         return ItemRequestMapper.createItemRequestDto(requestFromRepository);
     }
 
     @Override
-    public ItemRequestDto getRequestById(Long requestId) {
-        ItemRequest itemRequest = entityHandler.getRequestFromOpt(requestId);
-        return ItemRequestMapper.createItemRequestDto(itemRequest);
+    public ItemRequestWithAnswersDto getRequestById(Long requestId, Long requesterId) {
+        User requester = handler.getUserFromOpt(requesterId);
+        ItemRequest request = handler.getRequestFromOpt(requestId);
+        List<Item> neededItems = itemRepository.findByRequestIdIn(Collections.singletonList(requestId));
+        return ItemRequestMapper
+                .createItemRequestWithAnswersDto(request,
+                        convertItemsToItemsForAnswer(request.getId(), neededItems));
+    }
+
+    @Override
+    public List<ItemRequestWithAnswersDto> getRequestsByRequester(Long userId) {
+        User requester = handler.getUserFromOpt(userId);
+        Sort sortByCreatedDesc = Sort.by(Sort.Direction.DESC, "created");
+        List<ItemRequest> itemRequests = requestRepository.findByRequesterId(userId, sortByCreatedDesc);
+        List<Long> requestIds = itemRequests.stream()
+                .map(ItemRequest::getId)
+                .collect(Collectors.toList());
+        List<Item> allNeededItems = itemRepository.findByRequestIdIn(requestIds);
+        List<ItemRequestWithAnswersDto> requestsWithAnswers = new ArrayList<>();
+        for (ItemRequest request : itemRequests) {
+            List<Item> filtredList = getFiltredList(request.getId(), allNeededItems);
+            ItemRequestWithAnswersDto aRequestWithAnswers = ItemRequestMapper
+                    .createItemRequestWithAnswersDto(
+                            request,
+                            convertItemsToItemsForAnswer(request.getId(), filtredList));
+            requestsWithAnswers.add(aRequestWithAnswers);
+        }
+        return requestsWithAnswers;
     }
 
     @Override
     public ItemRequestDto update(ItemRequestDto itemRequestDto, Long itemId, Long requesterId) {
-        Item item = entityHandler.getItemFromOpt(itemId);
-        User requester = entityHandler.getUserFromOpt(requesterId);
+        Item item = handler.getItemFromOpt(itemId);
+        User requester = handler.getUserFromOpt(requesterId);
         Long requestId = itemRequestDto.getId();
-        ItemRequest itemRequest = entityHandler.getRequestFromOpt(requestId);
+        ItemRequest itemRequest = handler.getRequestFromOpt(requestId);
         if (itemRequest.getRequester().equals(requester)) {
             ItemRequest request = ItemRequestMapper.createItemRequest(itemRequestDto);
             requestRepository.save(request);
         }
-        ItemRequest itemRequestFromStorage = entityHandler.getRequestFromOpt(requestId);
+        ItemRequest itemRequestFromStorage = handler.getRequestFromOpt(requestId);
         return ItemRequestMapper.createItemRequestDto(itemRequestFromStorage);
     }
 
     @Override
     public void delete(Long requestId, Long requesterId) {
-        User requester = entityHandler.getUserFromOpt(requesterId);
-        ItemRequest itemRequest = entityHandler.getRequestFromOpt(requestId);
+        User requester = handler.getUserFromOpt(requesterId);
+        ItemRequest itemRequest = handler.getRequestFromOpt(requestId);
         if (itemRequest.getRequester().equals(requester)) {
             requestRepository.deleteById(requestId);
         }
     }
 
-    @Override
-    public List<ItemRequestDto> getRequestsDtoByRequester(Long requesterId) {
-        User requester = entityHandler.getUserFromOpt(requesterId);
-        return requestRepository.findAll().stream()
-                .filter(itemRequest -> itemRequest.getRequester().getId().equals(requesterId))
-                .map(ItemRequestMapper::createItemRequestDto)
-                .collect(toList());
+    private List<Item> getFiltredList(Long requestId, List<Item> allNeededItems) {
+        return allNeededItems.stream()
+                .filter(item -> item.getRequest().getId().equals(requestId))
+                .collect(Collectors.toList());
     }
+
+    private List<ItemForAnswerDto> convertItemsToItemsForAnswer(Long requestId, List<Item> allNeededItems) {
+        List<ItemForAnswerDto> items = new ArrayList<>();
+        for (Item item : allNeededItems) {
+            ItemForAnswerDto itemForAnswerDto = ItemMapper.createItemForAnswerDto(item, requestId);
+            items.add(itemForAnswerDto);
+        }
+        return items;
+    }
+
+    @Override
+    public List<ItemRequestDto> getRequestsInQuantity(Long userId, Integer from, Integer size) {
+        return null;
+    }
+
+//    public Collection<ItemRequestDto> getPosts() {
+//        // выгружаем посты (один запрос)
+//        Map<Long, ItemRequest> postMap = requestRepository.findAll()
+//                .stream()
+//                .collect(Collectors.toMap(ItemRequest::getId, Function.identity()));
 }
