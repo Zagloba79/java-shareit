@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @Entity
+@ToString
 @Table(name = "requests")
 public class ItemRequest {
     @Id

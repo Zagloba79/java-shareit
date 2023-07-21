@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handler.EntityHandler;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemForAnswerDto;
@@ -31,6 +32,9 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public ItemRequestDto create(ItemRequestDto requestDto, Long requesterId) {
         User requester = handler.getUserFromOpt(requesterId);
+        if (requestDto.getDescription() == null || requestDto.getDescription().isBlank()) {
+            throw new ValidationException("Запрос без описания");
+        }
         ItemRequest request = ItemRequestMapper.createNewItemRequest(requestDto, requester);
         requestRepository.save(request);
         ItemRequest requestFromRepository = handler.getRequestFromOpt(request.getId());

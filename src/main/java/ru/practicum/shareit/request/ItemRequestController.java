@@ -48,9 +48,4 @@ public class ItemRequestController {
                                               @RequestHeader(USER_ID) Long requesterId) {
         return itemRequestService.getRequestById(itemRequestId, requesterId);
     }
-
-//    @DeleteMapping("/{requestId}")
-//    public void delete(@PathVariable Long itemId, @RequestHeader(USER_ID) Long requesterId) {
-//        itemRequestService.delete(itemId, requesterId);
-//    }
 }
