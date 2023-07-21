@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final EntityHandler entityHandler;
+    private final EntityHandler handler;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
@@ -40,13 +40,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserDto(Long userId) {
-        User user = entityHandler.getUserFromOpt(userId);
+        User user = handler.getUserFromOpt(userId);
         return UserMapper.createUserDto(user);
     }
 
     @Override
     public User getUser(Long userId) {
-        return entityHandler.getUserFromOpt(userId);
+        return handler.getUserFromOpt(userId);
     }
 
     @Override
@@ -65,8 +65,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Long userId) {
-        User user = entityHandler.getUserFromOpt(userId);
-        List<Item> itemsByOwner = itemRepository.findByOwnerId(userId);
+        User user = handler.getUserFromOpt(userId);
+        List<Item> itemsByOwner = itemRepository.findByOwnerId(userId, null);
         for (Item item : itemsByOwner) {
             itemRepository.deleteById(item.getId());
         }

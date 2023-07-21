@@ -8,6 +8,7 @@ import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.Collections;
 import java.util.List;
 
 import static ru.practicum.shareit.Constants.USER_ID;
@@ -36,7 +37,10 @@ public class ItemRequestController {
             @RequestParam(defaultValue = "0") @Min(0) Integer from,
             @RequestParam(defaultValue = "10") @Min(1) @Max(100) Integer size,
             @RequestHeader(USER_ID) Long userId) {
-        return itemRequestService.getRequestsPageable(userId, from, size);
+        if (userId != null) {
+            return itemRequestService.getRequestsPageable(userId, from, size);
+        }
+        return Collections.EMPTY_LIST;
     }
 
     @GetMapping("/{requestId}")

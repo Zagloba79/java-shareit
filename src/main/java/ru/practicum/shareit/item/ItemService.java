@@ -11,11 +11,13 @@ public interface ItemService {
 
     ItemWithCommentsAndBookingsDto getItemById(Long itemId, Long ownerId);
 
-    List<ItemWithCommentsAndBookingsDto> getItemsByOwner(Long ownerId);
+    List<ItemWithCommentsAndBookingsDto> getItemsByOwnerPageable(Long ownerId,
+                                                                 Integer from,
+                                                                 Integer size);
 
     void deleteItem(Long itemId, Long ownerId);
 
-    List<ItemDto> getItemsByQuery(String text, Long ownerId);
+    List<ItemDto> getItemsByQueryPageable(Integer from, Integer size, String text, Long ownerId);
 
     CommentDto createComment(CommentDto feedbackDto, Long itemId, Long userId);
 

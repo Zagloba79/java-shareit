@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Predicate;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -85,9 +88,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemWithCommentsAndBookingsDto> getItemsByOwner(Long ownerId) {
+    public List<ItemWithCommentsAndBookingsDto> getItemsByOwnerPageable(Long ownerId,
+                                                                        Integer from,
+                                                                        Integer size) {
         User owner = handler.getUserFromOpt(ownerId);
-        List<Item> itemsByOwner = itemRepository.findByOwnerId(owner.getId());
+        Sort sortByIdAsc = Sort.by(Sort.Direction.ASC, "id");
+        Pageable pageable = PageRequest.of(from, size, sortByIdAsc);
+        List<Item> itemsByOwner = itemRepository.findByOwnerId(owner.getId(), pageable);
         List<ItemWithCommentsAndBookingsDto> convertedItems = itemsByOwner.stream()
                 .map(ItemMapper::createItemWithCommentsAndBookingsDto)
                 .sorted(Comparator.comparing(ItemWithCommentsAndBookingsDto::getId))
@@ -102,31 +109,6 @@ public class ItemServiceImpl implements ItemService {
         return itemsWithCommentsAndBookings;
     }
 
-    private void addCommentsToItem(ItemWithCommentsAndBookingsDto item) {
-        List<Comment> comments = commentRepository.findByItemId(item.getId());
-        if (comments != null) {
-            item.setComments(comments.stream()
-                    .map(CommentMapper::createCommentDto)
-                    .collect(toList()));
-        }
-    }
-
-    private void addBookingsDataToItem(ItemWithCommentsAndBookingsDto item) {
-        Long itemId = item.getId();
-        BookingForDataDto previousBooking = getLastBookingForItem(itemId);
-        if (previousBooking != null) {
-            item.setLastBooking(previousBooking);
-        }
-        BookingForDataDto nextBooking = BookingMapper.createBookingForDatesDto(
-                bookingRepository.findFirstByItemIdAndStatusIsAndStartAfterOrderByStartAsc(
-                        itemId,
-                        APPROVED,
-                        LocalDateTime.now()));
-        if (nextBooking != null) {
-            item.setNextBooking(nextBooking);
-        }
-    }
-
     @Override
     public void deleteItem(Long itemId, Long ownerId) {
         Item item = handler.getItemFromOpt(itemId);
@@ -137,16 +119,20 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getItemsByQuery(String text, Long ownerId) {
+    public List<ItemDto> getItemsByQueryPageable(Integer from, Integer size,
+                                                 String text, Long ownerId) {
         User owner = handler.getUserFromOpt(ownerId);
-        if ((text != null) && (!text.isBlank())) {
-            String lowerText = text.toLowerCase();
-            return itemRepository.getItemsByQuery(lowerText).stream()
-                    .filter(item -> isAvailable.test(item))
-                    .map(ItemMapper::createItemDto)
-                    .collect(toList());
+        if ((text == null) || (text.isBlank())) {
+            //throw new OperationIsNotSupported("В запросе нет текста");
+            return Collections.EMPTY_LIST;
         }
-        return Collections.EMPTY_LIST;
+        Sort sortByIdAsc = Sort.by(Sort.Direction.ASC, "id");
+        Pageable pageable = PageRequest.of(from, size, sortByIdAsc);
+        String lowerText = text.toLowerCase();
+        return itemRepository.getItemsByQuery(lowerText, pageable).stream()
+                .filter(item -> isAvailable.test(item))
+                .map(ItemMapper::createItemDto)
+                .collect(toList());
     }
 
     @Override
@@ -179,5 +165,30 @@ public class ItemServiceImpl implements ItemService {
                             LocalDateTime.now());
         }
         return BookingMapper.createBookingForDatesDto(lastBooking);
+    }
+
+    private void addCommentsToItem(ItemWithCommentsAndBookingsDto item) {
+        List<Comment> comments = commentRepository.findByItemId(item.getId());
+        if (comments != null) {
+            item.setComments(comments.stream()
+                    .map(CommentMapper::createCommentDto)
+                    .collect(toList()));
+        }
+    }
+
+    private void addBookingsDataToItem(ItemWithCommentsAndBookingsDto item) {
+        Long itemId = item.getId();
+        BookingForDataDto previousBooking = getLastBookingForItem(itemId);
+        if (previousBooking != null) {
+            item.setLastBooking(previousBooking);
+        }
+        BookingForDataDto nextBooking = BookingMapper.createBookingForDatesDto(
+                bookingRepository.findFirstByItemIdAndStatusIsAndStartAfterOrderByStartAsc(
+                        itemId,
+                        APPROVED,
+                        LocalDateTime.now()));
+        if (nextBooking != null) {
+            item.setNextBooking(nextBooking);
+        }
     }
 }

@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 import static ru.practicum.shareit.Constants.USER_ID;
@@ -25,7 +27,8 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public BookingDto update(@PathVariable Long bookingId,
-                             @RequestHeader(USER_ID) Long userId, @RequestParam Boolean approved) {
+                             @RequestHeader(USER_ID) Long userId,
+                             @RequestParam Boolean approved) {
         return bookingService.update(bookingId, userId, approved);
     }
 
@@ -37,15 +40,19 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAllBookingsByUserAndState(
+            @RequestParam(defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) Integer size,
             @RequestParam(name = "state", defaultValue = "ALL") String state,
             @RequestHeader(USER_ID) Long userId) {
-        return bookingService.getBookingsByBookerAndState(state, userId);
+        return bookingService.getBookingsByBookerAndState(from, size, state, userId);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getBookingsByOwnerAndState(
+            @RequestParam(defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) Integer size,
             @RequestParam(name = "state", defaultValue = "ALL") String state,
             @RequestHeader(USER_ID) Long userId) {
-        return bookingService.getBookingsByOwnerAndState(state, userId);
+        return bookingService.getBookingsByOwnerAndState(from, size, state, userId);
     }
 }
