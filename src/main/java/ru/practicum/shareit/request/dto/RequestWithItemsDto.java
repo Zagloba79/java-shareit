@@ -11,7 +11,8 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ItemRequestWithAnswersDto {
+public class RequestWithItemsDto {
+    private Long id;
     private String description;
     private LocalDate created;
     List<ItemForAnswerDto> answers;
