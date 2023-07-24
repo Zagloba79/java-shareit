@@ -43,7 +43,7 @@ public class ItemServiceImpl implements ItemService {
             Boolean.TRUE.equals(item.getAvailable());
 
     @Override
-    public ItemDto createItem(ItemDto itemDto, Long ownerId) {
+    public ItemDto create(ItemDto itemDto, Long ownerId) {
         handler.itemValidate(itemDto);
         User owner = handler.getUserFromOpt(ownerId);
         Item item = ItemMapper.createItem(itemDto, owner);
@@ -128,10 +128,10 @@ public class ItemServiceImpl implements ItemService {
             //throw new OperationIsNotSupported("В запросе нет текста");
             return Collections.EMPTY_LIST;
         }
-        Sort sortByIdAsc = Sort.by(Sort.Direction.ASC, "id");
+        Sort sortByIdAsc = Sort.by("id").ascending();
         Pageable pageable = PageRequest.of(from, size, sortByIdAsc);
         String lowerText = text.toLowerCase();
-        return itemRepository.getItemsByQuery(lowerText, pageable).stream()
+        return itemRepository.findItemsByQuery(lowerText, pageable).stream()
                 .filter(item -> isAvailable.test(item))
                 .map(ItemMapper::createItemDto)
                 .collect(toList());

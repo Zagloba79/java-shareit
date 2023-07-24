@@ -21,6 +21,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -45,13 +46,14 @@ public class ItemRequestServiceImplTest {
     ItemRequestDto requestDto;
     ItemRequest request;
     Item item;
+
     @BeforeEach
     public void setUp() {
         requester = generator.nextObject(User.class);
         requestDto = generator.nextObject(ItemRequestDto.class);
         requestDto.setDescription("description");
         request = new ItemRequest(3L, "description",
-                requester, LocalDate.of(2023, 7, 3));
+                requester, LocalDateTime.of(2023, 7, 3, 0, 0, 0));
         item = generator.nextObject(Item.class);
     }
 
@@ -71,12 +73,14 @@ public class ItemRequestServiceImplTest {
                 .thenReturn(requester);
         when(handler.getRequestFromOpt(Mockito.anyLong()))
                 .thenReturn(request);
-        when(itemRepository.findAllByRequestIds(Collections.singletonList(requestId)))
+        when(itemRepository.findAllByRequestIdIn(Collections.singletonList(requestId),
+                Sort.by("id").ascending()))
                 .thenReturn(List.of(item));
         RequestWithItemsDto requestWithItemsDto = service.getRequestById(
                 requestId, requesterId);
         assertEquals("description", requestWithItemsDto.getDescription());
-        assertEquals(LocalDate.of(2023, 7, 3), requestWithItemsDto.getCreated());
+        assertEquals(LocalDateTime.of(2023, 7, 3, 0, 0, 0),
+                requestWithItemsDto.getCreated());
     }
 
     @Test
@@ -99,21 +103,19 @@ public class ItemRequestServiceImplTest {
         int from = 1;
         int size = 2;
         User owner = generator.nextObject(User.class);
-        List<ItemRequest> requests = new ArrayList<>();
-        requests.add(new ItemRequest(21L, "description1",
-                owner, LocalDate.of(2023, 7, 1)));
-        requests.add(new ItemRequest(22L, "description2",
-                owner, LocalDate.of(2023, 7, 2)));
-        requests.add(new ItemRequest(23L, "description3",
-                owner, LocalDate.of(2023, 7, 3)));
+        requestRepository.save(new ItemRequest(null, "description1",
+                owner, LocalDateTime.of(2023, 7, 1,0 , 0, 0)));
+        requestRepository.save(new ItemRequest(null, "description2",
+                owner, LocalDateTime.of(2023, 7, 2,0 , 0, 0)));
+        requestRepository.save(new ItemRequest(null, "description3",
+                owner, LocalDateTime.of(2023, 7, 3, 0, 0, 0)));
         Sort sort = Sort.by(Sort.Direction.ASC, "created");
         Pageable pageable = PageRequest.of(from, size, sort);
-        when(requestRepository.findAllByRequesterIdNot(requesterId, pageable))
-                .thenReturn(requests);
         when(handler.getUserFromOpt(Mockito.anyLong()))
                 .thenReturn(requester);
         List<RequestWithItemsDto> requestsByRequesterNot = service.getRequestsPageable(
                 requesterId, from, size);
+        assertEquals(2, requestsByRequesterNot.size());
         //assertEquals(22, requestsByRequesterNot.get(0).getId());
     }
 }

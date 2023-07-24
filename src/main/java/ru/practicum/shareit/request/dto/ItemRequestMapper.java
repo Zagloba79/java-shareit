@@ -32,7 +32,7 @@ public final class ItemRequestMapper {
         requestWithAnswers.setId(itemRequest.getId());
         requestWithAnswers.setDescription(itemRequest.getDescription());
         requestWithAnswers.setCreated(itemRequest.getCreated());
-        requestWithAnswers.setAnswers(itemsForAnswer);
+        requestWithAnswers.setItems(itemsForAnswer);
         return requestWithAnswers;
     }
 }

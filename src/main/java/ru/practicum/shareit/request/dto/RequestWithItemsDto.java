@@ -19,5 +19,5 @@ public class RequestWithItemsDto {
     private String description;
     @NotNull
     private LocalDateTime created;
-    List<ItemForAnswerDto> answers;
+    List<ItemForAnswerDto> items;
 }

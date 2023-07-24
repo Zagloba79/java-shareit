@@ -12,7 +12,7 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +23,7 @@ public class ItemRequestRepositoryTest {
     private ItemRequestRepository itemRequestRepository;
     @Autowired
     private UserRepository userRepository;
-    private final Sort sortByIdAsc = Sort.by(Sort.Direction.ASC, "id");
+    private final Pageable pageable = PageRequest.of(0, 10, Sort.by( "id").ascending());
     private User anna = new User(1L, "Anna", "anna@mail.ru");
     private User kat = new User(2L, "Kat", "kat@mail.ru");
 
@@ -32,18 +32,18 @@ public class ItemRequestRepositoryTest {
         anna = userRepository.save(anna);
         kat = userRepository.save(kat);
         ItemRequest itemRequest1 = new ItemRequest(1L, "qwerty",
-                anna, LocalDate.of(2023, 7, 1));
+                anna, LocalDateTime.of(2023, 7, 1, 0, 0, 0));
         itemRequestRepository.save(itemRequest1);
         ItemRequest itemRequest2 = new ItemRequest(2L, "asdfg",
-                anna, LocalDate.of(2023, 7, 2));
+                anna, LocalDateTime.of(2023, 7, 2, 0, 0, 0));
         itemRequestRepository.save(itemRequest2);
         ItemRequest itemRequest3 = new ItemRequest(3L, "qaz",
-                kat, LocalDate.of(2023, 7, 3));
+                kat, LocalDateTime.of(2023, 7, 3, 0, 0, 0));
         itemRequestRepository.save(itemRequest3);
     }
 
     @AfterEach
-    public void deleteAll() {
+    public void cleanDb() {
         itemRequestRepository.deleteAll();
         userRepository.deleteAll();
     }
@@ -51,7 +51,8 @@ public class ItemRequestRepositoryTest {
     @Test
     public void testFindByRequesterId() {
         Long id = anna.getId();
-        List<ItemRequest> requests = itemRequestRepository.findByRequesterId(id, sortByIdAsc);
+        List<ItemRequest> requests = itemRequestRepository.findByRequesterId(id,
+                Sort.by( "id").ascending());
         assertEquals(2, requests.size());
         assertEquals("qwerty", requests.get(0).getDescription());
         assertEquals("asdfg", requests.get(1).getDescription());
@@ -60,7 +61,6 @@ public class ItemRequestRepositoryTest {
 
     @Test
     public void testFindAllByRequesterIdNot() {
-        Pageable pageable = PageRequest.of(0, 10, sortByIdAsc);
         Long id = anna.getId();
         List<ItemRequest> requestsByUser = itemRequestRepository.findAllByRequesterIdNot(id, pageable);
         assertEquals(1, requestsByUser.size());

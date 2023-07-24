@@ -18,7 +18,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "where lower(i.name) like lower(concat('%', :search, '%')) " +
             " or lower(i.description) like lower(concat('%', :search, '%')) " +
             " and i.available = true")
-    List<Item> getItemsByQuery(@Param("search") String text, Pageable pageable);
+    List<Item> findItemsByQuery(@Param("search") String text, Pageable pageable);
 
     List<Item> findAllByRequestIdIn(List<Long> ids, Sort sort);
 }

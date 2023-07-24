@@ -25,7 +25,7 @@ public class ItemController {
     public ItemDto create(
             @RequestBody ItemDto itemDto,
             @RequestHeader(USER_ID) Long ownerId) {
-        ItemDto itemDtoFrom = itemService.createItem(itemDto, ownerId);
+        ItemDto itemDtoFrom = itemService.create(itemDto, ownerId);
         return itemDtoFrom;
     }
     //@RequestParam(name = "requestId", defaultValue = "null") Long requestId,

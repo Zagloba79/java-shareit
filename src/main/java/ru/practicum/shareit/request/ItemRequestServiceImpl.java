@@ -57,11 +57,11 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User requester = handler.getUserFromOpt(userId);
         List<ItemRequest> requests = requestRepository.findByRequesterId(requester.getId(),
                 Sort.by( "created").descending());
-        if (requests.size() > 0) {
-            List<Item> allNeededItems = createAllNeededItemsList(requests);
-            return getRequestsWithItems(requests, allNeededItems);
+        if (requests.size() == 0) {
+            return Collections.EMPTY_LIST;
         }
-        return Collections.emptyList();
+        List<Item> allNeededItems = createAllNeededItemsList(requests);
+        return getRequestsWithItems(requests, allNeededItems);
     }
 
     @Override//TODO
@@ -80,8 +80,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<Long> requestIds = requests.stream()
                 .map(ItemRequest::getId)
                 .collect(Collectors.toList());
-        List<Item> allNeededItems = itemRepository.findAllByRequestIds(requestIds);
-        return allNeededItems;
+        return itemRepository.findAllByRequestIdIn(requestIds, Sort.by( "id").ascending());
     }
 
     private List<RequestWithItemsDto> getRequestsWithItems(List<ItemRequest> requests,
