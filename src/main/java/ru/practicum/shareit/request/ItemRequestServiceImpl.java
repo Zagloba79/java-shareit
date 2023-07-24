@@ -17,7 +17,7 @@ import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,51 +31,57 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequestDto create(ItemRequestDto requestDto, Long requesterId) {
+        LocalDateTime presentTime = LocalDateTime.now();
         User requester = handler.getUserFromOpt(requesterId);
         if (requestDto.getDescription() == null || requestDto.getDescription().isBlank()) {
             throw new ValidationException("Запрос без описания");
         }
         ItemRequest request = ItemRequestMapper.createNewItemRequest(requestDto, requester);
-        requestRepository.save(request);
-        ItemRequest requestFromRepository = handler.getRequestFromOpt(request.getId());
-        return ItemRequestMapper.createItemRequestDto(requestFromRepository);
+        request.setCreated(presentTime);
+        return ItemRequestMapper.createItemRequestDto(requestRepository.save(request));
     }
 
     @Override
     public RequestWithItemsDto getRequestById(Long requestId, Long requesterId) {
         User requester = handler.getUserFromOpt(requesterId);
         ItemRequest request = handler.getRequestFromOpt(requestId);
-        List<Item> neededItems = itemRepository.findByRequestIdIn(Collections.singletonList(requestId));
+        List<Item> neededItems = itemRepository.findAllByRequestIdIn(
+                Collections.singletonList(requestId), Sort.by( "id").ascending());
         List<ItemForAnswerDto> itemsForAnswer = getMappedList(requestId, neededItems);
         return ItemRequestMapper
                 .createItemRequestWithAnswersDto(request, itemsForAnswer);
     }
 
-    @Override
+    @Override //TODO
     public List<RequestWithItemsDto> getRequestsByRequester(Long userId) {
         User requester = handler.getUserFromOpt(userId);
-        Sort sortByCreatedDesc = Sort.by(Sort.Direction.DESC, "created");
         List<ItemRequest> requests = requestRepository.findByRequesterId(requester.getId(),
-                sortByCreatedDesc);
-        List<Item> allNeededItems = createAllNeededItemsList(requests);
-        return getRequestsWithItems(requests, allNeededItems);
+                Sort.by( "created").descending());
+        if (requests.size() > 0) {
+            List<Item> allNeededItems = createAllNeededItemsList(requests);
+            return getRequestsWithItems(requests, allNeededItems);
+        }
+        return Collections.emptyList();
     }
 
-    @Override
+    @Override//TODO
     public List<RequestWithItemsDto> getRequestsPageable(Long userId, Integer from, Integer size) {
         User user = handler.getUserFromOpt(userId);
-        Sort sortByCreatedAsc = Sort.by(Sort.Direction.ASC, "created");
-        Pageable pageable = PageRequest.of(from, size, sortByCreatedAsc);
+        Pageable pageable = PageRequest.of(from, size, Sort.by( "created").ascending());
         List<ItemRequest> requests = requestRepository.findAllByRequesterIdNot(userId, pageable);
-        List<Item> allNeededItems = createAllNeededItemsList(requests);
-        return getRequestsWithItems(requests, allNeededItems);
+        if (requests.size() > 0) {
+            List<Item> allNeededItems = createAllNeededItemsList(requests);
+            return getRequestsWithItems(requests, allNeededItems);
+        }
+        return Collections.emptyList();
     }
 
     private List<Item> createAllNeededItemsList(List<ItemRequest> requests) {
         List<Long> requestIds = requests.stream()
                 .map(ItemRequest::getId)
                 .collect(Collectors.toList());
-        return itemRepository.findByRequestIdIn(requestIds);
+        List<Item> allNeededItems = itemRepository.findAllByRequestIds(requestIds);
+        return allNeededItems;
     }
 
     private List<RequestWithItemsDto> getRequestsWithItems(List<ItemRequest> requests,

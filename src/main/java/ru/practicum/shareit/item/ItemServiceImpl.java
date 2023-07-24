@@ -28,6 +28,7 @@ import ru.practicum.shareit.item.dto.ItemWithCommentsAndBookingsDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.ItemRequestRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 @Service
@@ -42,13 +43,14 @@ public class ItemServiceImpl implements ItemService {
             Boolean.TRUE.equals(item.getAvailable());
 
     @Override
-    public ItemDto createItem(ItemDto itemDto, Long ownerId, Long requestId) {
+    public ItemDto createItem(ItemDto itemDto, Long ownerId) {
         handler.itemValidate(itemDto);
         User owner = handler.getUserFromOpt(ownerId);
         Item item = ItemMapper.createItem(itemDto, owner);
-        if (requestId != null) {
-            item.setRequest(itemRequestRepository.findById(requestId).orElseThrow(() ->
-                    new ObjectNotFoundException("Такого запроса не существует")));
+        if (itemDto.getRequestId() != null) {
+            ItemRequest request = itemRequestRepository.findById(itemDto.getRequestId()).orElseThrow(() ->
+                    new ObjectNotFoundException("Такого запроса не существует"));
+            item.setRequest(request);
         }
         itemRepository.save(item);
         return ItemMapper.createItemDto(item);

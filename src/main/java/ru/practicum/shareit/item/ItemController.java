@@ -22,10 +22,20 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ItemDto create(@RequestBody ItemDto itemDto,
-                          @RequestHeader(USER_ID) Long ownerId,
-                          @RequestParam(name = "requestId", defaultValue = "null") Long requestId) {
-        return itemService.createItem(itemDto, ownerId, requestId);
+    public ItemDto create(
+            @RequestBody ItemDto itemDto,
+            @RequestHeader(USER_ID) Long ownerId) {
+        ItemDto itemDtoFrom = itemService.createItem(itemDto, ownerId);
+        return itemDtoFrom;
+    }
+    //@RequestParam(name = "requestId", defaultValue = "null") Long requestId,
+
+    @PatchMapping("/{itemId}")
+    public ItemDto update(
+            @RequestBody ItemDto itemDto,
+            @PathVariable Long itemId,
+            @RequestHeader(USER_ID) Long ownerId) {
+        return itemService.updateItem(itemDto, itemId, ownerId);
     }
 
     @GetMapping("/{itemId}")
@@ -43,13 +53,6 @@ public class ItemController {
             return itemService.getItemsByOwnerPageable(ownerId, from, size);
         }
         return Collections.EMPTY_LIST;
-    }
-
-    @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestBody ItemDto itemDto,
-                          @PathVariable Long itemId,
-                          @RequestHeader(USER_ID) Long ownerId) {
-        return itemService.updateItem(itemDto, itemId, ownerId);
     }
 
     @DeleteMapping("/{itemId}")

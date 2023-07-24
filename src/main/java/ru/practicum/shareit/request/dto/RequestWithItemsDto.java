@@ -7,7 +7,7 @@ import ru.practicum.shareit.item.dto.ItemForAnswerDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -18,6 +18,6 @@ public class RequestWithItemsDto {
     @NotBlank
     private String description;
     @NotNull
-    private LocalDate created;
+    private LocalDateTime created;
     List<ItemForAnswerDto> answers;
 }

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,5 +20,5 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             " and i.available = true")
     List<Item> getItemsByQuery(@Param("search") String text, Pageable pageable);
 
-    List<Item> findByRequestIdIn(List<Long> ids);
+    List<Item> findAllByRequestIdIn(List<Long> ids, Sort sort);
 }

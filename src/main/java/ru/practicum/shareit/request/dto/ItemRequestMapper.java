@@ -19,11 +19,10 @@ public final class ItemRequestMapper {
         return itemRequestDto;
     }
 
-    public static ItemRequest createNewItemRequest(ItemRequestDto itemRequestDto, User requester) {
+    public static ItemRequest   createNewItemRequest(ItemRequestDto itemRequestDto, User requester) {
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setDescription(itemRequestDto.getDescription());
         itemRequest.setRequester(requester);
-        itemRequest.setCreated(itemRequestDto.getCreated());
         return itemRequest;
     }
 
