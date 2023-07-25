@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.handler.EntityHandler;
+import ru.practicum.shareit.handleAndValidate.EntityHandler;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.dto.ItemForAnswerDto;
 import ru.practicum.shareit.item.dto.ItemMapper;

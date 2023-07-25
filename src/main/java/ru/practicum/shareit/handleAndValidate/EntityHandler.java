@@ -1,4 +1,4 @@
-package ru.practicum.shareit.handler;
+package ru.practicum.shareit.handleAndValidate;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -12,7 +12,7 @@
 //import org.springframework.data.domain.Sort;
 //import ru.practicum.shareit.exception.ObjectNotFoundException;
 //import ru.practicum.shareit.exception.ValidationException;
-//import ru.practicum.shareit.handler.EntityHandler;
+//import ru.practicum.shareit.handleAndValidate.EntityHandler;
 //import ru.practicum.shareit.item.dto.*;
 //import ru.practicum.shareit.item.model.Comment;
 //import ru.practicum.shareit.item.model.Item;
