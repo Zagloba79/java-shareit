@@ -110,7 +110,7 @@ public class BookingServiceImpl implements BookingService {
                         pageable);
                 break;
             case "CURRENT":
-                bookings = bookingRepository.findByBookerIdAndAndStartIsBeforeAndEndIsAfter(
+                bookings = bookingRepository.findByBookerIdAndStartIsBeforeAndEndIsAfter(
                         user.getId(),
                         presentTime,
                         presentTime,

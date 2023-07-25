@@ -23,4 +23,9 @@ public class ItemRequest {
     private User requester;
     @Column(nullable = false)
     private LocalDateTime created;
+
+    public ItemRequest(String description, User requester) {
+        this.description = description;
+        this.requester = requester;
+    }
 }

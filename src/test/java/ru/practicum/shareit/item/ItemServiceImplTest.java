@@ -6,7 +6,6 @@
 //import org.mockito.InjectMocks;
 //import org.mockito.Mock;
 //import org.mockito.Mockito;
-//import org.springframework.boot.test.mock.mockito.MockBean;
 //import org.springframework.data.domain.PageRequest;
 //import org.springframework.data.domain.Pageable;
 //import org.springframework.data.domain.Sort;
@@ -34,9 +33,9 @@
 //    private final EasyRandom generator = new EasyRandom();
 //    @InjectMocks
 //    private ItemServiceImpl service;
-//    @MockBean
+//    @Mock
 //    ItemRequestRepository requestRepository;
-//    @MockBean
+//    @Mock
 //    EntityHandler handler;
 //    User requester;
 //    ItemDto itemDto;

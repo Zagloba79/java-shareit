@@ -14,10 +14,10 @@ import java.util.Optional;
 public interface BookingRepository extends PagingAndSortingRepository<Booking, Long> {
     List<Booking> findByBookerId(Long bookerId, Pageable pageable);
 
-    List<Booking> findByBookerIdAndAndStartIsBeforeAndEndIsAfter(Long bookerId,
-                                                                 LocalDateTime start,
-                                                                 LocalDateTime end,
-                                                                 Pageable pageable);
+    List<Booking> findByBookerIdAndStartIsBeforeAndEndIsAfter(Long bookerId,
+                                                              LocalDateTime start,
+                                                              LocalDateTime end,
+                                                              Pageable pageable);
 
     List<Booking> findByBookerIdAndEndIsBefore(Long bookerId, LocalDateTime end, Pageable pageable);
 
