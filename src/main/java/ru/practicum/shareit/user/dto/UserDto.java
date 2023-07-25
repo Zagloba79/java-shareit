@@ -15,4 +15,9 @@ public class UserDto {
     @NotBlank
     @Email
     private String email;
+
+    public UserDto(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
 }
