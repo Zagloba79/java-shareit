@@ -52,7 +52,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                 .createItemRequestWithAnswersDto(request, itemsForAnswer);
     }
 
-    @Override //TODO
+    @Override
     public List<RequestWithItemsDto> getRequestsByRequester(Long userId) {
         User requester = handler.getUserFromOpt(userId);
         List<ItemRequest> requests = requestRepository.findByRequesterId(requester.getId(),
@@ -64,7 +64,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return getRequestsWithItems(requests, allNeededItems);
     }
 
-    @Override//TODO
+    @Override
     public List<RequestWithItemsDto> getRequestsPageable(Long userId, Integer from, Integer size) {
         User user = handler.getUserFromOpt(userId);
         Pageable pageable = PageRequest.of(from, size, Sort.by( "created").ascending());

@@ -24,8 +24,9 @@ public class ItemRequest {
     @Column(nullable = false)
     private LocalDateTime created;
 
-    public ItemRequest(String description, User requester) {
+    public ItemRequest(String description, User requester, LocalDateTime created) {
         this.description = description;
         this.requester = requester;
+        this.created = created;
     }
 }

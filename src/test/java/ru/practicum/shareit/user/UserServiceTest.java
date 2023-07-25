@@ -10,15 +10,12 @@ import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.transaction.Transactional;
-
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
-@Transactional
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserServiceTest {
     private final UserService service;
 
@@ -50,7 +47,6 @@ public class UserServiceTest {
                 UserAlreadyExistsException.class,
                 () -> service.update(abuserDto, userFromDb.getId()));
         assertEquals("Пользователь с таким Email уже зарегистрирован", exception.getMessage());
-
     }
 
     @Test

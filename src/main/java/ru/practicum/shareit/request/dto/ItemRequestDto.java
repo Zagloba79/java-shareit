@@ -18,4 +18,10 @@ public class ItemRequestDto {
     private User requester;
     @NotNull
     private LocalDateTime created;
+
+    public ItemRequestDto(String description, LocalDateTime created) {
+        this.description = description;
+        this.requester = requester;
+        this.created = created;
+    }
 }
