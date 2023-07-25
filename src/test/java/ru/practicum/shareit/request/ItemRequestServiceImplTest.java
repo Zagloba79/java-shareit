@@ -102,9 +102,9 @@ public class ItemRequestServiceImplTest {
         int size = 2;
         User owner = generator.nextObject(User.class);
         requestRepository.save(new ItemRequest(null, "description1",
-                owner, LocalDateTime.of(2023, 7, 1,0 , 0, 0)));
+                owner, LocalDateTime.of(2023, 7, 1, 0, 0, 0)));
         requestRepository.save(new ItemRequest(null, "description2",
-                owner, LocalDateTime.of(2023, 7, 2,0 , 0, 0)));
+                owner, LocalDateTime.of(2023, 7, 2, 0, 0, 0)));
         requestRepository.save(new ItemRequest(null, "description3",
                 owner, LocalDateTime.of(2023, 7, 3, 0, 0, 0)));
         Sort sort = Sort.by(Sort.Direction.ASC, "created");
