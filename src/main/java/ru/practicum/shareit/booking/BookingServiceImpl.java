@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,7 +23,6 @@ import static java.util.stream.Collectors.toList;
 import static ru.practicum.shareit.booking.model.BookingStatus.*;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
 
@@ -98,13 +96,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getBookingsByBookerAndState(Integer from, Integer size,
+    public List<BookingDto> getBookingsByBookerAndState(int from, int size,
                                                         String state, Long userId) {
         LocalDateTime presentTime = LocalDateTime.now();
         User user = handler.getUserFromOpt(userId);
         List<Booking> bookings;
-        Sort sortByStartDesc = Sort.by(Sort.Direction.DESC, "start");
-        Pageable pageable = PageRequest.of(from, size, sortByStartDesc);
+        Pageable pageable = PageRequest.of(from > 0 ? from / size : 0, size,
+                Sort.by("start").descending());
         switch (state) {
             case "ALL":
                 bookings = bookingRepository.findByBookerId(
@@ -151,13 +149,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getBookingsByOwnerAndState(Integer from, Integer size,
+    public List<BookingDto> getBookingsByOwnerAndState(int from, int size,
                                                        String state, Long userId) {
         LocalDateTime presentTime = LocalDateTime.now();
         User user = handler.getUserFromOpt(userId);
         List<Booking> bookings;
-        Sort sortByStartDesc = Sort.by(Sort.Direction.DESC, "start");
-        Pageable pageable = PageRequest.of(from, size, sortByStartDesc);
+        Pageable pageable = PageRequest.of(from > 0 ? from / size : 0, size,
+                Sort.by("start").descending());
         switch (state) {
             case "ALL":
                 bookings = bookingRepository.findByItem_OwnerId(
