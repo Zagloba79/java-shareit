@@ -98,7 +98,7 @@ public class ItemRepositoryTest {
         itemRepository.save(box);
         Long id = request.getId();
         List<Item> itemsByRequestId = itemRepository.findAllByRequestIdIn(
-                List.of(id), Sort.by( "id").ascending());
+                List.of(id), Sort.by("id").ascending());
         assertEquals(2, itemsByRequestId.size());
     }
 }

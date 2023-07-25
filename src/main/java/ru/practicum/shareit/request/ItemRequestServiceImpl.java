@@ -46,7 +46,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User requester = handler.getUserFromOpt(requesterId);
         ItemRequest request = handler.getRequestFromOpt(requestId);
         List<Item> neededItems = itemRepository.findAllByRequestIdIn(
-                Collections.singletonList(requestId), Sort.by( "id").ascending());
+                Collections.singletonList(requestId), Sort.by("id").ascending());
         List<ItemForAnswerDto> itemsForAnswer = getMappedList(requestId, neededItems);
         return ItemRequestMapper
                 .createItemRequestWithAnswersDto(request, itemsForAnswer);
@@ -56,7 +56,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     public List<RequestWithItemsDto> getRequestsByRequester(Long userId) {
         User requester = handler.getUserFromOpt(userId);
         List<ItemRequest> requests = requestRepository.findByRequesterId(requester.getId(),
-                Sort.by( "created").descending());
+                Sort.by("created").descending());
         if (requests.size() == 0) {
             return Collections.EMPTY_LIST;
         }
@@ -67,7 +67,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Override
     public List<RequestWithItemsDto> getRequestsPageable(Long userId, Integer from, Integer size) {
         User user = handler.getUserFromOpt(userId);
-        Pageable pageable = PageRequest.of(from, size, Sort.by( "created").ascending());
+        Pageable pageable = PageRequest.of(from, size, Sort.by("created").ascending());
         List<ItemRequest> requests = requestRepository.findAllByRequesterIdNot(userId, pageable);
         if (requests.size() > 0) {
             List<Item> allNeededItems = createAllNeededItemsList(requests);
@@ -80,7 +80,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         List<Long> requestIds = requests.stream()
                 .map(ItemRequest::getId)
                 .collect(Collectors.toList());
-        return itemRepository.findAllByRequestIdIn(requestIds, Sort.by( "id").ascending());
+        return itemRepository.findAllByRequestIdIn(requestIds, Sort.by("id").ascending());
     }
 
     private List<RequestWithItemsDto> getRequestsWithItems(List<ItemRequest> requests,

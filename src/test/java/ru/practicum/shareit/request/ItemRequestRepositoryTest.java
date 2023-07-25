@@ -23,7 +23,7 @@ public class ItemRequestRepositoryTest {
     private ItemRequestRepository itemRequestRepository;
     @Autowired
     private UserRepository userRepository;
-    private final Pageable pageable = PageRequest.of(0, 10, Sort.by( "id").ascending());
+    private final Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
     private User anna = new User(1L, "Anna", "anna@mail.ru");
     private User kat = new User(2L, "Kat", "kat@mail.ru");
 
@@ -52,7 +52,7 @@ public class ItemRequestRepositoryTest {
     public void testFindByRequesterId() {
         Long id = anna.getId();
         List<ItemRequest> requests = itemRequestRepository.findByRequesterId(id,
-                Sort.by( "id").ascending());
+                Sort.by("id").ascending());
         assertEquals(2, requests.size());
         assertEquals("qwerty", requests.get(0).getDescription());
         assertEquals("asdfg", requests.get(1).getDescription());
