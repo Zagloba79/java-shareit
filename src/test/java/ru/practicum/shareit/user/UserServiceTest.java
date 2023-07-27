@@ -86,5 +86,6 @@ public class UserServiceTest {
         assertEquals(3, service.findAll().size());
         service.delete(u2.getId());
         assertEquals(2, service.findAll().size());
+        assertEquals("User1", service.getUser(0L).getName());
     }
 }

@@ -26,7 +26,7 @@ public class ItemRepositoryTest {
     private UserRepository userRepository;
     @Autowired
     private ItemRequestRepository itemRequestRepository;
-    private User owner = new User(null, "Anna", "anna@mail.ru");
+    private User owner = new User("Anna", "anna@mail.ru");
     Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
 
     @AfterEach
@@ -39,10 +39,10 @@ public class ItemRepositoryTest {
     @Test
     public void findByOwnerIdTest() {
         owner = userRepository.save(owner);
-        Item item1 = new Item(1L, "item1", "description1",
+        Item item1 = new Item("item1", "description1",
                 true, owner, null);
         itemRepository.save(item1);
-        Item item2 = new Item(2L, "item2", "description2",
+        Item item2 = new Item("item2", "description2",
                 true, owner, null);
         itemRepository.save(item2);
         Long id = owner.getId();
@@ -53,22 +53,22 @@ public class ItemRepositoryTest {
     @Test
     public void getItemsByQueryTest() {
         owner = userRepository.save(owner);
-        Item workTable = new Item(null, "workTable", "Рабочий стол",
+        Item workTable = new Item("workTable", "Рабочий стол",
                 true, owner, null);
         itemRepository.save(workTable);
-        Item tableTop = new Item(null, "tableTop", "Столешница",
+        Item tableTop = new Item("tableTop", "Столешница",
                 true, owner, null);
         itemRepository.save(tableTop);
-        Item fork = new Item(null, "fork", "вилка",
+        Item fork = new Item("fork", "вилка",
                 true, owner, null);
         itemRepository.save(fork);
-        Item pokerTable = new Item(null, "Стол для покера", "Большой стол для покера",
+        Item pokerTable = new Item("Стол для покера", "Большой стол для покера",
                 true, owner, null);
         itemRepository.save(pokerTable);
-        Item lamp = new Item(null, "Лампа", "Настольная лампа",
+        Item lamp = new Item("Лампа", "Настольная лампа",
                 true, owner, null);
         itemRepository.save(lamp);
-        Item dinningTable = new Item(null, "Обеденный стол", "description1",
+        Item dinningTable = new Item("Обеденный стол", "description1",
                 true, owner, null);
         itemRepository.save(dinningTable);
         List<Item> itemsByQuery = itemRepository.findItemsByQuery("стол", pageable);
@@ -78,22 +78,22 @@ public class ItemRepositoryTest {
     @Test
     public void findAllByRequestIdInTest() {
         owner = userRepository.save(owner);
-        ItemRequest request = new ItemRequest(null, "Хочу купить слона",
+        ItemRequest request = new ItemRequest("Хочу купить слона",
                 owner, LocalDateTime.of(2023, 7, 2, 0, 0, 0));
         itemRequestRepository.save(request);
-        ItemRequest otherRequest = new ItemRequest(null, "Ничего не надо",
+        ItemRequest otherRequest = new ItemRequest("Ничего не надо",
                 owner, LocalDateTime.of(2023, 7, 2, 0, 0, 1));
         itemRequestRepository.save(otherRequest);
-        Item homePhone = new Item(null, "homePhone", "description1",
+        Item homePhone = new Item("homePhone", "description1",
                 true, owner, request);
         itemRepository.save(homePhone);
-        Item mobilePhone = new Item(null, "mobilePhone", "new mobilePhone Alcatel",
+        Item mobilePhone = new Item("mobilePhone", "new mobilePhone Alcatel",
                 true, owner, request);
         itemRepository.save(mobilePhone);
-        Item router = new Item(null, "router", "new router Alcatel",
+        Item router = new Item("router", "new router Alcatel",
                 true, owner, null);
         itemRepository.save(router);
-        Item box = new Item(null, "box", "empty box",
+        Item box = new Item("box", "empty box",
                 true, owner, otherRequest);
         itemRepository.save(box);
         Long id = request.getId();

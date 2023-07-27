@@ -46,10 +46,10 @@ public class ItemRequestServiceTest {
 
     @Test
     void shouldReturnRequestWhenGetRequestById() {
-        ItemRequestDto dto = new ItemRequestDto("description", LocalDateTime.now());
-        ItemRequestDto requestFromDb = service.create(dto, user.getId());
-        assertEquals(requestFromDb.getDescription(), dto.getDescription());
-        assertEquals(requestFromDb.getRequester(), dto.getRequester());
+        ItemRequestDto requestDto = new ItemRequestDto("description", LocalDateTime.now());
+        ItemRequestDto requestFromDb = service.create(requestDto, user.getId());
+        assertEquals(requestFromDb.getDescription(), requestDto.getDescription());
+        assertEquals(requestFromDb.getRequester(), requestDto.getRequester());
     }
 
     @Test

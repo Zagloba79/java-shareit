@@ -24,20 +24,20 @@ public class ItemRequestRepositoryTest {
     @Autowired
     private UserRepository userRepository;
     private final Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
-    private User anna = new User(1L, "Anna", "anna@mail.ru");
-    private User kat = new User(2L, "Kat", "kat@mail.ru");
+    private User anna = new User("Anna", "anna@mail.ru");
+    private User kat = new User("Kat", "kat@mail.ru");
 
     @BeforeEach
     public void createRequesterAndRequests() {
         anna = userRepository.save(anna);
         kat = userRepository.save(kat);
-        ItemRequest itemRequest1 = new ItemRequest(1L, "qwerty",
+        ItemRequest itemRequest1 = new ItemRequest("qwerty",
                 anna, LocalDateTime.of(2023, 7, 1, 0, 0, 0));
         itemRequestRepository.save(itemRequest1);
-        ItemRequest itemRequest2 = new ItemRequest(2L, "asdfg",
+        ItemRequest itemRequest2 = new ItemRequest("asdfg",
                 anna, LocalDateTime.of(2023, 7, 2, 0, 0, 0));
         itemRequestRepository.save(itemRequest2);
-        ItemRequest itemRequest3 = new ItemRequest(3L, "qaz",
+        ItemRequest itemRequest3 = new ItemRequest("qaz",
                 kat, LocalDateTime.of(2023, 7, 3, 0, 0, 0));
         itemRequestRepository.save(itemRequest3);
     }

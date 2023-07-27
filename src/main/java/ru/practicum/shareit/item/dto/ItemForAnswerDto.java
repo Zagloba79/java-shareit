@@ -20,4 +20,11 @@ public class ItemForAnswerDto {
     private Long requestId;
     @NotNull
     private Boolean available;
+
+    public ItemForAnswerDto(String name, String description, Long requestId, Boolean available) {
+        this.name = name;
+        this.description = description;
+        this.requestId = requestId;
+        this.available = available;
+    }
 }

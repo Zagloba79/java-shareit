@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class ItemRequestDto {
     private Long id;
     @NotBlank
@@ -21,7 +20,6 @@ public class ItemRequestDto {
 
     public ItemRequestDto(String description, LocalDateTime created) {
         this.description = description;
-        this.requester = requester;
         this.created = created;
     }
 }

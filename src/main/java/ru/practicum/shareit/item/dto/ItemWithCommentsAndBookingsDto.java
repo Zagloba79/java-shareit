@@ -23,4 +23,10 @@ public class ItemWithCommentsAndBookingsDto {
     private List<CommentDto> comments;
     private BookingForDataDto lastBooking;
     private BookingForDataDto nextBooking;
+
+    public ItemWithCommentsAndBookingsDto(String name, String description, Boolean available) {
+        this.name = name;
+        this.description = description;
+        this.available = available;
+    }
 }

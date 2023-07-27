@@ -20,4 +20,10 @@ public class RequestWithItemsDto {
     @NotNull
     private LocalDateTime created;
     List<ItemForAnswerDto> items;
+
+    public RequestWithItemsDto(String description, LocalDateTime created, List<ItemForAnswerDto> items) {
+        this.description = description;
+        this.created = created;
+        this.items = items;
+    }
 }
