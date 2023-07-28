@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -8,18 +7,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.handleAndValidate.EntityHandler;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -27,17 +20,13 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 public class ItemServiceTest {
-    private final EasyRandom generator = new EasyRandom();
     @InjectMocks
     private ItemServiceImpl service;
     @Mock
     private ItemRepository repository;
     @Mock
-    private UserRepository userRepository;
-    @Mock
     private EntityHandler handler;
     User user = new User("user", "user@user.ru");
-    UserDto userDto = new UserDto("user", "user@user.ru");
     ItemDto itemDto = new ItemDto("itemDto", "itemDtoDescription",
             true, null);
     Item item = new Item("itemDto", "itemDtoDescription", true, user, null);
