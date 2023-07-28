@@ -2,7 +2,6 @@ package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @SpringBootTest
@@ -32,13 +32,13 @@ public class ItemRequestServiceShouldTest {
             2023, 1,2,3,4,5);
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         UserDto userDto = new UserDto("name", "q@ma.ru");
         user = UserMapper.createUser(userService.create(userDto));
     }
 
     @AfterEach
-    void clearDb() {
+    public void clearDb() {
         repository.deleteAll();
         List<UserDto> users = userService.findAll();
         for (UserDto user : users) {
@@ -47,15 +47,23 @@ public class ItemRequestServiceShouldTest {
     }
 
     @Test
-    void shouldReturnRequestWhenGetRequestById() {
+    void exceptionWhenCreateItemRequestWithWrongUserId() {
+        Long id = -35672L;
+        ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
+                () -> service.create(new ItemRequestDto(), id));
+        assertEquals("Пользователя с " + id + " не существует.", exception.getMessage());
+    }
+
+    @Test
+    public void shouldReturnRequestWhenGetRequestById() {
         ItemRequestDto requestDto = new ItemRequestDto("description", created);
         ItemRequestDto requestFromDb = service.create(requestDto, user.getId());
         assertEquals(requestFromDb.getDescription(), requestDto.getDescription());
     }
 
     @Test
-    void exceptionWhenGetRequestByWrongId() {
-        final ObjectNotFoundException exception = Assertions.assertThrows(
+    public void exceptionWhenGetRequestByWrongId() {
+        final ObjectNotFoundException exception = assertThrows(
                 ObjectNotFoundException.class,
                 () -> service.getRequestById(1L, user.getId()));
         assertEquals("Запроса с " + 1L + " не существует.",
@@ -63,48 +71,22 @@ public class ItemRequestServiceShouldTest {
     }
 
     @Test
-    void exceptionWhenGetRequestByWrongRequesterId() {
-        ItemRequestDto dto = new ItemRequestDto("description", LocalDateTime.now());
-        ItemRequestDto requestDto = service.create(dto, user.getId());
-        final ObjectNotFoundException exception = Assertions.assertThrows(
+    public void exceptionWhenGetRequestByWrongRequesterId() {
+        ItemRequestDto requestDto = new ItemRequestDto("description", LocalDateTime.now());
+        ItemRequestDto requestDtoFromDb = service.create(requestDto, user.getId());
+        final ObjectNotFoundException exception = assertThrows(
                 ObjectNotFoundException.class,
-                () -> service.getRequestById(requestDto.getId(), 5L));
+                () -> service.getRequestById(requestDtoFromDb.getId(), 5L));
         assertEquals("Пользователя с " + 5L + " не существует.",
                 exception.getMessage());
     }
 
-//    @Override
-//    public RequestWithItemsDto getRequestById(Long requestId, Long requesterId) {
-//        User requester = handler.getUserFromOpt(requesterId);
-//        ItemRequest request = handler.getRequestFromOpt(requestId);
-//        List<Item> neededItems = itemRepository.findAllByRequestIdIn(
-//                Collections.singletonList(requestId), Sort.by( "id").ascending());
-//        List<ItemForAnswerDto> itemsForAnswer = getMappedList(requestId, neededItems);
-//        return ItemRequestMapper
-//                .createItemRequestWithAnswersDto(request, itemsForAnswer);
-//    }
-//
-//    @Override //TODO
-//    public List<RequestWithItemsDto> getRequestsByRequester(Long userId) {
-//        User requester = handler.getUserFromOpt(userId);
-//        List<ItemRequest> requests = requestRepository.findByRequesterId(requester.getId(),
-//                Sort.by( "created").descending());
-//        if (requests.size() == 0) {
-//            return Collections.EMPTY_LIST;
-//        }
-//        List<Item> allNeededItems = createAllNeededItemsList(requests);
-//        return getRequestsWithItems(requests, allNeededItems);
-//    }
-//
-//    @Override//TODO
-//    public List<RequestWithItemsDto> getRequestsPageable(Long userId, Integer from, Integer size) {
-//        User user = handler.getUserFromOpt(userId);
-//        Pageable pageable = PageRequest.of(from, size, Sort.by( "created").ascending());
-//        List<ItemRequest> requests = requestRepository.findAllByRequesterIdNot(userId, pageable);
-//        if (requests.size() > 0) {
-//            List<Item> allNeededItems = createAllNeededItemsList(requests);
-//            return getRequestsWithItems(requests, allNeededItems);
-//        }
-//        return Collections.emptyList();
-//    }
+    @Test
+    public void exceptionWhenGetRequestByWrongRequester() {
+        final ObjectNotFoundException exception = assertThrows(
+                ObjectNotFoundException.class,
+                () -> service.getRequestsByRequester(99L));
+        assertEquals("Пользователя с " + 99L + " не существует.",
+                exception.getMessage());
+    }
 }
