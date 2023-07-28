@@ -38,7 +38,7 @@ public class ItemServiceShouldTest {
 
     @Test
     @DirtiesContext
-    void exceptionWhenNotOwnerDeleteItemTest() {
+    public void exceptionWhenNotOwnerDeleteItemTest() {
         ownerDto = userService.create(ownerDto);
         userDto = userService.create(userDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
@@ -49,7 +49,7 @@ public class ItemServiceShouldTest {
 
     @Test
     @DirtiesContext
-    void deleteItemTest() {
+    public void deleteItemTest() {
         ownerDto = userService.create(userDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         itemService.deleteItem(itemDto.getId(), ownerDto.getId());
@@ -60,7 +60,7 @@ public class ItemServiceShouldTest {
 
     @Test
     @DirtiesContext
-    void exceptionWhenDeleteItemNotExistTest() {
+    public void exceptionWhenDeleteItemNotExistTest() {
         UserDto ownerDto = userService.create(userDto);
         ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
                 () -> itemService.deleteItem(123L, ownerDto.getId()));
@@ -69,7 +69,7 @@ public class ItemServiceShouldTest {
 
     @Test
     @DirtiesContext
-    void didNotUpdateItemTest() {
+    public void didNotUpdateItemTest() {
         ownerDto = userService.create(ownerDto);
         ItemDto savedItem = itemService.create(itemDto, ownerDto.getId());
         ItemDto itemToUpdate = new ItemDto(null, null, null, null);
@@ -81,7 +81,7 @@ public class ItemServiceShouldTest {
 
     @Test
     @DirtiesContext
-    void exceptionWhenNotOwnerUpdateItemTest() {
+    public void exceptionWhenNotOwnerUpdateItemTest() {
         ownerDto = userService.create(ownerDto);
         userDto = userService.create(userDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
@@ -93,7 +93,7 @@ public class ItemServiceShouldTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnItemsByOwnerTest() {
+    public void shouldReturnItemsByOwnerTest() {
         ownerDto = userService.create(ownerDto);
         itemService.create(itemDto, ownerDto.getId());
         ItemDto secDto = new ItemDto("hhh", "dsda", true, null);
@@ -105,7 +105,7 @@ public class ItemServiceShouldTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnItemsBySearch() {
+    public void shouldReturnItemsBySearch() {
         ownerDto = userService.create(ownerDto);
         itemService.create(itemDto, ownerDto.getId());
         ItemDto secDto = new ItemDto("bvbv", "dsda", true, null);
@@ -122,7 +122,7 @@ public class ItemServiceShouldTest {
 
     @Test
     @DirtiesContext
-    void exceptionWhenNotBookerCreateComment() {
+    public void exceptionWhenNotBookerCreateComment() {
         ownerDto = userService.create(ownerDto);
         userDto = userService.create(userDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
@@ -137,7 +137,7 @@ public class ItemServiceShouldTest {
 
     @Test
     @DirtiesContext
-    void exceptionWhenCommentIsBlank() {
+    public void exceptionWhenCommentIsBlank() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         LocalDateTime presentTime = LocalDateTime.of(2023, 1, 2,
@@ -147,9 +147,10 @@ public class ItemServiceShouldTest {
                 () -> itemService.createComment(commentDto, ownerDto.getId(), itemDto.getId()));
         assertEquals("Пустой текст", exception.getMessage());
     }
+
     @Test
     @DirtiesContext
-    void shouldCreateComment() {
+    public void shouldCreateComment() {
         ownerDto = userService.create(ownerDto);
         userDto = userService.create(userDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
