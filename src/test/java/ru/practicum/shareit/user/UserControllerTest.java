@@ -23,23 +23,19 @@ public class UserControllerTest {
 
     @Autowired
     ObjectMapper mapper;
-
     @MockBean
     UserService userService;
-
     @Autowired
     private MockMvc mvc;
-
     private final UserDto userDto = new UserDto("Alex", "alexandr@user.ru");
     private final List<UserDto> listUsersDto = List.of(
             new UserDto("First", "first@user.ru"),
             new UserDto("Second", "second@user.ru"));
 
     @Test
-    void createUser() throws Exception {
+    void createUserTest() throws Exception {
         when(userService.create(any()))
                 .thenReturn(userDto);
-
         mvc.perform(post("/users")
                         .content(mapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -52,10 +48,9 @@ public class UserControllerTest {
     }
 
     @Test
-    void getUser() throws Exception {
+    void getUserTest() throws Exception {
         when(userService.getUserDto(any(Long.class)))
                 .thenReturn(userDto);
-
         mvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -65,13 +60,13 @@ public class UserControllerTest {
     }
 
     @Test
-    void deleteUser() throws Exception {
+    void deleteUserTest() throws Exception {
         mvc.perform(delete("/users/1"))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void getUsers() throws Exception {
+    void getUsersTest() throws Exception {
         when(userService.findAll())
                 .thenReturn(listUsersDto);
         mvc.perform(get("/users")
@@ -83,10 +78,9 @@ public class UserControllerTest {
     }
 
     @Test
-    void updateUser() throws Exception {
+    void updateUserTest() throws Exception {
         when(userService.update(any(), any(Long.class)))
                 .thenReturn(userDto);
-
         mvc.perform(patch("/users/1")
                         .content(mapper.writeValueAsString(userDto))
                         .characterEncoding(StandardCharsets.UTF_8)

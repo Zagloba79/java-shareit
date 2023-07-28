@@ -94,7 +94,7 @@ public class ItemRequestControllerTest {
         when(service.getRequestsByRequester(anyLong()))
                 .thenReturn(List.of(requestWithItems));
         mvc.perform(get("/requests")
-                        .content(mapper.writeValueAsString(requestWithItems))
+                        .content(mapper.writeValueAsString(requestsWithItems))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -112,7 +112,7 @@ public class ItemRequestControllerTest {
         when(service.getRequestsPageable(anyLong(), anyInt(), anyInt()))
                 .thenReturn(List.of(requestWithItems));
         mvc.perform(get("/requests/all")
-                        .content(mapper.writeValueAsString(requestWithItems))
+                        .content(mapper.writeValueAsString(requestsWithItems))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)

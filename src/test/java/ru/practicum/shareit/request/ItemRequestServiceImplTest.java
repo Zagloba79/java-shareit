@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.handleAndValidate.EntityHandler;
 import ru.practicum.shareit.item.ItemRepository;
@@ -25,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,24 +40,22 @@ public class ItemRequestServiceImplTest {
     EntityHandler handler;
     Long requesterId = 1L;
     Long requestId = 3L;
-    User requester;
+    User requester = generator.nextObject(User.class);
     ItemRequestDto requestDto;
-    ItemRequest request;
-    Item item;
+    ItemRequest request = new ItemRequest(3L, "description",
+            requester, LocalDateTime.of(2023, 7, 3, 0, 0, 0));
+    Item item = generator.nextObject(Item.class);
+    List<ItemRequest> requests = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {
-        requester = generator.nextObject(User.class);
         requestDto = generator.nextObject(ItemRequestDto.class);
         requestDto.setDescription("description");
-        request = new ItemRequest(3L, "description",
-                requester, LocalDateTime.of(2023, 7, 3, 0, 0, 0));
-        item = generator.nextObject(Item.class);
     }
 
     @Test
     public void createRequestTest() {
-        when(handler.getUserFromOpt(Mockito.anyLong()))
+        when(handler.getUserFromOpt(anyLong()))
                 .thenReturn(requester);
         when(requestRepository.save(Mockito.any(ItemRequest.class)))
                 .thenReturn(request);
@@ -67,9 +65,9 @@ public class ItemRequestServiceImplTest {
 
     @Test
     public void getRequestByIdTest() {
-        when(handler.getUserFromOpt(Mockito.anyLong()))
+        when(handler.getUserFromOpt(anyLong()))
                 .thenReturn(requester);
-        when(handler.getRequestFromOpt(Mockito.anyLong()))
+        when(handler.getRequestFromOpt(anyLong()))
                 .thenReturn(request);
         when(itemRepository.findAllByRequestIdIn(Collections.singletonList(requestId),
                 Sort.by("id").ascending()))
@@ -90,7 +88,7 @@ public class ItemRequestServiceImplTest {
         when(requestRepository.findByRequesterId(requester.getId(),
                 Sort.by("created").descending()))
                 .thenReturn(requests);
-        when(handler.getUserFromOpt(Mockito.anyLong()))
+        when(handler.getUserFromOpt(anyLong()))
                 .thenReturn(requester);
         List<RequestWithItemsDto> requestsByRequester = service.getRequestsByRequester(requesterId);
         assertEquals(3, requestsByRequester.size());
@@ -98,22 +96,17 @@ public class ItemRequestServiceImplTest {
 
     @Test
     public void getRequestsPageableTest() {
-        int from = 1;
-        int size = 2;
         User owner = generator.nextObject(User.class);
-        requestRepository.save(new ItemRequest(null, "description1",
-                owner, LocalDateTime.of(2023, 7, 1, 0, 0, 0)));
-        requestRepository.save(new ItemRequest(null, "description2",
-                owner, LocalDateTime.of(2023, 7, 2, 0, 0, 0)));
-        requestRepository.save(new ItemRequest(null, "description3",
-                owner, LocalDateTime.of(2023, 7, 3, 0, 0, 0)));
-        Sort sort = Sort.by(Sort.Direction.ASC, "created");
-        Pageable pageable = PageRequest.of(from, size, sort);
-        when(handler.getUserFromOpt(Mockito.anyLong()))
+        owner.setId(30L);
+        requests.add(generator.nextObject(ItemRequest.class));
+        requests.add(generator.nextObject(ItemRequest.class));
+        when(requestRepository.findAllByRequesterIdNot(requester.getId(),
+                PageRequest.of(1, 10, Sort.by("created").ascending())))
+                .thenReturn(requests);
+        when(handler.getUserFromOpt(anyLong()))
                 .thenReturn(requester);
         List<RequestWithItemsDto> requestsByRequesterNot = service.getRequestsPageable(
-                requesterId, from, size);
+                requester.getId(), 1, 10);
         assertEquals(2, requestsByRequesterNot.size());
-        //assertEquals(22, requestsByRequesterNot.get(0).getId());
     }
 }

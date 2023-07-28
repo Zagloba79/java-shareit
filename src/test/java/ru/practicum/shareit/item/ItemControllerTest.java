@@ -38,9 +38,6 @@ public class ItemControllerTest {
     private MockMvc mvc;
 
     private final User user = new User("iAm", "iAm@user.ru");
-
-    private final Item item = new Item("item", "description", true,
-            user, null);
     private final ItemDto itemDto = new ItemDto("item", "description",
             true, null);
     private final ItemWithCommentsAndBookingsDto itemWithComments = new ItemWithCommentsAndBookingsDto(
@@ -50,7 +47,7 @@ public class ItemControllerTest {
             LocalDateTime.of(2022, 3, 5, 1, 2, 3));
 
     @Test
-    void createItem() throws Exception {
+    void createItemTest() throws Exception {
         when(itemService.create(any(), anyLong()))
                 .thenReturn(itemDto);
         mvc.perform(post("/items")
@@ -67,7 +64,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void getItemById() throws Exception {
+    void getItemByIdTest() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong()))
                 .thenReturn(itemWithComments);
         mvc.perform(get("/items/1")
@@ -85,7 +82,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void getItemsByOwner() throws Exception {
+    void getItemsByOwnerTest() throws Exception {
         List<ItemWithCommentsAndBookingsDto> listItemDto = List.of(itemWithComments);
         when(itemService.getItemsByOwnerPageable(anyLong(), anyInt(), anyInt()))
                 .thenReturn(listItemDto);
@@ -104,14 +101,14 @@ public class ItemControllerTest {
     }
 
     @Test
-    void deleteItem() throws Exception {
+    void deleteItemTest() throws Exception {
         mvc.perform(delete("/items/1")
                         .header(USER_ID, 1))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void updateItem() throws Exception {
+    void updateItemTest() throws Exception {
         when(itemService.updateItem(any(), anyLong(), anyLong()))
                 .thenReturn(itemDto);
         mvc.perform(patch("/items/1")
@@ -130,7 +127,7 @@ public class ItemControllerTest {
 
 
     @Test
-    void getItemsByQueryPageable() throws Exception {
+    void getItemsByQueryPageableTest() throws Exception {
         List<ItemWithCommentsAndBookingsDto> listItemDto = List.of(itemWithComments);
         when(itemService.getItemsByQueryPageable(anyInt(), anyInt(), anyString(), anyLong()))
                 .thenReturn(List.of(itemDto));
@@ -149,7 +146,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void createComment() throws Exception {
+    void createCommentTest() throws Exception {
         when(itemService.createComment(any(), anyLong(), anyLong()))
                 .thenReturn(commentDto);
         mvc.perform(post("/items/1/comment")
