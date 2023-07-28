@@ -18,6 +18,7 @@ import ru.practicum.shareit.booking.dto.BookingForDataDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
+import ru.practicum.shareit.exception.OperationIsNotSupported;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handleAndValidate.EntityHandler;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -60,7 +61,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(ItemDto itemDto, Long itemId, Long ownerId) {
         Item item = handler.getItemFromOpt(itemId);
         User owner = handler.getUserFromOpt(ownerId);
-        if (!item.getOwner().equals(owner)) {
+        if (!Objects.equals(item.getOwner().getId(), owner.getId())) {
             throw new ObjectNotFoundException("Собственник не тот");
         }
         if (itemDto.getName() != null) {
@@ -115,9 +116,10 @@ public class ItemServiceImpl implements ItemService {
     public void deleteItem(Long itemId, Long ownerId) {
         Item item = handler.getItemFromOpt(itemId);
         User owner = handler.getUserFromOpt(ownerId);
-        if (item.getOwner().getId().equals(owner.getId())) {
-            itemRepository.deleteById(itemId);
+        if (!item.getOwner().getId().equals(owner.getId())) {
+            throw new OperationIsNotSupported("You are not owner");
         }
+        itemRepository.deleteById(itemId);
     }
 
     @Override
@@ -125,7 +127,6 @@ public class ItemServiceImpl implements ItemService {
                                                  String text, Long ownerId) {
         User owner = handler.getUserFromOpt(ownerId);
         if ((text == null) || (text.isBlank())) {
-            //throw new OperationIsNotSupported("В запросе нет текста");
             return Collections.EMPTY_LIST;
         }
         Sort sortByIdAsc = Sort.by("id").ascending();

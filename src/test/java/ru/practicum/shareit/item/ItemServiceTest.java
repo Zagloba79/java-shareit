@@ -6,10 +6,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.handleAndValidate.EntityHandler;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserServiceImpl;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,7 +19,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 public class ItemServiceTest {
     @InjectMocks
@@ -25,8 +26,11 @@ public class ItemServiceTest {
     @Mock
     private ItemRepository repository;
     @Mock
+    private UserRepository userRepository;
+    @Mock
     private EntityHandler handler;
     User user = new User("user", "user@user.ru");
+    UserDto userDto = new UserDto("user", "user@user.ru");
     ItemDto itemDto = new ItemDto("itemDto", "itemDtoDescription",
             true, null);
     Item item = new Item("itemDto", "itemDtoDescription", true, user, null);
@@ -36,8 +40,7 @@ public class ItemServiceTest {
         user.setId(1L);
         doNothing().when(handler).itemValidate(any());
         when(handler.getUserFromOpt(user.getId())).thenReturn(user);
-        when(repository.save(Mockito.any(Item.class)))
-                .thenReturn(item);
+        when(repository.save(Mockito.any(Item.class))).thenReturn(item);
         ItemDto itemFromDb = service.create(itemDto, user.getId());
         assertEquals("itemDto", itemFromDb.getName());
         assertEquals("itemDtoDescription", itemFromDb.getDescription());
