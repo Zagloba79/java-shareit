@@ -1,109 +1,112 @@
 package ru.practicum.shareit.request;
 
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
+import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import ru.practicum.shareit.exception.ObjectNotFoundException;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import ru.practicum.shareit.handleAndValidate.EntityHandler;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.request.dto.RequestWithItemsDto;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
-
-@SpringBootTest
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@ExtendWith(MockitoExtension.class)
 public class ItemRequestServiceTest {
-    private final ItemRequestService service;
-    private final ItemRequestRepository repository;
-    private final UserService userService;
-    private User user;
+    private final EasyRandom generator = new EasyRandom();
+    @InjectMocks
+    private ItemRequestServiceImpl service;
+    @Mock
+    ItemRequestRepository requestRepository;
+    @Mock
+    ItemRepository itemRepository;
+    @Mock
+    EntityHandler handler;
+    Long requesterId = 1L;
+    Long requestId = 3L;
+    User requester = generator.nextObject(User.class);
+    ItemRequestDto requestDto;
+    ItemRequest request = new ItemRequest(3L, "description",
+            requester, LocalDateTime.of(2023, 7, 3, 0, 0, 0));
+    Item item = generator.nextObject(Item.class);
+    List<ItemRequest> requests = new ArrayList<>();
 
     @BeforeEach
-    void setUp() {
-        UserDto userDto = new UserDto("name", "q@ma.ru");
-        user = UserMapper.createUser(userService.create(userDto));
-    }
-
-    @AfterEach
-    void clearDb() {
-        repository.deleteAll();
-        List<UserDto> users = userService.findAll();
-        for (UserDto user : users) {
-            userService.delete(user.getId());
-        }
+    public void setUp() {
+        requestDto = generator.nextObject(ItemRequestDto.class);
+        requestDto.setDescription("description");
     }
 
     @Test
-    void shouldReturnRequestWhenGetRequestById() {
-        ItemRequestDto requestDto = new ItemRequestDto("description", LocalDateTime.now());
-        ItemRequestDto requestFromDb = service.create(requestDto, user.getId());
-        assertEquals(requestFromDb.getDescription(), requestDto.getDescription());
-        assertEquals(requestFromDb.getRequester(), requestDto.getRequester());
+    public void createRequestTest() {
+        when(handler.getUserFromOpt(anyLong()))
+                .thenReturn(requester);
+        when(requestRepository.save(Mockito.any(ItemRequest.class)))
+                .thenReturn(request);
+        ItemRequestDto itemRequestDto = service.create(requestDto, requester.getId());
+        assertEquals("description", itemRequestDto.getDescription());
     }
 
     @Test
-    void exceptionWhenGetRequestByWrongId() {
-        final ObjectNotFoundException exception = Assertions.assertThrows(
-                ObjectNotFoundException.class,
-                () -> service.getRequestById(1L, user.getId()));
-        assertEquals("Запроса с " + 1L + " не существует.",
-                exception.getMessage());
+    public void getRequestByIdTest() {
+        when(handler.getUserFromOpt(anyLong()))
+                .thenReturn(requester);
+        when(handler.getRequestFromOpt(anyLong()))
+                .thenReturn(request);
+        when(itemRepository.findAllByRequestIdIn(Collections.singletonList(requestId),
+                Sort.by("id").ascending()))
+                .thenReturn(List.of(item));
+        RequestWithItemsDto requestWithItemsDto = service.getRequestById(
+                requestId, requesterId);
+        assertEquals("description", requestWithItemsDto.getDescription());
+        assertEquals(LocalDateTime.of(2023, 7, 3, 0, 0, 0),
+                requestWithItemsDto.getCreated());
     }
 
     @Test
-    void exceptionWhenGetRequestByWrongRequesterId() {
-        ItemRequestDto dto = new ItemRequestDto("description", LocalDateTime.now());
-        ItemRequestDto requestDto = service.create(dto, user.getId());
-        final ObjectNotFoundException exception = Assertions.assertThrows(
-                ObjectNotFoundException.class,
-                () -> service.getRequestById(requestDto.getId(), 5L));
-        assertEquals("Пользователя с " + 5L + " не существует.",
-                exception.getMessage());
+    public void getRequestsByRequesterTest() {
+        List<ItemRequest> requests = new ArrayList<>();
+        requests.add(generator.nextObject(ItemRequest.class));
+        requests.add(generator.nextObject(ItemRequest.class));
+        requests.add(generator.nextObject(ItemRequest.class));
+        when(requestRepository.findByRequesterId(requester.getId(),
+                Sort.by("created").descending()))
+                .thenReturn(requests);
+        when(handler.getUserFromOpt(anyLong()))
+                .thenReturn(requester);
+        List<RequestWithItemsDto> requestsByRequester = service.getRequestsByRequester(requesterId);
+        assertEquals(3, requestsByRequester.size());
     }
 
-//    @Override
-//    public RequestWithItemsDto getRequestById(Long requestId, Long requesterId) {
-//        User requester = handler.getUserFromOpt(requesterId);
-//        ItemRequest request = handler.getRequestFromOpt(requestId);
-//        List<Item> neededItems = itemRepository.findAllByRequestIdIn(
-//                Collections.singletonList(requestId), Sort.by( "id").ascending());
-//        List<ItemForAnswerDto> itemsForAnswer = getMappedList(requestId, neededItems);
-//        return ItemRequestMapper
-//                .createItemRequestWithAnswersDto(request, itemsForAnswer);
-//    }
-//
-//    @Override //TODO
-//    public List<RequestWithItemsDto> getRequestsByRequester(Long userId) {
-//        User requester = handler.getUserFromOpt(userId);
-//        List<ItemRequest> requests = requestRepository.findByRequesterId(requester.getId(),
-//                Sort.by( "created").descending());
-//        if (requests.size() == 0) {
-//            return Collections.EMPTY_LIST;
-//        }
-//        List<Item> allNeededItems = createAllNeededItemsList(requests);
-//        return getRequestsWithItems(requests, allNeededItems);
-//    }
-//
-//    @Override//TODO
-//    public List<RequestWithItemsDto> getRequestsPageable(Long userId, Integer from, Integer size) {
-//        User user = handler.getUserFromOpt(userId);
-//        Pageable pageable = PageRequest.of(from, size, Sort.by( "created").ascending());
-//        List<ItemRequest> requests = requestRepository.findAllByRequesterIdNot(userId, pageable);
-//        if (requests.size() > 0) {
-//            List<Item> allNeededItems = createAllNeededItemsList(requests);
-//            return getRequestsWithItems(requests, allNeededItems);
-//        }
-//        return Collections.emptyList();
-//    }
+    @Test
+    public void getRequestsPageableTest() {
+        User owner = generator.nextObject(User.class);
+        owner.setId(30L);
+        requests.add(generator.nextObject(ItemRequest.class));
+        requests.add(generator.nextObject(ItemRequest.class));
+        when(requestRepository.findAllByRequesterIdNot(requester.getId(),
+                PageRequest.of(1, 10, Sort.by("created").ascending())))
+                .thenReturn(requests);
+        when(handler.getUserFromOpt(anyLong()))
+                .thenReturn(requester);
+        List<RequestWithItemsDto> requestsByRequesterNot = service.getRequestsPageable(
+                requester.getId(), 1, 10);
+        assertEquals(2, requestsByRequesterNot.size());
+    }
 }
