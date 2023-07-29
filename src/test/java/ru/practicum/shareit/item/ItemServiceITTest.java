@@ -77,6 +77,24 @@ public class ItemServiceITTest {
 
     @Test
     @DirtiesContext
+    public void exceptionWhenItemNotValidatedTest() {
+        ownerDto = userService.create(ownerDto);
+        ItemDto itemDto = new ItemDto(null, null, null, null);
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> itemService.create(itemDto, ownerDto.getId()));
+        assertEquals("Некорректное название предмета", exception.getMessage());
+        itemDto.setName("name");
+        exception = assertThrows(ValidationException.class,
+                () -> itemService.create(itemDto, ownerDto.getId()));
+        assertEquals("Некорректное описание предмета", exception.getMessage());
+        itemDto.setDescription("Desc");
+        exception = assertThrows(ValidationException.class,
+                () -> itemService.create(itemDto, ownerDto.getId()));
+        assertEquals("Некорректный статус предмета", exception.getMessage());
+    }
+
+    @Test
+    @DirtiesContext
     public void deleteItemTest() {
         ownerDto = userService.create(userDto);
         ItemDto itemFromDb = itemService.create(itemDto, ownerDto.getId());

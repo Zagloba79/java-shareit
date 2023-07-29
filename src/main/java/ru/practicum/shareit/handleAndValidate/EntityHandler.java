@@ -84,13 +84,13 @@ public class EntityHandler {
 
     public void itemValidate(ItemDto itemDto) {
         if (itemDto.getName() == null || itemDto.getName().isBlank()) {
-            throw new ValidationException("Некорректное название предмета: " + itemDto.getName());
+            throw new ValidationException("Некорректное название предмета");
         }
         if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
-            throw new ValidationException("Некорректное описание предмета: " + itemDto.getDescription());
+            throw new ValidationException("Некорректное описание предмета");
         }
         if (itemDto.getAvailable() == null) {
-            throw new ValidationException("Некорректный статус предмета: ");
+            throw new ValidationException("Некорректный статус предмета");
         }
     }
 
