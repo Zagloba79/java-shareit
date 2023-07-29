@@ -51,11 +51,13 @@ public class BookingServiceITTest {
 
     @Test
     @DirtiesContext
-    public void exceptionWhenGetBookingTest() {
+    public void exceptionWhenUpdateBookingTest() {
         ownerDto = userService.create(ownerDto);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        bookerDto = userService.create(bookerDto);
         Long id = 123L;
         ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
-                () -> service.getBookingById(id, ownerDto.getId()));
+                () -> service.update(id, ownerDto.getId(), true));
         assertEquals("Букинга с " + id + " не существует.", exception.getMessage());
     }
 

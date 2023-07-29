@@ -13,8 +13,10 @@ import ru.practicum.shareit.exception.OperationIsNotSupported;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handleAndValidate.EntityHandler;
 import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithCommentsAndBookingsDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -34,10 +36,11 @@ public class ItemServiceITTest {
     private final BookingService bookingService;
     private final EntityHandler handler;
 
+    LocalDateTime presentTime = LocalDateTime.now();
     private UserDto ownerDto = new UserDto("owner", "ooo@user.ru");
     private UserDto userDto = new UserDto("notOwner", "nnn@user.ru");
     private ItemDto itemDto = new ItemDto("item", "Descqwqw", true, null);
-    private CommentDto commentDto = new CommentDto("comment", "notOwner", LocalDateTime.now());
+    private CommentDto commentDto = new CommentDto("comment", "notOwner", presentTime);
     private final NewBookingDto newbookingDto = new NewBookingDto(LocalDateTime.now().plusSeconds(1),
             LocalDateTime.now().plusSeconds(2),
             itemDto.getId());
@@ -57,11 +60,13 @@ public class ItemServiceITTest {
             throw new RuntimeException(e);
         }
         commentDto = itemService.createComment(commentDto, bookerDto.getId(), itemDto.getId());
+        Comment comment = CommentMapper.createComment(commentDto);
         ItemWithCommentsAndBookingsDto itemWithComments = itemService.getItemById(
                 itemDto.getId(), bookerDto.getId());
         assertEquals(1, itemWithComments.getId());
         assertNull(itemWithComments.getLastBooking());
         assertNull(itemWithComments.getNextBooking());
+        assertEquals(1, comment.getId());
     }
 
     @Test

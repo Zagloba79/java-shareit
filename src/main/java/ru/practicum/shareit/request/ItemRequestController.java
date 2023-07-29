@@ -3,7 +3,6 @@ package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.MissingServletRequestParameterException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 
@@ -47,9 +46,6 @@ public class ItemRequestController {
     @GetMapping("/{itemRequestId}")
     public RequestWithItemsDto getRequestById(@PathVariable Long itemRequestId,
                                               @RequestHeader(USER_ID) Long requesterId) {
-        if (itemRequestId == null) {
-            throw new MissingServletRequestParameterException("Не хватает параметров");
-        }
         return itemRequestService.getRequestById(itemRequestId, requesterId);
     }
 }

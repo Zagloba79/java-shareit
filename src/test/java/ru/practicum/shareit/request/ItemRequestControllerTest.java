@@ -22,7 +22,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static ru.practicum.shareit.Constants.USER_ID;
 
-import ru.practicum.shareit.item.dto.ItemForAnswerDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -40,12 +39,12 @@ public class ItemRequestControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    private final UserDto userDto = new UserDto("Alex", "alexandr@user.ru");
+    private UserDto userDto = new UserDto("Alex", "alexandr@user.ru");
     private final User user = new User("Alex", "alexandr@user.ru");
     LocalDateTime created = LocalDateTime.of(2023, 7, 28, 0, 0, 0);
     private final ItemRequestDto requestDto = new ItemRequestDto("requestDescription", created);
     private final RequestWithItemsDto requestWithItems = new RequestWithItemsDto(
-            "requestDescription", created, new ArrayList<ItemForAnswerDto>());
+            "requestDescription", created, new ArrayList<>());
     private final List<RequestWithItemsDto> requestsWithItems = new ArrayList<>();
 
 
