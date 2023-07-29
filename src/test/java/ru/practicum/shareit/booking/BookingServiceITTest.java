@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.OperationIsNotSupported;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemService;
@@ -174,7 +175,7 @@ public class BookingServiceITTest {
                 LocalDateTime.of(2023, 12, 25, 1, 0, 0),
                 itemDto.getId());
         BookingDto bookingDto = service.create(newBookingDto, bookerDto.getId());
-        ValidationException exception = assertThrows(ValidationException.class,
+        ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
                 () -> service.update(bookingDto.getId(), bookerDto.getId(), true));
         assertEquals("Подтвердить бронирование может только владелец вещи!", exception.getMessage());
     }
