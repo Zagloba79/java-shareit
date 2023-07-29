@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.handleAndValidate.EntityHandler;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
@@ -13,7 +14,10 @@ import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -56,18 +60,15 @@ public class ItemServiceTest {
         assertEquals("notNull", updatedItemDto.getDescription());
     }
 
-//    @Test
-//    void exceptionWhenGetItemWithWrongId() {
-//        user.setId(1L);
-//        long itemId = 234L;
-//        when(handler.getUserFromOpt(user.getId())).thenReturn(user);
-//        when(repository.findById(itemId)).thenReturn(Optional.empty());
-//        when(handler.getItemFromOpt(itemId)).thenThrow(ObjectNotFoundException.class);
-////        ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
-////                () -> handler.getItemFromOpt(itemId));
-//        ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
-//                () -> service.getItemById(itemId, user.getId()));
-//        assertEquals("Предмета с " + itemId + " не существует.", exception.getMessage());
-//
-//    }
+    @Test
+    void exceptionWhenGetItemWithWrongId() {
+        user.setId(1L);
+        long itemId = 234L;
+        when(handler.getUserFromOpt(user.getId())).thenReturn(user);
+        when(handler.getItemFromOpt(itemId)).thenThrow(new ObjectNotFoundException(
+                "Предмета с " + itemId + " не существует."));
+        ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
+                () -> service.getItemById(itemId, user.getId()));
+        assertEquals("Предмета с " + itemId + " не существует.", exception.getMessage());
+    }
 }
