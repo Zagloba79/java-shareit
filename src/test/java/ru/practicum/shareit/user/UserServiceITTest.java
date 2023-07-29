@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class UserServiceShouldTest {
+public class UserServiceITTest {
     private final UserService service;
 
     @BeforeEach

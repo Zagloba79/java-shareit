@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ItemRequestServiceShouldTest {
+public class ItemRequestServiceITTest {
     private final ItemRequestService service;
     private final ItemRequestRepository repository;
     private final UserService userService;

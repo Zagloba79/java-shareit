@@ -28,16 +28,15 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final EntityHandler handler;
-    LocalDateTime presentTime = LocalDateTime.now();
 
     @Override
     public BookingDto create(NewBookingDto newBookingDto, Long bookerId) {
-        handler.bookingValidate(newBookingDto, presentTime);
+        handler.bookingValidate(newBookingDto, LocalDateTime.now());
         Item item = handler.getItemFromOpt(newBookingDto.getItemId());
         handler.itemIsAvailable(item);
         User booker = handler.getUserFromOpt(bookerId);
         if (item.getOwner().getId().equals(bookerId)) {
-            throw new OperationIsNotSupported("Букер не может быть владельцем");
+            throw new OperationIsNotSupported("Владелец не может быть букером");
         }
         Booking booking = BookingMapper.createNewBooking(
                 newBookingDto.getStart(),
@@ -58,8 +57,7 @@ public class BookingServiceImpl implements BookingService {
             updateByBooker(booking, approved);
             bookingRepository.save(booking);
             return BookingMapper.createBookingDto(booking);
-        }
-        if ((booking.getItem().getOwner().getId().equals(user.getId()))) {
+        } else if ((booking.getItem().getOwner().getId().equals(user.getId()))) {
             updateByOwner(booking, approved);
             bookingRepository.save(booking);
             return BookingMapper.createBookingDto(booking);
@@ -70,8 +68,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateBooking(Booking booking) {
-        if (booking.getEnd().isBefore(presentTime)) {
+        if (booking.getEnd().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Время бронирования уже истекло!");
+        }
+        if (booking.getStatus().equals(CANCELED)) {
+            throw new ValidationException("Бронирование было отменено!");
         }
         if (!booking.getStatus().equals(WAITING)) {
             throw new ValidationException("Решение по бронированию уже принято!");
@@ -86,9 +87,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void updateByOwner(Booking booking, Boolean approved) {
-        if (booking.getStatus().equals(CANCELED)) {
-            throw new ValidationException("Бронирование было отменено!");
-        }
         booking.setStatus(approved ? APPROVED : REJECTED);
     }
 
@@ -97,13 +95,13 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findByIdAndBookerId(id, userId);
         if (booking == null) {
             booking = bookingRepository.findByIdAndItem_OwnerId(id, userId).orElseThrow(() ->
-                    new ObjectNotFoundException("Вы - левый чувак"));
+                    new OperationIsNotSupported("Вы - левый чувак"));
         }
         return BookingMapper.createBookingDto(booking);
     }
 
     @Override
-    public List<BookingDto> getBookingsByBookerAndState(int from, int size,
+    public List<BookingDto> getBookingsByBookerAndState(Integer from, Integer size,
                                                         String state, Long userId) {
         LocalDateTime presentTime = LocalDateTime.now();
         User user = handler.getUserFromOpt(userId);
@@ -156,7 +154,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getBookingsByOwnerAndState(int from, int size,
+    public List<BookingDto> getBookingsByOwnerAndState(Integer from, Integer size,
                                                        String state, Long userId) {
         LocalDateTime presentTime = LocalDateTime.now();
         User user = handler.getUserFromOpt(userId);

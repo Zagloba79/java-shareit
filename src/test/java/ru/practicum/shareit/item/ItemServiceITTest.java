@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.OperationIsNotSupported;
 import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.handleAndValidate.EntityHandler;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemWithCommentsAndBookingsDto;
@@ -19,22 +20,49 @@ import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Thread.sleep;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ItemServiceShouldTest {
+public class ItemServiceITTest {
     private final UserService userService;
     private final ItemService itemService;
     private final BookingService bookingService;
+    private final EntityHandler handler;
 
     private UserDto ownerDto = new UserDto("owner", "ooo@user.ru");
-    UserDto userDto = new UserDto("notOwner", "nnn@user.ru");
-    ItemDto itemDto = new ItemDto("item", "Descqwqw", true, null);
+    private UserDto userDto = new UserDto("notOwner", "nnn@user.ru");
+    private ItemDto itemDto = new ItemDto("item", "Descqwqw", true, null);
+    private CommentDto commentDto = new CommentDto("comment", "notOwner", LocalDateTime.now());
+    private final NewBookingDto newbookingDto = new NewBookingDto(LocalDateTime.now().plusSeconds(1),
+            LocalDateTime.now().plusSeconds(2),
+            itemDto.getId());
+
+    @Test
+    @DirtiesContext
+    public void shouldGetItemByIdNotOwnerTest() {
+        ownerDto = userService.create(ownerDto);
+        UserDto bookerDto = userService.create(userDto);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        newbookingDto.setItemId(itemDto.getId());
+        BookingDto bookingDto = bookingService.create(newbookingDto, bookerDto.getId());
+        bookingService.update(bookingDto.getId(), ownerDto.getId(), true);
+        try {
+            sleep(10000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        commentDto = itemService.createComment(commentDto, bookerDto.getId(), itemDto.getId());
+        ItemWithCommentsAndBookingsDto itemWithComments = itemService.getItemById(
+                itemDto.getId(), bookerDto.getId());
+        assertEquals(1, itemWithComments.getId());
+        assertNull(itemWithComments.getLastBooking());
+        assertNull(itemWithComments.getNextBooking());
+    }
 
     @Test
     @DirtiesContext
@@ -51,20 +79,21 @@ public class ItemServiceShouldTest {
     @DirtiesContext
     public void deleteItemTest() {
         ownerDto = userService.create(userDto);
-        itemDto = itemService.create(itemDto, ownerDto.getId());
-        itemService.deleteItem(itemDto.getId(), ownerDto.getId());
+        ItemDto itemFromDb = itemService.create(itemDto, ownerDto.getId());
+        assertEquals(itemDto.getName(), itemFromDb.getName());
+        itemService.deleteItem(itemFromDb.getId(), ownerDto.getId());
         ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
-                () -> itemService.getItemById(itemDto.getId(), ownerDto.getId()));
-        assertEquals("Предмета с " + itemDto.getId() + " не существует.", exception.getMessage());
+                () -> itemService.getItemById(itemFromDb.getId(), ownerDto.getId()));
+        assertEquals("Предмета с " + itemFromDb.getId() + " не существует.", exception.getMessage());
     }
 
     @Test
     @DirtiesContext
-    public void exceptionWhenDeleteItemNotExistTest() {
-        UserDto ownerDto = userService.create(userDto);
+    public void exceptionWhenWrongItemIdTest() {
+        Long itemId = 210L;
         ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
-                () -> itemService.deleteItem(123L, ownerDto.getId()));
-        assertEquals("Предмета с 123 не существует.", exception.getMessage());
+                () -> handler.getItemFromOpt(itemId));
+        assertEquals("Предмета с " + itemId + " не существует.", exception.getMessage());
     }
 
     @Test
@@ -88,7 +117,7 @@ public class ItemServiceShouldTest {
         ItemDto newItem = new ItemDto("mmm", "Desc", true, null);
         ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
                 () -> itemService.updateItem(newItem, itemDto.getId(), userDto.getId()));
-        assertEquals("Собственник не тот",exception.getMessage());
+        assertEquals("Собственник не тот", exception.getMessage());
     }
 
     @Test
@@ -105,18 +134,18 @@ public class ItemServiceShouldTest {
 
     @Test
     @DirtiesContext
-    public void shouldReturnItemsBySearch() {
+    public void shouldReturnItemsByQuery() {
         ownerDto = userService.create(ownerDto);
         itemService.create(itemDto, ownerDto.getId());
         ItemDto secDto = new ItemDto("bvbv", "dsda", true, null);
         itemService.create(secDto, ownerDto.getId());
         List<ItemDto> listItems = itemService.getItemsByQueryPageable(
-                0,10, "item", ownerDto.getId());
+                0, 10, "item", ownerDto.getId());
         assertEquals(1, listItems.size());
         ItemDto thDto = new ItemDto("bvbv", "itemDesc", true, null);
         itemService.create(thDto, ownerDto.getId());
         listItems = itemService.getItemsByQueryPageable(
-                0,10, "item", ownerDto.getId());
+                0, 10, "item", ownerDto.getId());
         assertEquals(2, listItems.size());
     }
 
@@ -133,6 +162,26 @@ public class ItemServiceShouldTest {
                 () -> itemService.createComment(commentDto, userDto.getId(), itemDto.getId()));
         assertEquals("Юзер с id = " + userDto.getId() +
                 " ещё не арендовал предмет с id = " + itemDto.getId(), exception.getMessage());
+    }
+
+    @Test
+    @DirtiesContext
+    public void shouldEmptyListWhenQueryIsNull() {
+        ownerDto = userService.create(ownerDto);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        List<ItemDto> itemsByQuery = itemService.getItemsByQueryPageable(
+                0, 10, null, ownerDto.getId());
+        assertEquals(Collections.EMPTY_LIST, itemsByQuery);
+    }
+
+    @Test
+    @DirtiesContext
+    public void shouldEmptyListWhenQueryIsBlank() {
+        ownerDto = userService.create(ownerDto);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        List<ItemDto> itemsByQuery = itemService.getItemsByQueryPageable(
+                0, 10, "     ", ownerDto.getId());
+        assertEquals(Collections.EMPTY_LIST, itemsByQuery);
     }
 
     @Test
@@ -168,7 +217,7 @@ public class ItemServiceShouldTest {
         }
         CommentDto commentDto = new CommentDto("Comment", userDto.getName(), LocalDateTime.now());
         itemService.createComment(commentDto, userDto.getId(), itemDto.getId());
-        List<ItemWithCommentsAndBookingsDto> itemsWithComments =  itemService.getItemsByOwnerPageable(
+        List<ItemWithCommentsAndBookingsDto> itemsWithComments = itemService.getItemsByOwnerPageable(
                 ownerDto.getId(), 0, 10);
         List<CommentDto> comments = new ArrayList<>();
         for (ItemWithCommentsAndBookingsDto item : itemsWithComments) {
