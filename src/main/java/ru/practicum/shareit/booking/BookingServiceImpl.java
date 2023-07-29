@@ -28,10 +28,10 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final EntityHandler handler;
+    LocalDateTime presentTime = LocalDateTime.now();
 
     @Override
     public BookingDto create(NewBookingDto newBookingDto, Long bookerId) {
-        LocalDateTime presentTime = LocalDateTime.now();
         handler.bookingValidate(newBookingDto, presentTime);
         Item item = handler.getItemFromOpt(newBookingDto.getItemId());
         handler.itemIsAvailable(item);
@@ -51,38 +51,45 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingDto update(Long bookingId, Long userId, Boolean approved) {
-        LocalDateTime presentTime = LocalDateTime.now();
         User user = handler.getUserFromOpt(userId);
         Booking booking = handler.getBookingFromOpt(bookingId);
+        validateBooking(booking);
+        if (booking.getBooker().getId().equals(userId)) {
+            updateByBooker(booking, approved);
+            bookingRepository.save(booking);
+            return BookingMapper.createBookingDto(booking);
+        }
+        if ((booking.getItem().getOwner().getId().equals(user.getId()))) {
+            updateByOwner(booking, approved);
+            bookingRepository.save(booking);
+            return BookingMapper.createBookingDto(booking);
+        } else {
+            throw new ValidationException("Подтвердить бронирование может только владелец вещи!");
+        }
+
+    }
+
+    private void validateBooking(Booking booking) {
         if (booking.getEnd().isBefore(presentTime)) {
             throw new ValidationException("Время бронирования уже истекло!");
         }
-        if (booking.getBooker().getId().equals(userId)) {
-            if (!approved) {
-                booking.setStatus(CANCELED);
-            } else {
-                throw new ObjectNotFoundException("Подтвердить бронирование может только владелец вещи!");
-            }
-        } else if ((booking.getItem().getOwner().getId().equals(user.getId())) &&
-                (!booking.getStatus().equals(CANCELED))) {
-            if (!booking.getStatus().equals(WAITING)) {
-                throw new ValidationException("Решение по бронированию уже принято!");
-            }
-            if (approved) {
-                booking.setStatus(APPROVED);
-
-            } else {
-                booking.setStatus(REJECTED);
-            }
-        } else {
-            if (booking.getStatus().equals(CANCELED)) {
-                throw new ValidationException("Бронирование было отменено!");
-            } else {
-                throw new ValidationException("Подтвердить бронирование может только владелец вещи!");
-            }
+        if (!booking.getStatus().equals(WAITING)) {
+            throw new ValidationException("Решение по бронированию уже принято!");
         }
-        bookingRepository.save(booking);
-        return BookingMapper.createBookingDto(booking);
+    }
+
+    private void updateByBooker(Booking booking, Boolean approved) {
+        if (approved) {
+            throw new ObjectNotFoundException("Подтвердить бронирование может только владелец вещи!");
+        }
+        booking.setStatus(CANCELED);
+    }
+
+    private void updateByOwner(Booking booking, Boolean approved) {
+        if (booking.getStatus().equals(CANCELED)) {
+            throw new ValidationException("Бронирование было отменено!");
+        }
+        booking.setStatus(approved ? APPROVED : REJECTED);
     }
 
     @Override
