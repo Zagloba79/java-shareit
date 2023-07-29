@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -19,16 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserServiceITTest {
     private final UserService service;
 
-    @BeforeEach
-    void clearDb() {
-        List<UserDto> users = service.findAll();
-        for (UserDto user : users) {
-            service.delete(user.getId());
-        }
-    }
-
     @Test
-    void shouldReturnUserWhenGetUser() {
+    @DirtiesContext
+    public void shouldReturnUserWhenGetUserTest() {
         UserDto userDto = new UserDto("User", "user@users.ru");
         UserDto userFromDb = service.create(userDto);
         assertEquals(userFromDb.getName(), userDto.getName());
@@ -36,7 +30,19 @@ public class UserServiceITTest {
     }
 
     @Test
-    void exceptionWhenEmailIsTakenYet() {
+    @DirtiesContext
+    void shouldGetUserDtoTest() {
+        UserDto userDto = new UserDto("User", "user@users.ru");
+        userDto = service.create(userDto);
+        UserDto userFromDb = service.getUserDto(userDto.getId());
+        assertEquals("User", userFromDb.getName());
+        assertEquals("user@users.ru", userFromDb.getEmail());
+    }
+
+
+    @Test
+    @DirtiesContext
+    public void exceptionWhenEmailIsTakenYetTest() {
         UserDto userDto = new UserDto("user", "user@users.ru");
         service.create(userDto);
         UserDto abuserDto = new UserDto("abuser", "abuser@users.ru");
@@ -50,7 +56,8 @@ public class UserServiceITTest {
     }
 
     @Test
-    void shouldReturnUsersWhenFindAll() {
+    @DirtiesContext
+    public void shouldReturnUsersWhenFindAllTest() {
         UserDto user1 = new UserDto("User1", "user1@users.ru");
         UserDto user2 = new UserDto("User2", "user2@users.ru");
         UserDto user3 = new UserDto("User3", "user3@users.ru");
@@ -62,7 +69,8 @@ public class UserServiceITTest {
     }
 
     @Test
-    void shouldReturnExceptionWhenDeleteUserWithWrongId() {
+    @DirtiesContext
+    public void shouldReturnExceptionWhenDeleteUserWithWrongIdTest() {
         UserDto user1 = new UserDto("User1", "user1@users.ru");
         UserDto user2 = new UserDto("User2", "user2@users.ru");
         UserDto user3 = new UserDto("User3", "user3@users.ru");
@@ -76,7 +84,8 @@ public class UserServiceITTest {
     }
 
     @Test
-    void shouldDeleteUserByUserId() {
+    @DirtiesContext
+    public void shouldDeleteUserByUserIdTest() {
         UserDto user1 = new UserDto("User1", "user1@users.ru");
         UserDto user2 = new UserDto("User2", "user2@users.ru");
         UserDto user3 = new UserDto("User3", "user3@users.ru");
