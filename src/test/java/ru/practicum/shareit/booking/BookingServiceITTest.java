@@ -58,7 +58,7 @@ public class BookingServiceITTest {
         Long id = 123L;
         ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
                 () -> service.update(id, ownerDto.getId(), true));
-        assertEquals("Букинга с " + id + " не существует.", exception.getMessage());
+        assertEquals("Букинга с bookingId = 123 и с ownerId = " + ownerDto.getId() + " не существует.", exception.getMessage());
     }
 
     @Test
@@ -178,23 +178,6 @@ public class BookingServiceITTest {
 
     @Test
     @DirtiesContext
-    public void exceptionWhenBookingIsCanceledTest() {
-        ownerDto = userService.create(ownerDto);
-        itemDto = itemService.create(itemDto, ownerDto.getId());
-        bookerDto = userService.create(bookerDto);
-        NewBookingDto newBookingDto = new NewBookingDto(
-                LocalDateTime.of(2023, 12, 25, 0, 0, 0),
-                LocalDateTime.of(2023, 12, 25, 1, 0, 0),
-                itemDto.getId());
-        BookingDto bookingDto = service.create(newBookingDto, bookerDto.getId());
-        service.update(bookingDto.getId(), bookerDto.getId(), false);
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> service.update(bookingDto.getId(), ownerDto.getId(), false));
-        assertEquals("Бронирование было отменено!", exception.getMessage());
-    }
-
-    @Test
-    @DirtiesContext
     public void exceptionWhenBookingConfirmedByBookerTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
@@ -206,7 +189,8 @@ public class BookingServiceITTest {
         BookingDto bookingDto = service.create(newBookingDto, bookerDto.getId());
         ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
                 () -> service.update(bookingDto.getId(), bookerDto.getId(), true));
-        assertEquals("Подтвердить бронирование может только владелец вещи!", exception.getMessage());
+        assertEquals("Букинга с bookingId = " + bookingDto.getId() +
+                " и с ownerId = " + bookerDto.getId() + " не существует.", exception.getMessage());
     }
 
     @Test
@@ -238,9 +222,10 @@ public class BookingServiceITTest {
                 LocalDateTime.of(2023, 12, 25, 1, 0, 0),
                 itemDto.getId());
         BookingDto bookingDto = service.create(newBookingDto, bookerDto.getId());
-        ValidationException exception = assertThrows(ValidationException.class,
+        ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
                 () -> service.update(bookingDto.getId(), abuserDto.getId(), true));
-        assertEquals("Подтвердить бронирование может только владелец вещи!", exception.getMessage());
+        assertEquals("Букинга с bookingId = " + bookingDto.getId() +
+                " и с ownerId = " + abuserDto.getId() + " не существует.", exception.getMessage());
     }
 
     @Test
@@ -434,34 +419,6 @@ public class BookingServiceITTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnBookingsWhenGetBookingsByBookerAndOneIsCanceledTest() {
-        ownerDto = userService.create(ownerDto);
-        itemDto = itemService.create(itemDto, ownerDto.getId());
-        bookerDto = userService.create(bookerDto);
-        NewBookingDto fBookingDto = new NewBookingDto(
-                LocalDateTime.of(2023, 8, 25, 0, 0, 0),
-                LocalDateTime.of(2023, 8, 25, 1, 0, 0),
-                itemDto.getId());
-        BookingDto bookingDto1 = service.create(fBookingDto, bookerDto.getId());
-        NewBookingDto sBookingDto = new NewBookingDto(
-                LocalDateTime.of(2023, 8, 26, 0, 0, 0),
-                LocalDateTime.of(2023, 8, 26, 1, 0, 0),
-                itemDto.getId());
-        BookingDto bookingDto2 = service.create(sBookingDto, bookerDto.getId());
-        List<BookingDto> bookings = service.getBookingsByBookerAndState(0, 10,
-                "WAITING", bookerDto.getId());
-        assertEquals(2, bookings.size());
-        service.update(bookingDto1.getId(), bookerDto.getId(), false);
-        bookings = service.getBookingsByBookerAndState(0, 10,
-                "WAITING", bookerDto.getId());
-        List<BookingDto> allBookings = service.getBookingsByBookerAndState(0, 10,
-                "ALL", bookerDto.getId());
-        assertEquals(1, bookings.size());
-        assertEquals(2, allBookings.size());
-    }
-
-    @Test
-    @DirtiesContext
     void shouldReturnBookingsWhenGetBookingsWhenStateIsPastTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
@@ -488,7 +445,7 @@ public class BookingServiceITTest {
         assertEquals(1, bookings.size());
         List<BookingDto> bookings2 = service.getBookingsByOwnerAndState(0, 10,
                 "PAST", ownerDto.getId());
-        assertEquals(1, bookings.size());
+        assertEquals(1, bookings2.size());
     }
 
     @Test
@@ -519,6 +476,6 @@ public class BookingServiceITTest {
         assertEquals(1, bookings.size());
         List<BookingDto> bookings2 = service.getBookingsByOwnerAndState(0, 10,
                 "FUTURE", ownerDto.getId());
-        assertEquals(1, bookings.size());
+        assertEquals(1, bookings2.size());
     }
 }

@@ -56,7 +56,8 @@ public class EntityHandler {
     public Booking getBookingByIdAndOwnerIdFromOpt(Long bookingId, Long ownerId) {
         Optional<Booking> bookingOpt = bookingRepository.findByIdAndItem_OwnerId(bookingId, ownerId);
         if (bookingOpt.isEmpty()) {
-            throw new ObjectNotFoundException("Букинга с " + bookingId + " не существует.");
+            throw new ObjectNotFoundException("Букинга с bookingId = " + bookingId +
+        " и с ownerId = " + ownerId + " не существует.");
         }
         return bookingOpt.get();
     }

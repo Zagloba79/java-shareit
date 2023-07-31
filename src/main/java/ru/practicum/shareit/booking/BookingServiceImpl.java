@@ -52,8 +52,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public BookingDto update(Long bookingId, Long userId, Boolean approved) {
-        User owner = handler.getUserFromOpt(userId);
+    public BookingDto update(Long bookingId, Long ownerId, Boolean approved) {
+        User owner = handler.getUserFromOpt(ownerId);
         Booking booking = handler.getBookingByIdAndOwnerIdFromOpt(bookingId, owner.getId());
         validateBooking(booking);
         booking.setStatus(approved ? APPROVED : REJECTED);
