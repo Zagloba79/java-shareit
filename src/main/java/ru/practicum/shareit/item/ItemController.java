@@ -27,7 +27,6 @@ public class ItemController {
             @RequestHeader(USER_ID) Long ownerId) {
         return itemService.create(itemDto, ownerId);
     }
-    //@RequestParam(name = "requestId", defaultValue = "null") Long requestId,
 
     @PatchMapping("/{itemId}")
     public ItemDto update(

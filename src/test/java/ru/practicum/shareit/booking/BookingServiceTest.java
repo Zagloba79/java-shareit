@@ -70,7 +70,7 @@ public class BookingServiceTest {
         booker.setId(2L);
         booking.setId(3L);
         when(handler.getUserFromOpt(anyLong())).thenReturn(owner);
-        when(handler.getBookingFromOpt(booking.getId())).thenReturn(booking);
+        when(handler.getBookingByIdAndOwnerIdFromOpt(booking.getId(), owner.getId())).thenReturn(booking);
         when(repository.save(any())).thenReturn(booking);
         BookingDto updatedBooking = service.update(booking.getId(), owner.getId(), true);
         assertEquals(item, updatedBooking.getItem());
@@ -84,7 +84,7 @@ public class BookingServiceTest {
         booker.setId(2L);
         booking.setId(3L);
         when(handler.getUserFromOpt(anyLong())).thenReturn(owner);
-        when(handler.getBookingFromOpt(booking.getId())).thenReturn(booking);
+        when(handler.getBookingByIdAndOwnerIdFromOpt(booking.getId(), owner.getId())).thenReturn(booking);
         when(repository.save(any())).thenReturn(booking);
         BookingDto updatedBooking = service.update(booking.getId(), owner.getId(), false);
         assertEquals(item, updatedBooking.getItem());

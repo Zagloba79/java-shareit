@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handleAndValidate.EntityHandler;
 import ru.practicum.shareit.item.ItemRepository;
@@ -17,12 +18,12 @@ import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestRepository requestRepository;
@@ -30,14 +31,13 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     private final EntityHandler handler;
 
     @Override
+    @Transactional
     public ItemRequestDto create(ItemRequestDto requestDto, Long requesterId) {
-        LocalDateTime presentTime = LocalDateTime.now();
         User requester = handler.getUserFromOpt(requesterId);
         if (requestDto.getDescription() == null || requestDto.getDescription().isBlank()) {
             throw new ValidationException("Запрос без описания");
         }
         ItemRequest request = ItemRequestMapper.createNewItemRequest(requestDto, requester);
-        request.setCreated(presentTime);
         return ItemRequestMapper.createItemRequestDto(requestRepository.save(request));
     }
 

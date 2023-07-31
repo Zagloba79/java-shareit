@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handleAndValidate.EntityHandler;
@@ -17,6 +18,7 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final EntityHandler handler;
@@ -24,6 +26,7 @@ public class UserServiceImpl implements UserService {
     private final ItemRepository itemRepository;
 
     @Override
+    @Transactional
     public UserDto create(UserDto userDto) {
         User user = UserMapper.createUser(userDto);
         userValidate(user);
@@ -50,6 +53,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto update(UserDto userDto, Long id) {
         User userFromDb = getUser(userDto.getId());
         User userFromDto = UserMapper.createUser(userDto);
@@ -64,6 +68,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void delete(Long userId) {
         User user = handler.getUserFromOpt(userId);
         List<Item> itemsByOwner = itemRepository.findByOwnerId(userId, null);

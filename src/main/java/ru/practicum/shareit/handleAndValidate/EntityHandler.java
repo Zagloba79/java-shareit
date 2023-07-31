@@ -53,10 +53,10 @@ public class EntityHandler {
         return requestOpt.get();
     }
 
-    public Booking getBookingFromOpt(Long id) {
-        Optional<Booking> bookingOpt = bookingRepository.findById(id);
+    public Booking getBookingByIdAndOwnerIdFromOpt(Long bookingId, Long ownerId) {
+        Optional<Booking> bookingOpt = bookingRepository.findByIdAndItem_OwnerId(bookingId, ownerId);
         if (bookingOpt.isEmpty()) {
-            throw new ObjectNotFoundException("Букинга с " + id + " не существует.");
+            throw new ObjectNotFoundException("Букинга с " + bookingId + " не существует.");
         }
         return bookingOpt.get();
     }

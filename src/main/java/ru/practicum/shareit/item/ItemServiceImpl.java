@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingForDataDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
@@ -34,6 +35,7 @@ import ru.practicum.shareit.user.model.User;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final EntityHandler handler;
     private final ItemRepository itemRepository;
@@ -44,6 +46,7 @@ public class ItemServiceImpl implements ItemService {
             Boolean.TRUE.equals(item.getAvailable());
 
     @Override
+    @Transactional
     public ItemDto create(ItemDto itemDto, Long ownerId) {
         handler.itemValidate(itemDto);
         User owner = handler.getUserFromOpt(ownerId);
@@ -58,6 +61,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto updateItem(ItemDto itemDto, Long itemId, Long ownerId) {
         Item item = handler.getItemFromOpt(itemId);
         User owner = handler.getUserFromOpt(ownerId);
@@ -113,6 +117,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public void deleteItem(Long itemId, Long ownerId) {
         Item item = handler.getItemFromOpt(itemId);
         User owner = handler.getUserFromOpt(ownerId);
@@ -139,6 +144,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto createComment(CommentDto commentDto, Long authorId, Long itemId) {
         if (commentDto.getText().isBlank()) {
             throw new ValidationException("Пустой текст");
@@ -146,10 +152,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = handler.getItemFromOpt(itemId);
         User author = handler.getUserFromOpt(authorId);
         handler.authorValidate(authorId, itemId);
-        Comment comment = CommentMapper.createNewComment(commentDto);
-        comment.setCreated(LocalDateTime.now());
-        comment.setItem(item);
-        comment.setAuthor(author);
+        Comment comment = CommentMapper.createNewComment(commentDto, item, author);
         commentRepository.save(comment);
         return CommentMapper.createCommentDto(comment);
     }

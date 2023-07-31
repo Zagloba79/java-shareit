@@ -6,6 +6,7 @@ import ru.practicum.shareit.item.dto.ItemForAnswerDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -23,6 +24,7 @@ public final class ItemRequestMapper {
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setDescription(itemRequestDto.getDescription());
         itemRequest.setRequester(requester);
+        itemRequest.setCreated(LocalDateTime.now());
         return itemRequest;
     }
 

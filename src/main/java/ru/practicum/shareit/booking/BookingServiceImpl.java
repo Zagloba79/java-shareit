@@ -5,11 +5,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.OperationIsNotSupported;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.handleAndValidate.EntityHandler;
@@ -24,12 +24,14 @@ import static ru.practicum.shareit.booking.model.BookingStatus.*;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final EntityHandler handler;
 
     @Override
+    @Transactional
     public BookingDto create(NewBookingDto newBookingDto, Long bookerId) {
         handler.bookingValidate(newBookingDto, LocalDateTime.now());
         Item item = handler.getItemFromOpt(newBookingDto.getItemId());
@@ -49,45 +51,23 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public BookingDto update(Long bookingId, Long userId, Boolean approved) {
-        User user = handler.getUserFromOpt(userId);
-        Booking booking = handler.getBookingFromOpt(bookingId);
+        User owner = handler.getUserFromOpt(userId);
+        Booking booking = handler.getBookingByIdAndOwnerIdFromOpt(bookingId, owner.getId());
         validateBooking(booking);
-        if (booking.getBooker().getId().equals(userId)) {
-            updateByBooker(booking, approved);
-            bookingRepository.save(booking);
-            return BookingMapper.createBookingDto(booking);
-        } else if ((booking.getItem().getOwner().getId().equals(user.getId()))) {
-            updateByOwner(booking, approved);
-            bookingRepository.save(booking);
-            return BookingMapper.createBookingDto(booking);
-        } else {
-            throw new ValidationException("Подтвердить бронирование может только владелец вещи!");
-        }
-
+        booking.setStatus(approved ? APPROVED : REJECTED);
+        bookingRepository.save(booking);
+        return BookingMapper.createBookingDto(booking);
     }
 
     private void validateBooking(Booking booking) {
         if (booking.getEnd().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Время бронирования уже истекло!");
         }
-        if (booking.getStatus().equals(CANCELED)) {
-            throw new ValidationException("Бронирование было отменено!");
-        }
         if (!booking.getStatus().equals(WAITING)) {
             throw new ValidationException("Решение по бронированию уже принято!");
         }
-    }
-
-    private void updateByBooker(Booking booking, Boolean approved) {
-        if (approved) {
-            throw new ObjectNotFoundException("Подтвердить бронирование может только владелец вещи!");
-        }
-        booking.setStatus(CANCELED);
-    }
-
-    private void updateByOwner(Booking booking, Boolean approved) {
-        booking.setStatus(approved ? APPROVED : REJECTED);
     }
 
     @Override
