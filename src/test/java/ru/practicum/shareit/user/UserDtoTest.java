@@ -27,13 +27,13 @@ public class UserDtoTest {
     }
 
     @BeforeEach
-    void beforeEach() {
+    public void beforeEach() {
         userDto = new UserDto("alex", "alex@user.ru");
         userDto.setId(1L);
     }
 
     @Test
-    void testJsonUserDto() throws Exception {
+    public void testJsonUserDto() throws Exception {
         JsonContent<UserDto> result = json.write(userDto);
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
         assertThat(result).extractingJsonPathStringValue("$.name").isEqualTo("alex");
@@ -41,13 +41,13 @@ public class UserDtoTest {
     }
 
     @Test
-    void whenUserDtoIsValidThenViolationsShouldBeEmpty() {
+    public void whenUserDtoIsValidThenViolationsShouldBeEmpty() {
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isEmpty();
     }
 
     @Test
-    void whenUserDtoNameIsBlankTest() {
+    public void whenUserDtoNameIsBlankTest() {
         userDto.setName("    ");
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isNotEmpty();
@@ -55,7 +55,7 @@ public class UserDtoTest {
     }
 
     @Test
-    void whenUserDtoNameIsNullTest() {
+    public void whenUserDtoNameIsNullTest() {
         userDto.setName(null);
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isNotEmpty();
@@ -63,7 +63,7 @@ public class UserDtoTest {
     }
 
     @Test
-    void whenUserDtoEmailIsBlankTest() {
+    public void whenUserDtoEmailIsBlankTest() {
         userDto.setEmail("    ");
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isNotEmpty();
@@ -71,7 +71,7 @@ public class UserDtoTest {
     }
 
     @Test
-    void whenUserDtoEmailDoNotHaveATTest() {
+    public void whenUserDtoEmailDoNotHaveATTest() {
         userDto.setEmail("alex.user");
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isNotEmpty();
@@ -80,7 +80,7 @@ public class UserDtoTest {
     }
 
     @Test
-    void whenUserDtoEmailIsNullTest() {
+    public void whenUserDtoEmailIsNullTest() {
         userDto.setEmail(null);
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isNotEmpty();

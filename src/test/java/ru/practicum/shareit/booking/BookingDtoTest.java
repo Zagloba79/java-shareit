@@ -22,12 +22,12 @@ public class BookingDtoTest {
         this.json = json;
     }
 
-    User owner = new User("alex", "alex@user.ru");
-    User booker = new User("ann", "ann@user.ru");
-    Item item = new Item("item", "description", true, owner, null);
+    private final User owner = new User("alex", "alex@user.ru");
+    private final User booker = new User("ann", "ann@user.ru");
+    private final Item item = new Item("item", "description", true, owner, null);
 
     @Test
-    void testJsonBookingDto() throws Exception {
+    public void testJsonBookingDto() throws Exception {
         booker.setId(1L);
         item.setId(2L);
         BookingDto bookingDto = new BookingDto(

@@ -16,8 +16,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class NewBookingDto {
     @FutureOrPresent
+    @NotNull
     private LocalDateTime start;
     @Future
+    @NotNull
     private LocalDateTime end;
     @NotNull
     private Long itemId;
