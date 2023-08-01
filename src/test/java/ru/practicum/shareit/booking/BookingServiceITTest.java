@@ -28,6 +28,7 @@ public class BookingServiceITTest {
     private final BookingService service;
     private final UserService userService;
     private final ItemService itemService;
+    private final BookingRepository bookingRepository;
     private UserDto abuserDto = new UserDto("abuser", "abuser@user.ru");
     private UserDto ownerDto = new UserDto("owner", "owner@user.ru");
     private UserDto bookerDto = new UserDto("booker", "booker@user.ru");
@@ -230,69 +231,75 @@ public class BookingServiceITTest {
 
     @Test
     @DirtiesContext
-    void exceptionWhenGetBookingByNotOwnerOrNotBookerTest() {
+    public void shouldReturnBookingsWhenGetBookingsByBookerAndStateIsAllTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         bookerDto = userService.create(bookerDto);
         abuserDto = userService.create(abuserDto);
-        NewBookingDto newBookingDto = new NewBookingDto(
-                LocalDateTime.of(2023, 12, 25, 0, 0, 0),
-                LocalDateTime.of(2023, 12, 25, 1, 0, 0),
-                itemDto.getId());
-        BookingDto bookingDto = service.create(newBookingDto, bookerDto.getId());
-        OperationIsNotSupported exception = assertThrows(OperationIsNotSupported.class,
-                () -> service.getBookingById(bookingDto.getId(), abuserDto.getId()));
-        assertEquals("Вы - левый чувак", exception.getMessage());
-    }
-
-    @Test
-    @DirtiesContext
-    void shouldReturnBookingsWhenGetBookingsByBookerAndStateIsAllTest() {
-        ownerDto = userService.create(ownerDto);
-        itemDto = itemService.create(itemDto, ownerDto.getId());
-        bookerDto = userService.create(bookerDto);
         NewBookingDto fBookingDto = new NewBookingDto(
                 LocalDateTime.of(2023, 8, 25, 0, 0, 0),
                 LocalDateTime.of(2023, 8, 25, 1, 0, 0),
                 itemDto.getId());
-        service.create(fBookingDto, bookerDto.getId());
+        BookingDto bookingDto1 = service.create(fBookingDto, bookerDto.getId());
         NewBookingDto sBookingDto = new NewBookingDto(
                 LocalDateTime.of(2023, 8, 26, 0, 0, 0),
                 LocalDateTime.of(2023, 8, 26, 1, 0, 0),
                 itemDto.getId());
-        service.create(sBookingDto, bookerDto.getId());
-        List<BookingDto> bookings = service.getBookingsByBookerAndState(0, 1,
+        BookingDto bookingDto2 = service.create(sBookingDto, bookerDto.getId());
+        service.update(bookingDto2.getId(), ownerDto.getId(), true);
+        List<BookingDto> bookingsByOwner = service.getBookingsByOwnerAndState(0, 10,
+                "ALL", ownerDto.getId());
+        assertEquals(2, bookingsByOwner.size());
+        List<BookingDto> bookingsByBooker = service.getBookingsByBookerAndState(0, 10,
                 "ALL", bookerDto.getId());
-        assertEquals(1, bookings.size());
+        assertEquals(2, bookingsByBooker.size());
+        List<BookingDto> bookingsByUser = service.getBookingsByOwnerAndState(0, 10,
+                "ALL", abuserDto.getId());
+        assertEquals(0, bookingsByUser.size());
+        List<BookingDto> bookingsByUser2 = service.getBookingsByBookerAndState(0, 10,
+                "ALL", abuserDto.getId());
+        assertEquals(0, bookingsByUser2.size());
     }
 
     @Test
     @DirtiesContext
-    void shouldReturnBookingsWhenGetBookingsByOwnerAndStateIsWaitingTest() {
+    public void shouldReturnBookingsWhenGetBookingsWhenStateIsWaitingTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         bookerDto = userService.create(bookerDto);
+        abuserDto = userService.create(abuserDto);
         NewBookingDto fBookingDto = new NewBookingDto(
                 LocalDateTime.of(2023, 8, 25, 0, 0, 0),
                 LocalDateTime.of(2023, 8, 25, 1, 0, 0),
                 itemDto.getId());
-        service.create(fBookingDto, bookerDto.getId());
+        BookingDto bookingDto1 = service.create(fBookingDto, bookerDto.getId());
         NewBookingDto sBookingDto = new NewBookingDto(
                 LocalDateTime.of(2023, 8, 26, 0, 0, 0),
                 LocalDateTime.of(2023, 8, 26, 1, 0, 0),
                 itemDto.getId());
-        service.create(sBookingDto, bookerDto.getId());
-        List<BookingDto> bookings = service.getBookingsByOwnerAndState(0, 10,
+        BookingDto bookingDto2 = service.create(sBookingDto, bookerDto.getId());
+        service.update(bookingDto2.getId(), ownerDto.getId(), true);
+        List<BookingDto> bookingsByOwner = service.getBookingsByOwnerAndState(0, 10,
                 "WAITING", ownerDto.getId());
-        assertEquals(2, bookings.size());
+        assertEquals(1, bookingsByOwner.size());
+        List<BookingDto> bookingsByBooker = service.getBookingsByBookerAndState(0, 10,
+                "WAITING", bookerDto.getId());
+        assertEquals(1, bookingsByBooker.size());
+        List<BookingDto> bookingsByUser = service.getBookingsByOwnerAndState(0, 10,
+                "WAITING", abuserDto.getId());
+        assertEquals(0, bookingsByUser.size());
+        List<BookingDto> bookingsByUser2 = service.getBookingsByBookerAndState(0, 10,
+                "WAITING", abuserDto.getId());
+        assertEquals(0, bookingsByUser2.size());
     }
 
     @Test
     @DirtiesContext
-    void shouldReturnBookingsWhenGetBookingsWhenStateIsRejectedTest() {
+    public void shouldReturnBookingsWhenGetBookingsWhenStateIsRejectedTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         bookerDto = userService.create(bookerDto);
+        abuserDto = userService.create(abuserDto);
         NewBookingDto fBookingDto = new NewBookingDto(
                 LocalDateTime.of(2023, 8, 25, 0, 0, 0),
                 LocalDateTime.of(2023, 8, 25, 1, 0, 0),
@@ -308,14 +315,54 @@ public class BookingServiceITTest {
         List<BookingDto> bookingsByOwner = service.getBookingsByOwnerAndState(0, 10,
                 "REJECTED", ownerDto.getId());
         assertEquals(1, bookingsByOwner.size());
-        List<BookingDto> bookingsByBooker = service.getBookingsByOwnerAndState(0, 10,
-                "REJECTED", ownerDto.getId());
+        List<BookingDto> bookingsByBooker = service.getBookingsByBookerAndState(0, 10,
+                "REJECTED", bookerDto.getId());
         assertEquals(1, bookingsByBooker.size());
+        List<BookingDto> bookingsByUser = service.getBookingsByOwnerAndState(0, 10,
+                "REJECTED", abuserDto.getId());
+        assertEquals(0, bookingsByUser.size());
+        List<BookingDto> bookingsByUser2 = service.getBookingsByBookerAndState(0, 10,
+                "REJECTED", abuserDto.getId());
+        assertEquals(0, bookingsByUser2.size());
     }
 
     @Test
     @DirtiesContext
-    void exceptionWhenGetBookingsByOwnerAndUnknownStateTest() {
+    public void exceptionWhenGetBookingsAndUnknownStateTest() {
+        ownerDto = userService.create(ownerDto);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        bookerDto = userService.create(bookerDto);
+        abuserDto = userService.create(abuserDto);
+        NewBookingDto fBookingDto = new NewBookingDto(
+                LocalDateTime.of(2023, 8, 25, 0, 0, 0),
+                LocalDateTime.of(2023, 8, 25, 1, 0, 0),
+                itemDto.getId());
+        BookingDto bookingDto1 = service.create(fBookingDto, bookerDto.getId());
+        service.update(bookingDto1.getId(), ownerDto.getId(), false);
+        NewBookingDto sBookingDto = new NewBookingDto(
+                LocalDateTime.of(2023, 8, 26, 0, 0, 0),
+                LocalDateTime.of(2023, 8, 26, 1, 0, 0),
+                itemDto.getId());
+        BookingDto bookingDto2 = service.create(sBookingDto, bookerDto.getId());
+        service.update(bookingDto2.getId(), ownerDto.getId(), true);
+        String state = "UNKNOWN";
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> service.getBookingsByOwnerAndState(0, 10, state, ownerDto.getId()));
+        assertEquals("Unknown state: " + state, exception.getMessage());
+        exception = assertThrows(ValidationException.class,
+                () -> service.getBookingsByBookerAndState(0, 10, state, bookerDto.getId()));
+        assertEquals("Unknown state: " + state, exception.getMessage());
+        exception = assertThrows(ValidationException.class,
+                () -> service.getBookingsByOwnerAndState(0, 10, state, abuserDto.getId()));
+        assertEquals("Unknown state: " + state, exception.getMessage());
+        exception = assertThrows(ValidationException.class,
+                () -> service.getBookingsByBookerAndState(0, 10, state, abuserDto.getId()));
+        assertEquals("Unknown state: " + state, exception.getMessage());
+    }
+
+    @Test
+    @DirtiesContext
+    public void exceptionWhenGetBookingsByOwnerAndUnknownStateTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         bookerDto = userService.create(bookerDto);
@@ -339,31 +386,7 @@ public class BookingServiceITTest {
 
     @Test
     @DirtiesContext
-    void exceptionWhenGetBookingsByBookerAndUnknownStateTest() {
-        ownerDto = userService.create(ownerDto);
-        itemDto = itemService.create(itemDto, ownerDto.getId());
-        bookerDto = userService.create(bookerDto);
-        NewBookingDto fBookingDto = new NewBookingDto(
-                LocalDateTime.of(2023, 8, 25, 0, 0, 0),
-                LocalDateTime.of(2023, 8, 25, 1, 0, 0),
-                itemDto.getId());
-        BookingDto bookingDto1 = service.create(fBookingDto, bookerDto.getId());
-        service.update(bookingDto1.getId(), ownerDto.getId(), false);
-        NewBookingDto sBookingDto = new NewBookingDto(
-                LocalDateTime.of(2023, 8, 26, 0, 0, 0),
-                LocalDateTime.of(2023, 8, 26, 1, 0, 0),
-                itemDto.getId());
-        BookingDto bookingDto2 = service.create(sBookingDto, bookerDto.getId());
-        service.update(bookingDto2.getId(), ownerDto.getId(), true);
-        String state = "UNKNOWN";
-        ValidationException exception = assertThrows(ValidationException.class,
-                () -> service.getBookingsByOwnerAndState(0, 10, state, bookerDto.getId()));
-        assertEquals("Unknown state: " + state, exception.getMessage());
-    }
-
-    @Test
-    @DirtiesContext
-    void shouldReturnBookingsWhenGetBookingsByOwnerAndStateIsCurrentTest() {
+    public void shouldReturnBookingsWhenGetBookingsByOwnerAndStateIsCurrentTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         bookerDto = userService.create(bookerDto);
@@ -391,7 +414,7 @@ public class BookingServiceITTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnBookingsWhenGetBookingsByBookerAndStateIsCurrentTest() {
+    public void shouldReturnBookingsWhenGetBookingsByBookerAndStateIsCurrentTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         bookerDto = userService.create(bookerDto);
@@ -419,7 +442,7 @@ public class BookingServiceITTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnBookingsWhenGetBookingsWhenStateIsPastTest() {
+    public void shouldReturnBookingsWhenGetBookingsWhenStateIsPastTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         bookerDto = userService.create(bookerDto);
@@ -450,7 +473,7 @@ public class BookingServiceITTest {
 
     @Test
     @DirtiesContext
-    void shouldReturnBookingsWhenGetBookingsWhenStateIsFutureTest() {
+    public void shouldReturnBookingsWhenGetBookingsWhenStateIsFutureTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         bookerDto = userService.create(bookerDto);

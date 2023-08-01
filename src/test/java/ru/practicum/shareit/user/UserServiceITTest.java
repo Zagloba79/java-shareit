@@ -8,6 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
@@ -18,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserServiceITTest {
     private final UserService service;
+    private final ItemService itemService;
+    private final ItemRepository itemRepository;
 
     @Test
     @DirtiesContext
@@ -52,6 +58,84 @@ public class UserServiceITTest {
                 UserAlreadyExistsException.class,
                 () -> service.update(abuserDto, userFromDb.getId()));
         assertEquals("Пользователь с таким Email уже зарегистрирован", exception.getMessage());
+    }
+
+    @Test
+    @DirtiesContext
+    public void exceptionWhenUserUpdateWithWrongEmailTest() {
+        UserDto userDto = new UserDto("user", "user@users.ru");
+        userDto = service.create(userDto);
+        Long id = userDto.getId();
+        userDto.setEmail(null);
+        userDto = service.update(userDto, userDto.getId());
+        assertEquals(id, userDto.getId());
+        assertEquals("user", userDto.getName());
+        assertEquals("user@users.ru", userDto.getEmail());
+        userDto.setEmail("users.ru");
+        userDto = service.update(userDto, userDto.getId());
+        assertEquals(id, userDto.getId());
+        assertEquals("user", userDto.getName());
+        assertEquals("user@users.ru", userDto.getEmail());
+        userDto.setEmail("users@ru");
+        userDto = service.update(userDto, userDto.getId());
+        assertEquals(id, userDto.getId());
+        assertEquals("user", userDto.getName());
+        assertEquals("user@users.ru", userDto.getEmail());
+    }
+
+    @Test
+    @DirtiesContext
+    public void exceptionWhenEmailIsWrongTest() {
+        UserDto userDto = new UserDto("user", null);
+        ValidationException exception = Assertions.assertThrows(
+                ValidationException.class,
+                () -> service.create(userDto));
+        assertEquals("Некорректный e-mail пользователя", exception.getMessage());
+        userDto.setEmail("faew.fa");
+        exception = Assertions.assertThrows(
+                ValidationException.class,
+                () -> service.create(userDto));
+        assertEquals("Некорректный e-mail пользователя", exception.getMessage());
+        userDto.setEmail("faew@fa");
+        exception = Assertions.assertThrows(
+                ValidationException.class,
+                () -> service.create(userDto));
+        assertEquals("Некорректный e-mail пользователя", exception.getMessage());
+    }
+
+    @Test
+    @DirtiesContext
+    public void shouldUpdateUsersTest() {
+        UserDto userDto = new UserDto("user", "user@users.ru");
+        userDto = service.create(userDto);
+        Long id = userDto.getId();
+        assertEquals(id, userDto.getId());
+        assertEquals("user", userDto.getName());
+        assertEquals("user@users.ru", userDto.getEmail());
+        userDto.setName("abuser");
+        userDto = service.update(userDto, id);
+        assertEquals(id, userDto.getId());
+        assertEquals("abuser", userDto.getName());
+        assertEquals("user@users.ru", userDto.getEmail());
+        userDto.setEmail("abuser@users.ru");
+        assertEquals(id, userDto.getId());
+        assertEquals("abuser", userDto.getName());
+        assertEquals("abuser@users.ru", userDto.getEmail());
+    }
+
+    @Test
+    @DirtiesContext
+    public void exceptionWhenNameIsWrongTest() {
+        UserDto userDto = new UserDto(null, "null@user.ru");
+        ValidationException exception = Assertions.assertThrows(
+                ValidationException.class,
+                () -> service.create(userDto));
+        assertEquals("Некорректный логин пользователя", exception.getMessage());
+        userDto.setName("        ");
+        exception = Assertions.assertThrows(
+                ValidationException.class,
+                () -> service.create(userDto));
+        assertEquals("Некорректный логин пользователя", exception.getMessage());
     }
 
     @Test
@@ -91,10 +175,16 @@ public class UserServiceITTest {
         UserDto u1 = service.create(user1);
         UserDto u2 = service.create(user2);
         UserDto u3 = service.create(user3);
+        ItemDto item1 = new ItemDto("item1", "d1", true, null);
+        ItemDto item2 = new ItemDto("item2", "d2", true, null);
+        itemService.create(item1, u2.getId());
+        itemService.create(item2, u2.getId());
         assertEquals(3, service.findAll().size());
+        assertEquals(2, itemRepository.findAll().size());
         service.delete(u2.getId());
         assertEquals(2, service.findAll().size());
         assertEquals("User1", service.getUser(u1.getId()).getName());
         assertEquals("User3", service.getUser(u3.getId()).getName());
+        assertEquals(0, itemRepository.findAll().size());
     }
 }

@@ -80,10 +80,10 @@ public class UserServiceImpl implements UserService {
 
     private void userValidate(User user) {
         if (user.getEmail() == null || !user.getEmail().contains("@") || !user.getEmail().contains(".")) {
-            throw new ValidationException("Некорректный e-mail пользователя: " + user.getEmail());
+            throw new ValidationException("Некорректный e-mail пользователя");
         }
         if (user.getName() == null || user.getName().isBlank()) {
-            throw new ValidationException("Некорректный логин пользователя: " + user.getName());
+            throw new ValidationException("Некорректный логин пользователя");
         }
     }
 
