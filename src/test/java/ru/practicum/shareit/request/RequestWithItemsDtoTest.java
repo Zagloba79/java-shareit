@@ -21,7 +21,7 @@ public class RequestWithItemsDtoTest {
     public RequestWithItemsDtoTest(@Autowired JacksonTester<RequestWithItemsDto> json) {
         this.json = json;
     }
-    private final User owner = new User("alex", "alex@user.ru");
+
     private final User requester = new User("ann", "ann@user.ru");
 
     @Test
@@ -30,7 +30,7 @@ public class RequestWithItemsDtoTest {
         item.setId(1L);
         requester.setId(2L);
         RequestWithItemsDto requestWithItemsDto = new RequestWithItemsDto(
-               "Description",
+                "Description",
                 LocalDateTime.of(2023, 10, 11, 12, 13, 14),
                 List.of(item));
         requestWithItemsDto.setId(5L);
