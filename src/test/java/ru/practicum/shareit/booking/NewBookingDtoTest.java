@@ -38,7 +38,7 @@ public class NewBookingDtoTest {
 
     @Test
     @DirtiesContext
-    public void testJsonNewBookingDto() throws Exception {
+    public void testJsonNewBookingDtoTest() throws Exception {
         item.setId(1L);
         JsonContent<NewBookingDto> result = json.write(newBookingDto);
         assertThat(result).extractingJsonPathStringValue("$.start").isEqualTo("2023-10-11T12:13:14");
@@ -48,14 +48,14 @@ public class NewBookingDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoIsValid() {
+    public void whenNewBookingDtoIsValidTest() {
         Set<ConstraintViolation<NewBookingDto>> violations = validator.validate(newBookingDto);
         assertThat(violations).isEmpty();
     }
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoItemIdIsNull() {
+    public void whenNewBookingDtoItemIdIsNullTest() {
         newBookingDto.setItemId(null);
         Set<ConstraintViolation<NewBookingDto>> violations = validator.validate(newBookingDto);
         assertThat(violations).isNotEmpty();
@@ -64,7 +64,7 @@ public class NewBookingDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoStartIsNull() {
+    public void whenNewBookingDtoStartIsNullTest() {
         item.setId(1L);
         newBookingDto.setStart(null);
         Set<ConstraintViolation<NewBookingDto>> violations = validator.validate(newBookingDto);
@@ -74,7 +74,7 @@ public class NewBookingDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoEndIsNull() {
+    public void whenNewBookingDtoEndIsNullTest() {
         item.setId(1L);
         newBookingDto.setEnd(null);
         Set<ConstraintViolation<NewBookingDto>> violations = validator.validate(newBookingDto);
@@ -84,7 +84,7 @@ public class NewBookingDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoStartBeforeNow() {
+    public void whenNewBookingDtoStartBeforeNowTest() {
         item.setId(1L);
         newBookingDto.setStart(LocalDateTime.now().minusSeconds(1));
         Set<ConstraintViolation<NewBookingDto>> violations = validator.validate(newBookingDto);
@@ -96,7 +96,7 @@ public class NewBookingDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoEndBeforeNow() {
+    public void whenNewBookingDtoEndBeforeNowTest() {
         item.setId(1L);
         newBookingDto.setEnd(LocalDateTime.now().minusSeconds(1));
         Set<ConstraintViolation<NewBookingDto>> violations = validator.validate(newBookingDto);

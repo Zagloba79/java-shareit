@@ -41,7 +41,7 @@ public class UserDtoTest {
     }
 
     @Test
-    public void whenUserDtoIsValidThenViolationsShouldBeEmpty() {
+    public void whenUserDtoIsValidTest() {
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
         assertThat(violations).isEmpty();
     }

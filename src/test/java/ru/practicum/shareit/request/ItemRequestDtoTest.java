@@ -7,7 +7,6 @@ import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.model.User;
 
@@ -55,7 +54,7 @@ public class ItemRequestDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenItemRequestDtoIsValid() {
+    public void whenItemRequestDtoIsValidTest() {
         itemRequestDto.setId(1L);
         itemRequestDto.setRequester(requester);
         Set<ConstraintViolation<ItemRequestDto>> violations = validator.validate(itemRequestDto);
@@ -64,7 +63,7 @@ public class ItemRequestDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenDescriptionIsNull() {
+    public void whenDescriptionIsNullTest() {
         itemRequestDto.setId(1L);
         itemRequestDto.setRequester(requester);
         itemRequestDto.setDescription(null);
@@ -75,7 +74,7 @@ public class ItemRequestDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenRequesterIsNull() {
+    public void whenRequesterIsNullTest() {
         itemRequestDto.setId(1L);
         itemRequestDto.setRequester(null);
         itemRequestDto.setDescription("null");
