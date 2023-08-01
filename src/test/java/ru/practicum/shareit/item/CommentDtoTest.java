@@ -57,7 +57,7 @@ public class CommentDtoTest {
         commentDto.setText(null);
         Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
         assertThat(violations).isNotEmpty();
-        AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
+        AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
     }
 
     @Test

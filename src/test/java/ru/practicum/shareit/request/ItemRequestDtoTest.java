@@ -69,7 +69,7 @@ public class ItemRequestDtoTest {
         itemRequestDto.setDescription(null);
         Set<ConstraintViolation<ItemRequestDto>> violations = validator.validate(itemRequestDto);
         assertThat(violations).isNotEmpty();
-        AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
+        AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
     }
 
     @Test
