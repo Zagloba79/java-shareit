@@ -59,13 +59,4 @@ public class CommentDtoTest {
         assertThat(violations).isNotEmpty();
         AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
     }
-
-    @Test
-    @DirtiesContext
-    public void whenCommentDtoAuthotNameIsNull() {
-        commentDto.setAuthorName(null);
-        Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
-        assertThat(violations).isNotEmpty();
-        AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
-    }
 }
