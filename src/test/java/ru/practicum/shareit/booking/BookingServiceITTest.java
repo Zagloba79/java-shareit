@@ -21,6 +21,7 @@ import java.util.List;
 import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static ru.practicum.shareit.booking.model.BookingStatus.APPROVED;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -500,5 +501,48 @@ public class BookingServiceITTest {
         List<BookingDto> bookings2 = service.getBookingsByOwnerAndState(0, 10,
                 "FUTURE", ownerDto.getId());
         assertEquals(1, bookings2.size());
+    }
+
+    @Test
+    @DirtiesContext
+    public void shouldReturnBookingWhenUpdateBookingByOwnerTest() {
+        ownerDto = userService.create(ownerDto);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        bookerDto = userService.create(bookerDto);
+        NewBookingDto newBookingDto = new NewBookingDto(
+                LocalDateTime.now().plusSeconds(1),
+                LocalDateTime.now().plusSeconds(2),
+                itemDto.getId());
+        BookingDto bookingDto = service.create(newBookingDto, bookerDto.getId());
+        bookingDto = service.update(bookingDto.getId(), ownerDto.getId(), true);
+        assertEquals(itemDto.getName(), bookingDto.getItem().getName());
+        assertEquals(bookerDto.getId(), bookingDto.getBooker().getId());
+        assertEquals(bookerDto.getName(), bookingDto.getBooker().getName());
+        assertEquals(APPROVED, bookingDto.getStatus());
+    }
+
+    @Test
+    @DirtiesContext
+    public void shouldReturnBookingWhenGetBookingByIdTest() {
+        ownerDto = userService.create(ownerDto);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        bookerDto = userService.create(bookerDto);
+        abuserDto = userService.create(abuserDto);
+        NewBookingDto newBookingDto = new NewBookingDto(
+                LocalDateTime.now().plusSeconds(1),
+                LocalDateTime.now().plusSeconds(2),
+                itemDto.getId());
+        BookingDto bookingDto = service.create(newBookingDto, bookerDto.getId());
+        BookingDto bookingByIdDto = service.getBookingById(bookingDto.getId(), ownerDto.getId());
+        assertEquals(itemDto.getName(), bookingByIdDto.getItem().getName());
+        assertEquals(bookerDto.getId(), bookingByIdDto.getBooker().getId());
+        assertEquals(bookerDto.getName(), bookingByIdDto.getBooker().getName());
+        bookingByIdDto = service.getBookingById(bookingDto.getId(), bookerDto.getId());
+        assertEquals(itemDto.getName(), bookingByIdDto.getItem().getName());
+        assertEquals(bookerDto.getId(), bookingByIdDto.getBooker().getId());
+        assertEquals(bookerDto.getName(), bookingByIdDto.getBooker().getName());
+        OperationIsNotSupported exception = assertThrows(OperationIsNotSupported.class,
+                () -> service.getBookingById(bookingDto.getId(), abuserDto.getId()));
+        assertEquals("Вы - левый чувак", exception.getMessage());
     }
 }
