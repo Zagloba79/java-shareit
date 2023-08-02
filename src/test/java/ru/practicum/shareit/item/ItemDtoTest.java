@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import org.assertj.core.api.AssertionsForClassTypes;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -28,6 +29,12 @@ public class ItemDtoTest {
         this.json = json;
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
+    }
+
+    @BeforeEach
+    public void setUp() {
+        System.setProperty("user.language", "en");
+
     }
 
     @Test
