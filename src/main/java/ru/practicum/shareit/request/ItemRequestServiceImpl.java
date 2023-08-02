@@ -57,9 +57,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User requester = handler.getUserFromOpt(userId);
         List<ItemRequest> requests = requestRepository.findByRequesterId(requester.getId(),
                 Sort.by("created").descending());
-        if (requests.isEmpty()) {
-            return Collections.emptyList();
-        }
         List<Item> allNeededItems = createAllNeededItemsList(requests);
         return getRequestsWithItems(requests, allNeededItems);
     }
@@ -69,9 +66,6 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User user = handler.getUserFromOpt(userId);
         Pageable pageable = PageRequest.of(from, size, Sort.by("created").ascending());
         List<ItemRequest> requests = requestRepository.findAllByRequesterIdNot(userId, pageable);
-        if (requests.isEmpty()) {
-            return Collections.emptyList();
-        }
         List<Item> allNeededItems = createAllNeededItemsList(requests);
         return getRequestsWithItems(requests, allNeededItems);
     }

@@ -41,7 +41,8 @@ public class ItemServiceITTest {
     private UserDto userDto = new UserDto("notOwner", "nnn@user.ru");
     private ItemDto itemDto = new ItemDto("item", "Descqwqw", true, null);
     private CommentDto commentDto = new CommentDto("comment", "notOwner", presentTime);
-    private final NewBookingDto newbookingDto = new NewBookingDto(LocalDateTime.now().plusSeconds(1),
+    private final NewBookingDto newbookingDto = new NewBookingDto(
+            LocalDateTime.now().plusSeconds(1),
             LocalDateTime.now().plusSeconds(2),
             itemDto.getId());
 
@@ -71,6 +72,81 @@ public class ItemServiceITTest {
 
     @Test
     @DirtiesContext
+    public void shouldGetItemByIdByOwnerTest() {
+        ownerDto = userService.create(ownerDto);
+        UserDto bookerDto = userService.create(userDto);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        newbookingDto.setItemId(itemDto.getId());
+        BookingDto bookingDto = bookingService.create(newbookingDto, bookerDto.getId());
+        bookingService.update(bookingDto.getId(), ownerDto.getId(), true);
+        try {
+            sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        NewBookingDto newBookingDto2 = new NewBookingDto(
+                LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2),
+                itemDto.getId());
+        BookingDto bookingDto2 = bookingService.create(newBookingDto2, bookerDto.getId());
+        bookingService.update(bookingDto2.getId(), ownerDto.getId(), true);
+        commentDto = itemService.createComment(commentDto, bookerDto.getId(), itemDto.getId());
+        Comment comment = CommentMapper.createComment(commentDto);
+        ItemWithCommentsAndBookingsDto itemWithComments = itemService.getItemById(
+                itemDto.getId(), ownerDto.getId());
+        assertEquals(1, itemWithComments.getId());
+        assertNotNull(itemWithComments.getLastBooking());
+        assertNotNull(itemWithComments.getNextBooking());
+        assertEquals(1, comment.getId());
+    }
+
+    @Test
+    @DirtiesContext
+    public void shouldGetItemByIdByOwnerWithoutLastBookingTest() {
+        ownerDto = userService.create(ownerDto);
+        UserDto bookerDto = userService.create(userDto);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        NewBookingDto newBookingDto = new NewBookingDto(
+                LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2),
+                itemDto.getId());
+        BookingDto bookingDto = bookingService.create(newBookingDto, bookerDto.getId());
+        bookingService.update(bookingDto.getId(), ownerDto.getId(), true);
+        ItemWithCommentsAndBookingsDto itemWithComments = itemService.getItemById(
+                itemDto.getId(), ownerDto.getId());
+        assertEquals(1, itemWithComments.getId());
+        assertEquals(0, itemWithComments.getComments().size());
+        assertNull(itemWithComments.getLastBooking());
+        assertNotNull(itemWithComments.getNextBooking());
+
+    }
+
+    @Test
+    @DirtiesContext
+    public void shouldGetItemByIdByOwnerWithoutNextBookingTest() {
+        ownerDto = userService.create(ownerDto);
+        UserDto bookerDto = userService.create(userDto);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        newbookingDto.setItemId(itemDto.getId());
+        BookingDto bookingDto = bookingService.create(newbookingDto, bookerDto.getId());
+        bookingService.update(bookingDto.getId(), ownerDto.getId(), true);
+        try {
+            sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        commentDto = itemService.createComment(commentDto, bookerDto.getId(), itemDto.getId());
+        Comment comment = CommentMapper.createComment(commentDto);
+        ItemWithCommentsAndBookingsDto itemWithComments = itemService.getItemById(
+                itemDto.getId(), ownerDto.getId());
+        assertEquals(1, itemWithComments.getId());
+        assertNotNull(itemWithComments.getLastBooking());
+        assertNull(itemWithComments.getNextBooking());
+        assertEquals(1, comment.getId());
+    }
+
+    @Test
+    @DirtiesContext
     public void exceptionWhenNotOwnerDeleteItemTest() {
         ownerDto = userService.create(ownerDto);
         userDto = userService.create(userDto);
@@ -78,6 +154,18 @@ public class ItemServiceITTest {
         OperationIsNotSupported exception = assertThrows(OperationIsNotSupported.class,
                 () -> itemService.deleteItem(itemDto.getId(), userDto.getId()));
         assertEquals("You are not owner", exception.getMessage());
+    }
+
+    @Test
+    @DirtiesContext
+    public void exceptionWhenCreateItemButRequestIsNotExistTets() {
+        ownerDto = userService.create(ownerDto);
+        userDto = userService.create(userDto);
+        itemDto.setRequestId(159L);
+        ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
+                () -> itemService.create(itemDto, ownerDto.getId()));
+        assertEquals("Такого запроса не существует", exception.getMessage());
+
     }
 
     @Test

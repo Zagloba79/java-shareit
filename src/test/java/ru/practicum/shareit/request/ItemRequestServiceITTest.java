@@ -1,12 +1,13 @@
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -14,8 +15,6 @@ import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ItemRequestServiceITTest {
     private final ItemRequestService service;
-    private final ItemRequestRepository repository;
     private final UserService userService;
     private User user;
     private final LocalDateTime created = LocalDateTime.of(
@@ -37,17 +35,9 @@ public class ItemRequestServiceITTest {
         user = UserMapper.createUser(userService.create(userDto));
     }
 
-    @AfterEach
-    public void clearDb() {
-        repository.deleteAll();
-        List<UserDto> users = userService.findAll();
-        for (UserDto user : users) {
-            userService.delete(user.getId());
-        }
-    }
-
     @Test
-    void exceptionWhenCreateItemRequestWithWrongUserId() {
+    @DirtiesContext
+    void exceptionWhenCreateItemRequestWithWrongUserIdTest() {
         Long id = -35672L;
         ObjectNotFoundException exception = assertThrows(ObjectNotFoundException.class,
                 () -> service.create(new ItemRequestDto(), id));
@@ -55,14 +45,34 @@ public class ItemRequestServiceITTest {
     }
 
     @Test
-    public void shouldReturnRequestWhenGetRequestById() {
+    @DirtiesContext
+    void exceptionWhenCreateItemRequestAndDescriptionIsNullTest() {
+        ItemRequestDto requestDto = new ItemRequestDto(null, created);
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> service.create(requestDto, user.getId()));
+        assertEquals("Запрос без описания", exception.getMessage());
+    }
+
+    @Test
+    @DirtiesContext
+    void exceptionWhenCreateItemRequestAndDescriptionIsBlankTest() {
+        ItemRequestDto requestDto = new ItemRequestDto("    ", created);
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> service.create(requestDto, user.getId()));
+        assertEquals("Запрос без описания", exception.getMessage());
+    }
+
+    @Test
+    @DirtiesContext
+    public void shouldReturnRequestWhenGetRequestByIdTest() {
         ItemRequestDto requestDto = new ItemRequestDto("description", created);
         ItemRequestDto requestFromDb = service.create(requestDto, user.getId());
         assertEquals(requestFromDb.getDescription(), requestDto.getDescription());
     }
 
     @Test
-    public void exceptionWhenGetRequestByWrongId() {
+    @DirtiesContext
+    public void exceptionWhenGetRequestByWrongIdTest() {
         final ObjectNotFoundException exception = assertThrows(
                 ObjectNotFoundException.class,
                 () -> service.getRequestById(1L, user.getId()));
@@ -71,7 +81,8 @@ public class ItemRequestServiceITTest {
     }
 
     @Test
-    public void exceptionWhenGetRequestByWrongRequesterId() {
+    @DirtiesContext
+    public void exceptionWhenGetRequestByWrongRequesterIdTest() {
         ItemRequestDto requestDto = new ItemRequestDto("description", LocalDateTime.now());
         ItemRequestDto requestDtoFromDb = service.create(requestDto, user.getId());
         final ObjectNotFoundException exception = assertThrows(
@@ -82,7 +93,8 @@ public class ItemRequestServiceITTest {
     }
 
     @Test
-    public void exceptionWhenGetRequestByWrongRequester() {
+    @DirtiesContext
+    public void exceptionWhenGetRequestByWrongRequesterTest() {
         final ObjectNotFoundException exception = assertThrows(
                 ObjectNotFoundException.class,
                 () -> service.getRequestsByRequester(99L));
