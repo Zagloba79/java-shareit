@@ -65,7 +65,7 @@ public class BookingServiceITTest {
 
     @Test
     @DirtiesContext
-    public void exceptionWhenCreateBookingWhenItemIsNotAvailableTest() {
+    public void exceptionWhenCreateBookingWhenAvailableIsFalseTest() {
         ownerDto = userService.create(ownerDto);
         ItemDto itemDto = new ItemDto("Item", "Description",
                 false, null);
@@ -78,6 +78,41 @@ public class BookingServiceITTest {
         ValidationException exception = assertThrows(ValidationException.class,
                 () -> service.create(newBookingDto, ownerDto.getId()));
         assertEquals("Этот предмет не сдаётся в аренду", exception.getMessage());
+    }
+
+    @Test
+    @DirtiesContext
+    public void exceptionWhenCreateBookingWhenAvailableIsNullTest() {
+        ownerDto = userService.create(ownerDto);
+        ItemDto itemDto = new ItemDto("Item", "Description",
+                false, null);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        itemDto.setAvailable(null);
+        bookerDto = userService.create(bookerDto);
+        NewBookingDto newBookingDto = new NewBookingDto(
+                LocalDateTime.of(2023, 12, 25, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 25, 1, 0, 0),
+                itemDto.getId());
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> service.create(newBookingDto, ownerDto.getId()));
+        assertEquals("Этот предмет не сдаётся в аренду", exception.getMessage());
+    }
+
+    @Test
+    @DirtiesContext
+    public void exceptionWhenCreateBookingWhenStartIsPastTest() {
+        ownerDto = userService.create(ownerDto);
+        ItemDto itemDto = new ItemDto("Item", "Description",
+                true, null);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        bookerDto = userService.create(bookerDto);
+        NewBookingDto newBookingDto = new NewBookingDto(
+                LocalDateTime.of(2013, 12, 25, 0, 0, 0),
+                LocalDateTime.of(2023, 12, 25, 1, 0, 0),
+                itemDto.getId());
+        ValidationException exception = assertThrows(ValidationException.class,
+                () -> service.create(newBookingDto, ownerDto.getId()));
+        assertEquals("даты в прошлом", exception.getMessage());
     }
 
     @Test
