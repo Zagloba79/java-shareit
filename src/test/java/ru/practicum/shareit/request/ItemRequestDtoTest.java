@@ -38,9 +38,6 @@ public class ItemRequestDtoTest {
     @Test
     @DirtiesContext
     public void testJsonItemRequestDto() throws Exception {
-        ItemRequestDto itemRequestDto = new ItemRequestDto(
-                "desc",
-                LocalDateTime.of(2023, 1, 2, 3, 4, 5));
         JsonContent<ItemRequestDto> result = json.write(itemRequestDto);
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(2);
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("desc");
