@@ -58,6 +58,13 @@ public class ItemForAnswerDtoTest {
 
     @Test
     @DirtiesContext
+    public void whenItemForAnswerDtoIsValidTest() {
+        Set<ConstraintViolation<ItemForAnswerDto>> violations = validator.validate(itemForAnswerDto);
+        assertThat(violations).isEmpty();
+    }
+
+    @Test
+    @DirtiesContext
     public void whenNameIsBlankTest() {
         itemForAnswerDto.setName("      ");
         Set<ConstraintViolation<ItemForAnswerDto>> violations = validator.validate(itemForAnswerDto);
