@@ -30,20 +30,17 @@ public class ItemRequestDtoTest {
         validator = factory.getValidator();
     }
 
-    private final User requester = new User("ann", "ann@user.ru");
-    private final ItemRequestDto itemRequestDto = new ItemRequestDto("desc",
+    private final User requester = new User(1L, "ann", "ann@user.ru");
+    private final ItemRequestDto itemRequestDto = new ItemRequestDto(2L, "desc", requester,
             LocalDateTime.of(2023, 1, 2, 3, 4, 5));
 
 
     @Test
     @DirtiesContext
     public void testJsonItemRequestDto() throws Exception {
-        requester.setId(1L);
         ItemRequestDto itemRequestDto = new ItemRequestDto(
                 "desc",
                 LocalDateTime.of(2023, 1, 2, 3, 4, 5));
-        itemRequestDto.setId(2L);
-        itemRequestDto.setRequester(requester);
         JsonContent<ItemRequestDto> result = json.write(itemRequestDto);
         assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(2);
         assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("desc");
@@ -55,20 +52,25 @@ public class ItemRequestDtoTest {
     @Test
     @DirtiesContext
     public void whenItemRequestDtoIsValidTest() {
-        itemRequestDto.setId(1L);
-        itemRequestDto.setRequester(requester);
         Set<ConstraintViolation<ItemRequestDto>> violations = validator.validate(itemRequestDto);
         assertThat(violations).isEmpty();
     }
 
     @Test
     @DirtiesContext
-    public void whenDescriptionIsNullTest() {
-        itemRequestDto.setId(1L);
-        itemRequestDto.setRequester(requester);
-        itemRequestDto.setDescription(null);
+    public void whenDescriptionIsBlankTest() {
+        itemRequestDto.setDescription("   ");
         Set<ConstraintViolation<ItemRequestDto>> violations = validator.validate(itemRequestDto);
         assertThat(violations).isNotEmpty();
         AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
+    }
+
+    @Test
+    @DirtiesContext
+    public void whenCreatedIsNullTest() {
+        itemRequestDto.setCreated(null);
+        Set<ConstraintViolation<ItemRequestDto>> violations = validator.validate(itemRequestDto);
+        assertThat(violations).isNotEmpty();
+        AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
     }
 }

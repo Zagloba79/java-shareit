@@ -59,7 +59,7 @@ public class ItemDtoTest {
     @Test
     @DirtiesContext
     public void whenItemDtoNameIsBlankTest() {
-        itemDto.setName(null);
+        itemDto.setName("   ");
         Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto);
         assertThat(violations).isNotEmpty();
         AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
@@ -68,7 +68,7 @@ public class ItemDtoTest {
     @Test
     @DirtiesContext
     public void whenItemDtoDescriptionIsBlankTest() {
-        itemDto.setDescription(null);
+        itemDto.setDescription("   ");
         Set<ConstraintViolation<ItemDto>> violations = validator.validate(itemDto);
         assertThat(violations).isNotEmpty();
         AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");

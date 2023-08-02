@@ -55,7 +55,7 @@ public class NewBookingDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoItemIdIsNullTest() {
+    public void whenItemIdIsNullTest() {
         newBookingDto.setItemId(null);
         Set<ConstraintViolation<NewBookingDto>> violations = validator.validate(newBookingDto);
         assertThat(violations).isNotEmpty();
@@ -64,7 +64,7 @@ public class NewBookingDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoStartIsNullTest() {
+    public void whenStartIsNullTest() {
         item.setId(1L);
         newBookingDto.setStart(null);
         Set<ConstraintViolation<NewBookingDto>> violations = validator.validate(newBookingDto);
@@ -74,7 +74,7 @@ public class NewBookingDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoEndIsNullTest() {
+    public void whenEndIsNullTest() {
         item.setId(1L);
         newBookingDto.setEnd(null);
         Set<ConstraintViolation<NewBookingDto>> violations = validator.validate(newBookingDto);
@@ -84,7 +84,7 @@ public class NewBookingDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoStartBeforeNowTest() {
+    public void whenStartBeforeNowTest() {
         item.setId(1L);
         newBookingDto.setStart(LocalDateTime.now().minusSeconds(1));
         Set<ConstraintViolation<NewBookingDto>> violations = validator.validate(newBookingDto);
@@ -96,7 +96,7 @@ public class NewBookingDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoEndBeforeNowTest() {
+    public void whenEndBeforeNowTest() {
         item.setId(1L);
         newBookingDto.setEnd(LocalDateTime.now().minusSeconds(1));
         Set<ConstraintViolation<NewBookingDto>> violations = validator.validate(newBookingDto);

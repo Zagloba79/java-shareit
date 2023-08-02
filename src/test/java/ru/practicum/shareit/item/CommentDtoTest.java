@@ -53,8 +53,8 @@ public class CommentDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenCommentDtoTextIsNull() {
-        commentDto.setText(null);
+    public void whenCommentDtoTextIsBlank() {
+        commentDto.setText("   ");
         Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
         assertThat(violations).isNotEmpty();
         AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");

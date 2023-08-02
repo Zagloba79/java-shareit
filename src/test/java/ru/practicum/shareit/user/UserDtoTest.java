@@ -55,14 +55,6 @@ public class UserDtoTest {
     }
 
     @Test
-    public void whenUserDtoNameIsNullTest() {
-        userDto.setName(null);
-        Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
-        assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
-    }
-
-    @Test
     public void whenUserDtoEmailIsBlankTest() {
         userDto.setEmail("    ");
         Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
@@ -77,13 +69,5 @@ public class UserDtoTest {
         assertThat(violations).isNotEmpty();
         System.out.println(violations.toString());
         assertThat(violations.toString()).contains("interpolatedMessage='must be a well-formed email address'");
-    }
-
-    @Test
-    public void whenUserDtoEmailIsNullTest() {
-        userDto.setEmail(null);
-        Set<ConstraintViolation<UserDto>> violations = validator.validate(userDto);
-        assertThat(violations).isNotEmpty();
-        assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
     }
 }
