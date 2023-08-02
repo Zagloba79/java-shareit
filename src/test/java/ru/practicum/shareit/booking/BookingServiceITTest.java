@@ -267,7 +267,7 @@ public class BookingServiceITTest {
 
     @Test
     @DirtiesContext
-    public void shouldReturnBookingsWhenGetBookingsByBookerAndStateIsAllTest() {
+    public void shouldReturnBookingsWhenGetBookingsWhenStateIsAllTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         bookerDto = userService.create(bookerDto);
@@ -293,6 +293,38 @@ public class BookingServiceITTest {
                 "ALL", abuserDto.getId());
         assertEquals(0, bookingsByUser.size());
         List<BookingDto> bookingsByUser2 = service.getBookingsByBookerAndState(0, 10,
+                "ALL", abuserDto.getId());
+        assertEquals(0, bookingsByUser2.size());
+    }
+
+    @Test
+    @DirtiesContext
+    public void shouldReturnBookingsWhenGetBookingsWhenStateIsAllFromMoreThanZeroTest() {
+        ownerDto = userService.create(ownerDto);
+        itemDto = itemService.create(itemDto, ownerDto.getId());
+        bookerDto = userService.create(bookerDto);
+        abuserDto = userService.create(abuserDto);
+        NewBookingDto fBookingDto = new NewBookingDto(
+                LocalDateTime.of(2023, 8, 25, 0, 0, 0),
+                LocalDateTime.of(2023, 8, 25, 1, 0, 0),
+                itemDto.getId());
+        BookingDto bookingDto1 = service.create(fBookingDto, bookerDto.getId());
+        NewBookingDto sBookingDto = new NewBookingDto(
+                LocalDateTime.of(2023, 8, 26, 0, 0, 0),
+                LocalDateTime.of(2023, 8, 26, 1, 0, 0),
+                itemDto.getId());
+        BookingDto bookingDto2 = service.create(sBookingDto, bookerDto.getId());
+        service.update(bookingDto2.getId(), ownerDto.getId(), true);
+        List<BookingDto> bookingsByOwner = service.getBookingsByOwnerAndState(1, 10,
+                "ALL", ownerDto.getId());
+        assertEquals(2, bookingsByOwner.size());
+        List<BookingDto> bookingsByBooker = service.getBookingsByBookerAndState(1, 10,
+                "ALL", bookerDto.getId());
+        assertEquals(2, bookingsByBooker.size());
+        List<BookingDto> bookingsByUser = service.getBookingsByOwnerAndState(1, 10,
+                "ALL", abuserDto.getId());
+        assertEquals(0, bookingsByUser.size());
+        List<BookingDto> bookingsByUser2 = service.getBookingsByBookerAndState(1, 10,
                 "ALL", abuserDto.getId());
         assertEquals(0, bookingsByUser2.size());
     }
@@ -422,10 +454,11 @@ public class BookingServiceITTest {
 
     @Test
     @DirtiesContext
-    public void shouldReturnBookingsWhenGetBookingsByOwnerAndStateIsCurrentTest() {
+    public void shouldReturnBookingsWhenGetBookingsWhenStateIsCurrentTest() {
         ownerDto = userService.create(ownerDto);
         itemDto = itemService.create(itemDto, ownerDto.getId());
         bookerDto = userService.create(bookerDto);
+        abuserDto = userService.create(abuserDto);
         NewBookingDto fBookingDto = new NewBookingDto(
                 LocalDateTime.now().plusSeconds(1),
                 LocalDateTime.of(2023, 8, 25, 1, 0, 0),
@@ -446,34 +479,12 @@ public class BookingServiceITTest {
         List<BookingDto> bookings = service.getBookingsByOwnerAndState(0, 10,
                 "CURRENT", ownerDto.getId());
         assertEquals(1, bookings.size());
-    }
-
-    @Test
-    @DirtiesContext
-    public void shouldReturnBookingsWhenGetBookingsByBookerAndStateIsCurrentTest() {
-        ownerDto = userService.create(ownerDto);
-        itemDto = itemService.create(itemDto, ownerDto.getId());
-        bookerDto = userService.create(bookerDto);
-        NewBookingDto fBookingDto = new NewBookingDto(
-                LocalDateTime.now().plusSeconds(1),
-                LocalDateTime.of(2023, 8, 25, 1, 0, 0),
-                itemDto.getId());
-        BookingDto bookingDto1 = service.create(fBookingDto, bookerDto.getId());
-        try {
-            sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        service.update(bookingDto1.getId(), ownerDto.getId(), true);
-        NewBookingDto sBookingDto = new NewBookingDto(
-                LocalDateTime.of(2023, 8, 26, 0, 0, 0),
-                LocalDateTime.of(2023, 8, 26, 1, 0, 0),
-                itemDto.getId());
-        BookingDto bookingDto2 = service.create(sBookingDto, bookerDto.getId());
-        service.update(bookingDto2.getId(), ownerDto.getId(), true);
-        List<BookingDto> bookings = service.getBookingsByBookerAndState(0, 10,
+        bookings = service.getBookingsByBookerAndState(0, 10,
                 "CURRENT", bookerDto.getId());
         assertEquals(1, bookings.size());
+        bookings = service.getBookingsByBookerAndState(0, 10,
+                "CURRENT", abuserDto.getId());
+        assertEquals(0, bookings.size());
     }
 
     @Test
