@@ -16,4 +16,10 @@ public class CommentDto {
     private String text;
     private String authorName;
     private LocalDateTime created;
+
+    public CommentDto(String text, String authorName, LocalDateTime created) {
+        this.text = text;
+        this.authorName = authorName;
+        this.created = created;
+    }
 }

@@ -2,7 +2,12 @@ package ru.practicum.shareit.request.dto;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.item.dto.ItemForAnswerDto;
 import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ItemRequestMapper {
@@ -15,11 +20,21 @@ public final class ItemRequestMapper {
         return itemRequestDto;
     }
 
-    public static ItemRequest createItemRequest(ItemRequestDto itemRequestDto) {
+    public static ItemRequest createNewItemRequest(ItemRequestDto itemRequestDto, User requester) {
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setDescription(itemRequestDto.getDescription());
-        itemRequest.setRequester(itemRequestDto.getRequester());
-        itemRequest.setCreated(itemRequestDto.getCreated());
+        itemRequest.setRequester(requester);
+        itemRequest.setCreated(LocalDateTime.now());
         return itemRequest;
+    }
+
+    public static RequestWithItemsDto createItemRequestWithAnswersDto(
+            ItemRequest itemRequest, List<ItemForAnswerDto> itemsForAnswer) {
+        RequestWithItemsDto requestWithAnswers = new RequestWithItemsDto();
+        requestWithAnswers.setId(itemRequest.getId());
+        requestWithAnswers.setDescription(itemRequest.getDescription());
+        requestWithAnswers.setCreated(itemRequest.getCreated());
+        requestWithAnswers.setItems(itemsForAnswer);
+        return requestWithAnswers;
     }
 }

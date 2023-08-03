@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class BookingDto {
     private Long id;
     @NotNull
@@ -24,4 +25,13 @@ public class BookingDto {
     private Long bookerId;
     @NotNull
     private BookingStatus status;
+
+    public BookingDto(LocalDateTime start, LocalDateTime end, Item item, User booker, Long bookerId, BookingStatus status) {
+        this.start = start;
+        this.end = end;
+        this.item = item;
+        this.booker = booker;
+        this.bookerId = bookerId;
+        this.status = status;
+    }
 }

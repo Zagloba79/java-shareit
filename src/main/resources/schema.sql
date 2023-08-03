@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS users, items, bookings, item_request, comments;
+DROP TABLE IF EXISTS requests, users, items, bookings, comments;
 
 CREATE TABLE IF NOT EXISTS users (
   id BIGSERIAL NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS requests (
   id BIGSERIAL NOT NULL,
   description VARCHAR(1000) NOT NULL,
   requester_id BIGINT NOT NULL,
-  created TIMESTAMP WITHOUT TIME ZONE,
+  created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
   CONSTRAINT pk_request PRIMARY KEY (id),
   CONSTRAINT FK_REQUESTER FOREIGN KEY (requester_id) REFERENCES users (id)
 );

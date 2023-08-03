@@ -1,70 +1,107 @@
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.handler.EntityHandler;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.handleAndValidate.EntityHandler;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.dto.ItemForAnswerDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
+import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
-
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemRequestServiceImpl implements ItemRequestService {
 
     private final ItemRequestRepository requestRepository;
-    private final EntityHandler entityHandler;
+    private final ItemRepository itemRepository;
+    private final EntityHandler handler;
 
     @Override
-    public ItemRequestDto addRequest(ItemRequestDto requestDto, Long requesterId) {
-        User requester = entityHandler.getUserFromOpt(requesterId);
-        ItemRequest request = ItemRequestMapper.createItemRequest(requestDto);
-        requestRepository.save(request);
-        ItemRequest requestFromRepository = entityHandler.getRequestFromOpt(request.getId());
-        return ItemRequestMapper.createItemRequestDto(requestFromRepository);
-    }
-
-    @Override
-    public ItemRequestDto getRequestById(Long requestId) {
-        ItemRequest itemRequest = entityHandler.getRequestFromOpt(requestId);
-        return ItemRequestMapper.createItemRequestDto(itemRequest);
-    }
-
-    @Override
-    public ItemRequestDto update(ItemRequestDto itemRequestDto, Long itemId, Long requesterId) {
-        Item item = entityHandler.getItemFromOpt(itemId);
-        User requester = entityHandler.getUserFromOpt(requesterId);
-        Long requestId = itemRequestDto.getId();
-        ItemRequest itemRequest = entityHandler.getRequestFromOpt(requestId);
-        if (itemRequest.getRequester().equals(requester)) {
-            ItemRequest request = ItemRequestMapper.createItemRequest(itemRequestDto);
-            requestRepository.save(request);
+    @Transactional
+    public ItemRequestDto create(ItemRequestDto requestDto, Long requesterId) {
+        User requester = handler.getUserFromOpt(requesterId);
+        if (requestDto.getDescription() == null || requestDto.getDescription().isBlank()) {
+            throw new ValidationException("Запрос без описания");
         }
-        ItemRequest itemRequestFromStorage = entityHandler.getRequestFromOpt(requestId);
-        return ItemRequestMapper.createItemRequestDto(itemRequestFromStorage);
+        ItemRequest request = ItemRequestMapper.createNewItemRequest(requestDto, requester);
+        return ItemRequestMapper.createItemRequestDto(requestRepository.save(request));
     }
 
     @Override
-    public void delete(Long requestId, Long requesterId) {
-        User requester = entityHandler.getUserFromOpt(requesterId);
-        ItemRequest itemRequest = entityHandler.getRequestFromOpt(requestId);
-        if (itemRequest.getRequester().equals(requester)) {
-            requestRepository.deleteById(requestId);
+    public RequestWithItemsDto getRequestById(Long requestId, Long requesterId) {
+        User requester = handler.getUserFromOpt(requesterId);
+        ItemRequest request = handler.getRequestFromOpt(requestId);
+        List<Item> neededItems = itemRepository.findAllByRequestIdIn(
+                Collections.singletonList(requestId), Sort.by("id").ascending());
+        List<ItemForAnswerDto> itemsForAnswer = getMappedList(requestId, neededItems);
+        return ItemRequestMapper
+                .createItemRequestWithAnswersDto(request, itemsForAnswer);
+    }
+
+    @Override
+    public List<RequestWithItemsDto> getRequestsByRequester(Long userId) {
+        User requester = handler.getUserFromOpt(userId);
+        List<ItemRequest> requests = requestRepository.findByRequesterId(requester.getId(),
+                Sort.by("created").descending());
+        List<Item> allNeededItems = createAllNeededItemsList(requests);
+        return getRequestsWithItems(requests, allNeededItems);
+    }
+
+    @Override
+    public List<RequestWithItemsDto> getRequestsPageable(Long userId, Integer from, Integer size) {
+        User user = handler.getUserFromOpt(userId);
+        Pageable pageable = PageRequest.of(from, size, Sort.by("created").ascending());
+        List<ItemRequest> requests = requestRepository.findAllByRequesterIdNot(userId, pageable);
+        List<Item> allNeededItems = createAllNeededItemsList(requests);
+        return getRequestsWithItems(requests, allNeededItems);
+    }
+
+    private List<Item> createAllNeededItemsList(List<ItemRequest> requests) {
+        List<Long> requestIds = requests.stream()
+                .map(ItemRequest::getId)
+                .collect(Collectors.toList());
+        return itemRepository.findAllByRequestIdIn(requestIds, Sort.by("id").ascending());
+    }
+
+    private List<RequestWithItemsDto> getRequestsWithItems(List<ItemRequest> requests,
+                                                           List<Item> allNeededItems) {
+        List<RequestWithItemsDto> requestsWithAnswers = new ArrayList<>();
+        for (ItemRequest request : requests) {
+            List<Item> filteredList = getFilteredListForARequest(request.getId(), allNeededItems);
+            List<ItemForAnswerDto> itemsForAnswer = getMappedList(request.getId(), filteredList);
+            RequestWithItemsDto aRequestWithAnswers = ItemRequestMapper
+                    .createItemRequestWithAnswersDto(request, itemsForAnswer);
+            requestsWithAnswers.add(aRequestWithAnswers);
         }
+        return requestsWithAnswers;
     }
 
-    @Override
-    public List<ItemRequestDto> getRequestsDtoByRequester(Long requesterId) {
-        User requester = entityHandler.getUserFromOpt(requesterId);
-        return requestRepository.findAll().stream()
-                .filter(itemRequest -> itemRequest.getRequester().getId().equals(requesterId))
-                .map(ItemRequestMapper::createItemRequestDto)
-                .collect(toList());
+    private List<Item> getFilteredListForARequest(Long requestId, List<Item> allNeededItems) {
+        return allNeededItems.stream()
+                .filter(item -> item.getRequest().getId().equals(requestId))
+                .collect(Collectors.toList());
+    }
+
+    private List<ItemForAnswerDto> getMappedList(Long requestId, List<Item> filteredList) {
+        List<ItemForAnswerDto> items = new ArrayList<>();
+        for (Item item : filteredList) {
+            ItemForAnswerDto itemForAnswerDto = ItemMapper.createItemForAnswerDto(item, requestId);
+            items.add(itemForAnswerDto);
+        }
+        return items;
     }
 }

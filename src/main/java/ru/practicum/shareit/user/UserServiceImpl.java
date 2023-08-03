@@ -2,9 +2,10 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.UserAlreadyExistsException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.handler.EntityHandler;
+import ru.practicum.shareit.handleAndValidate.EntityHandler;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -17,16 +18,18 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
-    private final EntityHandler entityHandler;
+    private final EntityHandler handler;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
 
     @Override
+    @Transactional
     public UserDto create(UserDto userDto) {
         User user = UserMapper.createUser(userDto);
-        userValidator(user);
+        userValidate(user);
         User savedUser = userRepository.save(user);
         return UserMapper.createUserDto(savedUser);
     }
@@ -40,45 +43,47 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserDto(Long userId) {
-        User user = entityHandler.getUserFromOpt(userId);
+        User user = handler.getUserFromOpt(userId);
         return UserMapper.createUserDto(user);
     }
 
     @Override
     public User getUser(Long userId) {
-        return entityHandler.getUserFromOpt(userId);
+        return handler.getUserFromOpt(userId);
     }
 
     @Override
+    @Transactional
     public UserDto update(UserDto userDto, Long id) {
-        User user = getUser(userDto.getId());
+        User userFromDb = getUser(userDto.getId());
         User userFromDto = UserMapper.createUser(userDto);
         if (userFromDto.getName() != null) {
-            user.setName(userFromDto.getName());
+            userFromDb.setName(userFromDto.getName());
         }
         if (emailValidate(userFromDto.getEmail(), userFromDto.getId())) {
-            user.setEmail(userFromDto.getEmail());
+            userFromDb.setEmail(userFromDto.getEmail());
         }
-        userRepository.save(user);
-        return UserMapper.createUserDto(getUser(user.getId()));
+        userRepository.save(userFromDb);
+        return UserMapper.createUserDto(getUser(userFromDb.getId()));
     }
 
     @Override
+    @Transactional
     public void delete(Long userId) {
-        User user = entityHandler.getUserFromOpt(userId);
-        List<Item> itemsByOwner = itemRepository.findByOwnerId(userId);
+        User user = handler.getUserFromOpt(userId);
+        List<Item> itemsByOwner = itemRepository.findByOwnerId(userId, null);
         for (Item item : itemsByOwner) {
             itemRepository.deleteById(item.getId());
         }
         userRepository.delete(user);
     }
 
-    private void userValidator(User user) {
+    private void userValidate(User user) {
         if (user.getEmail() == null || !user.getEmail().contains("@") || !user.getEmail().contains(".")) {
-            throw new ValidationException("Некорректный e-mail пользователя: " + user.getEmail());
+            throw new ValidationException("Некорректный e-mail пользователя");
         }
         if (user.getName() == null || user.getName().isBlank()) {
-            throw new ValidationException("Некорректный логин пользователя: " + user.getName());
+            throw new ValidationException("Некорректный логин пользователя");
         }
     }
 

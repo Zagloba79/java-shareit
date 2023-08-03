@@ -13,6 +13,9 @@ public final class ItemMapper {
         itemDto.setName(item.getName());
         itemDto.setDescription(item.getDescription());
         itemDto.setAvailable(item.getAvailable());
+        if (item.getRequest() != null) {
+            itemDto.setRequestId(item.getRequest().getId());
+        }
         return itemDto;
     }
 
@@ -24,6 +27,17 @@ public final class ItemMapper {
         itemWithCommentsAndBookingsDto.setDescription(item.getDescription());
         itemWithCommentsAndBookingsDto.setAvailable(item.getAvailable());
         return itemWithCommentsAndBookingsDto;
+    }
+
+    public static ItemForAnswerDto createItemForAnswerDto(Item item, Long requestId) {
+        ItemForAnswerDto itemForAnswerDto =
+                new ItemForAnswerDto();
+        itemForAnswerDto.setId(item.getId());
+        itemForAnswerDto.setName(item.getName());
+        itemForAnswerDto.setDescription(item.getDescription());
+        itemForAnswerDto.setRequestId(requestId);
+        itemForAnswerDto.setAvailable(item.getAvailable());
+        return itemForAnswerDto;
     }
 
     public static Item createItem(ItemDto itemDto, User owner) {

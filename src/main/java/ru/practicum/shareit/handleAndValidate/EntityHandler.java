@@ -1,4 +1,4 @@
-package ru.practicum.shareit.handler;
+package ru.practicum.shareit.handleAndValidate;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -53,10 +53,11 @@ public class EntityHandler {
         return requestOpt.get();
     }
 
-    public Booking getBookingFromOpt(Long id) {
-        Optional<Booking> bookingOpt = bookingRepository.findById(id);
+    public Booking getBookingByIdAndOwnerIdFromOpt(Long bookingId, Long ownerId) {
+        Optional<Booking> bookingOpt = bookingRepository.findByIdAndItem_OwnerId(bookingId, ownerId);
         if (bookingOpt.isEmpty()) {
-            throw new ObjectNotFoundException("Букинга с " + id + " не существует.");
+            throw new ObjectNotFoundException("Букинга с bookingId = " + bookingId +
+        " и с ownerId = " + ownerId + " не существует.");
         }
         return bookingOpt.get();
     }
@@ -84,13 +85,13 @@ public class EntityHandler {
 
     public void itemValidate(ItemDto itemDto) {
         if (itemDto.getName() == null || itemDto.getName().isBlank()) {
-            throw new ValidationException("Некорректное название предмета: " + itemDto.getName());
+            throw new ValidationException("Некорректное название предмета");
         }
         if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
-            throw new ValidationException("Некорректное описание предмета: " + itemDto.getDescription());
+            throw new ValidationException("Некорректное описание предмета");
         }
         if (itemDto.getAvailable() == null) {
-            throw new ValidationException("Некорректный статус предмета: ");
+            throw new ValidationException("Некорректный статус предмета");
         }
     }
 
