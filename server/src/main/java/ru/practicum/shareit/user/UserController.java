@@ -11,11 +11,11 @@ import java.util.List;
 @RequestMapping(path = "/users")
 @Validated
 @RequiredArgsConstructor
-public class UserController {
+class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto create(@RequestBody UserDto userDto) {
+    public UserDto createUser(@RequestBody UserDto userDto) {
         return userService.create(userDto);
     }
 
@@ -30,14 +30,14 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}")
-    public UserDto update(@RequestBody UserDto userDto,
-                          @PathVariable Long userId) {
+    public UserDto updateUser(@RequestBody UserDto userDto,
+                              @PathVariable Long userId) {
         userDto.setId(userId);
         return userService.update(userDto, userId);
     }
 
     @DeleteMapping("/{userId}")
-    public void delete(@PathVariable Long userId) {
+    public void deleteUser(@PathVariable Long userId) {
         userService.delete(userId);
     }
 }

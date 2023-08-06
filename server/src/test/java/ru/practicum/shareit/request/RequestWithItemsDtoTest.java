@@ -8,7 +8,6 @@ import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.item.dto.ItemForAnswerDto;
-import ru.practicum.shareit.request.dto.RequestWithItemsDto;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
