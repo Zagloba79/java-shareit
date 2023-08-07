@@ -158,7 +158,7 @@ public class ItemServiceITTest {
 
     @Test
     @DirtiesContext
-    public void exceptionWhenCreateItemButRequestIsNotExistTets() {
+    public void exceptionWhenCreateItemButRequestIsNotExistTest() {
         ownerDto = userService.create(ownerDto);
         userDto = userService.create(userDto);
         itemDto.setRequestId(159L);

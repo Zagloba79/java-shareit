@@ -31,9 +31,9 @@ public class ItemRepositoryTest {
 
     @AfterEach
     public void clearDb() {
+        itemRequestRepository.deleteAll();
         itemRepository.deleteAll();
         userRepository.deleteAll();
-        itemRequestRepository.deleteAll();
     }
 
     @Test

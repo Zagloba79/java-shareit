@@ -6,8 +6,10 @@ services:
     container_name: gateway-container
     ports:
       - "8080:8080"
+      - "8081:8081"
     depends_on:
     - db
+    - server
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
 
@@ -18,6 +20,7 @@ services:
     container_name: server-container
     ports:
       - "9090:9090"
+      - "9091:9091"
     depends_on:
       - db
     environment:
