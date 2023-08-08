@@ -6,7 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.FullItemDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.PositiveOrZero;
@@ -30,8 +30,8 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> create(@RequestHeader(USER_ID) Long userId,
-                                         @RequestBody @Valid FullItemDto fullItemDto) {
-        return itemClient.create(userId, fullItemDto);
+                                         @RequestBody @Valid ItemDto itemDto) {
+        return itemClient.create(userId, itemDto);
     }
 
     @GetMapping("/{itemId}")
@@ -42,9 +42,9 @@ public class ItemController {
 
     @ResponseBody
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> update(@RequestBody FullItemDto fullItemDto, @PathVariable Long itemId,
+    public ResponseEntity<Object> update(@RequestBody ItemDto itemDto, @PathVariable Long itemId,
                                          @RequestHeader(USER_ID) Long userId) {
-        return itemClient.update(fullItemDto, itemId, userId);
+        return itemClient.update(itemDto, itemId, userId);
     }
 
     @DeleteMapping("/{itemId}")
@@ -53,10 +53,10 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> getItemsBySearchQuery(@RequestParam String text,
+    public ResponseEntity<Object> getItemsByQuery(@RequestParam String text,
                                                         @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
                                                         @RequestParam(required = false) Integer size) {
-        return itemClient.getItemsBySearchQuery(text, from, size);
+        return itemClient.getItemsByQuery(text, from, size);
     }
 
     @ResponseBody

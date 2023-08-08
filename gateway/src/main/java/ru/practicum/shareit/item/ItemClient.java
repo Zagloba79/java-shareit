@@ -9,7 +9,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.FullItemDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 
 @Service
 public class ItemClient extends BaseClient {
@@ -25,8 +25,8 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> create(Long userId, FullItemDto fullItemDto) {
-        return post("", userId, fullItemDto);
+    public ResponseEntity<Object> create(Long userId, ItemDto itemDto) {
+        return post("", userId, itemDto);
     }
 
     public ResponseEntity<Object> getItemById(Long userId, Long itemId) {
@@ -41,15 +41,15 @@ public class ItemClient extends BaseClient {
         return get(path, userId);
     }
 
-    public ResponseEntity<Object> update(FullItemDto fullItemDto, Long itemId, Long userId) {
-        return patch("/" + itemId, userId, fullItemDto);
+    public ResponseEntity<Object> update(ItemDto itemDto, Long itemId, Long userId) {
+        return patch("/" + itemId, userId, itemDto);
     }
 
     public ResponseEntity<Object> delete(Long itemId, Long userId) {
         return delete("/" + itemId, userId);
     }
 
-    public ResponseEntity<Object> getItemsBySearchQuery(String text, Integer from, Integer size) {
+    public ResponseEntity<Object> getItemsByQuery(String text, Integer from, Integer size) {
         String path = "/search?text=" + text + "&from=" + from;
         if (size != null) {
             path += "&size=" + size;
