@@ -51,10 +51,28 @@ public class CommentDtoTest {
 
     @Test
     @DirtiesContext
+    public void whenCommentDtoAuthorNameIsBlank() {
+        commentDto.setAuthorName("   ");
+        Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
+        assertThat(violations).isNotEmpty();
+        AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
+    }
+
+    @Test
+    @DirtiesContext
     public void whenCommentDtoTextIsBlank() {
         commentDto.setText("   ");
         Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
         assertThat(violations).isNotEmpty();
         AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
+    }
+
+    @Test
+    @DirtiesContext
+    public void whenCommentDtoCreatedIsNull() {
+        commentDto.setText(null);
+        Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
+        assertThat(violations).isNotEmpty();
+        AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
     }
 }
