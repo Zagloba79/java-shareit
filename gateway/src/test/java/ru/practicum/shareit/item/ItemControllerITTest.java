@@ -8,17 +8,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.request.ItemRequestClient;
-import ru.practicum.shareit.request.ItemRequestController;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,7 +25,7 @@ public class ItemControllerITTest {
     private ItemController controller;
     private final ResponseEntity<Object> objectResponseEntity = new ResponseEntity<>(HttpStatus.OK);
     private final UserDto userDto = new UserDto(1L, "hgf", "kij@er.ty");
-    private final ItemDto itemDto = new ItemDto(1L, "name",  "desc",true, null);
+    private final ItemDto itemDto = new ItemDto(1L, "name", "desc", true, null);
 
     @Test
     public void createItemTest() {
@@ -57,7 +50,7 @@ public class ItemControllerITTest {
 
     @Test
     public void updateItemTest() {
-        ItemDto newItemDto = new ItemDto(1L, "newName",  "newDesc",true, null);
+        ItemDto newItemDto = new ItemDto(1L, "newName", "newDesc", true, null);
         when(client.update(newItemDto, itemDto.getId(), userDto.getId())).thenReturn(objectResponseEntity);
         ResponseEntity<Object> response = controller.update(newItemDto, itemDto.getId(), userDto.getId());
         assertEquals(objectResponseEntity, response);
@@ -70,8 +63,8 @@ public class ItemControllerITTest {
 
     @Test
     public void getItemsByQueryTest() {
-        when(client.getItemsByQuery(userDto.getId(),"text",0,10)).thenReturn(objectResponseEntity);
-        ResponseEntity<Object> response = controller.getItemsByQuery("text", userDto.getId(),0,10);
+        when(client.getItemsByQuery(userDto.getId(), "text", 0, 10)).thenReturn(objectResponseEntity);
+        ResponseEntity<Object> response = controller.getItemsByQuery("text", userDto.getId(), 0, 10);
         assertEquals(objectResponseEntity, response);
     }
 
@@ -79,8 +72,8 @@ public class ItemControllerITTest {
     public void createCommentTest() {
         CommentDto commentDto = new CommentDto(1L, "text", "alex",
                 LocalDateTime.of(2023, 8, 8, 0, 0, 0));
-        when(client.getItemsByQuery(userDto.getId(),"text",0,10)).thenReturn(objectResponseEntity);
-        ResponseEntity<Object> response = controller.getItemsByQuery("text", userDto.getId(),0,10);
+        when(client.getItemsByQuery(userDto.getId(), "text", 0, 10)).thenReturn(objectResponseEntity);
+        ResponseEntity<Object> response = controller.getItemsByQuery("text", userDto.getId(), 0, 10);
         assertEquals(objectResponseEntity, response);
     }
 }
