@@ -45,10 +45,6 @@ public class BookingClient extends BaseClient {
         return get("/" + bookingId, userId);
     }
 
-    public ResponseEntity<Object> create(Long userId, BookItemRequestDto requestDto) {
-        return post("", userId, requestDto);
-    }
-
     public ResponseEntity<Object> update(Long bookingId, Long userId, Boolean approved) {
         String path = "/" + bookingId + "?approved=" + approved;
         return patch(path, userId, null, null);

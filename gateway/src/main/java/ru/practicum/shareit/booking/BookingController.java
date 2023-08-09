@@ -48,7 +48,7 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Object> create(@RequestHeader(USER_ID) Long userId,
                                          @RequestBody @Valid BookItemRequestDto requestDto) {
-        return bookingClient.create(userId, requestDto);
+        return bookingClient.bookItem(userId, requestDto);
     }
 
     @GetMapping("/{bookingId}")
