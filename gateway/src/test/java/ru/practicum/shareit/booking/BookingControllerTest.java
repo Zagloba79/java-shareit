@@ -2,18 +2,14 @@ package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
-import ru.practicum.shareit.user.UserClient;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.nio.charset.StandardCharsets;
@@ -36,19 +32,15 @@ class BookingControllerTest {
     private ObjectMapper objectMapper;
     @MockBean
     private BookingClient bookingClient;
-    @MockBean
-    private UserClient userClient;
     private final UserDto userDto = new UserDto(1L, "name", "desc");
-    private Long userId = 1L;
     private final BookItemRequestDto bookingDto = new BookItemRequestDto(1L,
             LocalDateTime.of(2023, 12, 1, 1, 1, 1),
             LocalDateTime.of(2023, 12, 1, 1, 1, 2));
-    private final ResponseEntity<Object> objectResponseEntity = new ResponseEntity<>(HttpStatus.OK);
-    private final ResponseEntity<Object> badRequestEntity = new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    private final ResponseEntity<Object> wellRequest = new ResponseEntity<>(HttpStatus.OK);
 
     @Test
     public void createBookingTest() throws Exception {
-        when(bookingClient.bookItem(userDto.getId(), bookingDto)).thenReturn(objectResponseEntity);
+        when(bookingClient.bookItem(userDto.getId(), bookingDto)).thenReturn(wellRequest);
         mvc.perform(post("/bookings", bookingDto)
                         .contentType("application/json")
                         .header(USER_ID, userDto.getId()).content(objectMapper.writeValueAsString(bookingDto))
@@ -57,8 +49,8 @@ class BookingControllerTest {
     }
 
     @Test
-    public void createBookingNotValidTest() throws Exception {
-        when(bookingClient.bookItem(anyLong(), any())).thenReturn(badRequestEntity);
+    public void exceptionCreateBookingNotValidTest() throws Exception {
+        when(bookingClient.bookItem(anyLong(), any())).thenReturn(wellRequest);
         mvc.perform(post("/bookings", bookingDto)
                         .contentType("application/json")
                         .header(USER_ID, -1).content(objectMapper.writeValueAsString(bookingDto))
@@ -77,13 +69,20 @@ class BookingControllerTest {
                         .header(USER_ID, -1L).content(objectMapper.writeValueAsString(bookingDto))
                         .characterEncoding(StandardCharsets.UTF_8))
                 .andExpect(status().isBadRequest());
+        bookingDto.setStart(LocalDateTime.now().plusDays(1));
+        bookingDto.setEnd(LocalDateTime.now().minusHours(1));
+        mvc.perform(post("/bookings", bookingDto)
+                        .contentType("application/json")
+                        .header(USER_ID, -1L).content(objectMapper.writeValueAsString(bookingDto))
+                        .characterEncoding(StandardCharsets.UTF_8))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     public void updateBookingTest() throws Exception {
         Long userId = 1L;
         Long bookingId = 1L;
-        when(bookingClient.update(bookingId, userId, true)).thenReturn(objectResponseEntity);
+        when(bookingClient.update(bookingId, userId, true)).thenReturn(wellRequest);
         mvc.perform(patch("/bookings/{bookingId}", bookingId)
                         .contentType("application/json")
                         .header(USER_ID, userId)
@@ -94,10 +93,10 @@ class BookingControllerTest {
     }
 
     @Test
-    public void updateBookingBadRequestTest() throws Exception {
+    public void exceptionUpdateBookingBadRequestTest() throws Exception {
         Long userId = 1L;
         Long bookingId = -1L;
-        when(bookingClient.update(userId, bookingId, true)).thenReturn(badRequestEntity);
+        when(bookingClient.update(bookingId, userId, true)).thenReturn(wellRequest);
         mvc.perform(patch("/bookings/{bookingId}", -1)
                         .contentType("application/json")
                         .header(USER_ID, userId)
@@ -111,7 +110,7 @@ class BookingControllerTest {
     public void getBookingTest() throws Exception {
         long userId = 1L;
         Long bookingId = 1L;
-        when(bookingClient.getBooking(userId, bookingId)).thenReturn(objectResponseEntity);
+        when(bookingClient.getBooking(userId, bookingId)).thenReturn(wellRequest);
         mvc.perform(get("/bookings/{bookingId}", bookingId)
                         .contentType("application/json")
                         .header(USER_ID, userId)
@@ -121,23 +120,23 @@ class BookingControllerTest {
     }
 
     @Test
-    public void getBookingNotEntityTest() throws Exception {
+    public void exceptionGetNotValidBookingTest() throws Exception {
         long userId = 1L;
         Long bookingId = -1L;
-        when(bookingClient.getBooking(userId, bookingId)).thenReturn(badRequestEntity);
+        when(bookingClient.getBooking(userId, bookingId)).thenReturn(wellRequest);
         mvc.perform(get("/bookings/{bookingId}", -1)
                         .contentType("application/json")
                         .header(USER_ID, userId)
                         .content(objectMapper.writeValueAsString(bookingDto))
                         .characterEncoding(StandardCharsets.UTF_8))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     public void getBookingsByOwnerTest() throws Exception {
         Long userId = 1L;
         when(bookingClient.getBookingsByOwner(userId, ALL, 0, 10))
-                .thenReturn(objectResponseEntity);
+                .thenReturn(wellRequest);
         mvc.perform(get("/bookings")
                         .header(USER_ID, userId)
                         .param("state", String.valueOf(ALL))
@@ -149,7 +148,7 @@ class BookingControllerTest {
     @Test
     public void getBookingsByOwnerNotValidUserTest() throws Exception {
         when(bookingClient.getBookingsByOwner(-1L, ALL, 0, 10))
-                .thenReturn(badRequestEntity);
+                .thenReturn(wellRequest);
         mvc.perform(get("/bookings/owner")
                         .header(USER_ID, -1L)
                         .param("state", String.valueOf(ALL))

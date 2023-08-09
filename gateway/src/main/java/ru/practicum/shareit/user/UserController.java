@@ -2,14 +2,14 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 
-@Controller
+@RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 @Validated
@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<Object> getUserById(@PathVariable Long userId) {
+    public ResponseEntity<Object> getUserById(@Valid @PathVariable @Min(1) Long userId) {
         return userClient.getUserById(userId);
     }
 
@@ -34,12 +34,13 @@ public class UserController {
 
     @ResponseBody
     @PatchMapping("/{userId}")
-    public ResponseEntity<Object> update(@RequestBody UserDto userDto, @PathVariable Long userId) {
+    public ResponseEntity<Object> update(@Valid @RequestBody UserDto userDto,
+                                         @PathVariable @Min(0) Long userId) {
         return userClient.update(userDto, userId);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Object> delete(@PathVariable Long userId) {
+    public ResponseEntity<Object> delete(@Valid @PathVariable @Min(0) Long userId) {
         return userClient.delete(userId);
     }
 }

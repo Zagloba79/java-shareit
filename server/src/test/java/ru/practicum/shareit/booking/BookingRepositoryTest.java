@@ -38,8 +38,8 @@ public class BookingRepositoryTest {
     Booking cupBook;
     Booking glassBook;
     Booking potBook;
-    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
-    LocalDateTime presentTime = LocalDateTime.now();
+    final Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+    final LocalDateTime presentTime = LocalDateTime.now();
 
     @BeforeEach
     public void setUp() {

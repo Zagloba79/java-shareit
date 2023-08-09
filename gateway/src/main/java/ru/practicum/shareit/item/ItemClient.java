@@ -49,7 +49,7 @@ public class ItemClient extends BaseClient {
         return delete("/" + itemId, userId);
     }
 
-    public ResponseEntity<Object> getItemsByQuery(String text, Integer from, Integer size) {
+    public ResponseEntity<Object> getItemsByQuery(Long userId, String text, Integer from, Integer size) {
         String path = "/search?text=" + text + "&from=" + from;
         if (size != null) {
             path += "&size=" + size;

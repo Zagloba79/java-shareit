@@ -1,111 +1,58 @@
 package ru.practicum.shareit.user;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.user.dto.UserDto;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserController.class)
-class UserControllerITTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private ObjectMapper objectMapper;
-    @MockBean
+@ExtendWith(MockitoExtension.class)
+public class UserControllerITTest {
+    @Mock
     private UserClient userClient;
+    @InjectMocks
+    private UserController userController;
     private final ResponseEntity<Object> objectResponseEntity = new ResponseEntity<>(HttpStatus.OK);
-
     private final UserDto userDto = new UserDto(1L, "hgf", "kij@er.ty");
 
     @Test
-    public void createUserTest() throws Exception {
+    public void createUserTest() {
         when(userClient.create(userDto)).thenReturn(objectResponseEntity);
-        mockMvc.perform(post("/users", userDto)
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userDto)))
-                .andExpect(status().isOk());
-
+        ResponseEntity<Object> user = userController.create(userDto);
+        assertEquals(user, objectResponseEntity);
     }
 
     @Test
-    public void createUserNotValidTest() throws Exception {
-        userDto.setEmail("");
-        when(userClient.create(userDto)).thenReturn(objectResponseEntity);
-        mockMvc.perform(post("/users", userDto)
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userDto)))
-                .andExpect(status().isBadRequest());
-
+    public void updateUserTest() {
+        when(userClient.update(userDto, userDto.getId())).thenReturn(objectResponseEntity);
+        ResponseEntity<Object> objectResponseEntity1 = userController.update(userDto, userDto.getId());
+        assertEquals(objectResponseEntity, objectResponseEntity1);
     }
 
     @Test
-    public void updateUserTest() throws Exception {
-        UserDto user1 = new UserDto(1L, "dsa", "kij@er.ty");
-        when(userClient.update(user1, userDto.getId())).thenReturn(objectResponseEntity);
-        mockMvc.perform(post("/users", userDto)
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userDto)))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void updateUserNotValidTest() throws Exception {
-        UserDto user1 = new UserDto(1L, "dsa", "");
-        when(userClient.update(user1, userDto.getId())).thenReturn(objectResponseEntity);
-        mockMvc.perform(post("/users", userDto)
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(userDto)))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void findAllUsersTest() throws Exception {
+    public void getAllUsersTest() {
         when(userClient.getUsers()).thenReturn(objectResponseEntity);
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isOk());
+        ResponseEntity<Object> allUsers = userController.getUsers();
+        assertEquals(objectResponseEntity, allUsers);
     }
 
     @Test
-    public void findUserTest() throws Exception {
+    public void getUserTest() {
         when(userClient.getUserById(userDto.getId())).thenReturn(objectResponseEntity);
-
-        mockMvc.perform(get("/users/{userId}", userDto.getId()))
-                .andExpect(status().isOk());
+        ResponseEntity<Object> user = userController.getUserById(userDto.getId());
+        assertEquals(objectResponseEntity, user);
     }
 
     @Test
-    public void findUserNotValidIdTest() throws Exception {
-        when(userClient.getUserById(-1L)).thenReturn(objectResponseEntity);
-
-        mockMvc.perform(get("/users/{userId}", -1))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    public void deleteUserTest() throws Exception {
-        when(userClient.delete(userDto.getId())).thenReturn(objectResponseEntity);
-
-        mockMvc.perform(delete("/users/{userId}", userDto.getId()))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void deleteUserNotValidIdTest() throws Exception {
-        when(userClient.delete(-1L)).thenReturn(objectResponseEntity);
-
-        mockMvc.perform(delete("/users/{userId}", -1))
-                .andExpect(status().isBadRequest());
+    public void deleteUserTest() {
+        userController.delete(userDto.getId());
+        Mockito.verify(userClient, Mockito.times(1)).delete(userDto.getId());
     }
 }

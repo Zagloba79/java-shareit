@@ -37,8 +37,8 @@ public class BookingServiceTest {
     BookingRepository repository;
     @Mock
     EntityHandler handler;
-    LocalDateTime start = LocalDateTime.now().plusSeconds(1);
-    LocalDateTime end = LocalDateTime.now().plusDays(2);
+    final LocalDateTime start = LocalDateTime.now().plusSeconds(1);
+    final LocalDateTime end = LocalDateTime.now().plusDays(2);
     private final User owner = new User("iAm", "iam@user.ru");
     private final User booker = new User("booker", "booker@user.ru");
     private final Item item = new Item("name", "Desc", true, owner, null);
