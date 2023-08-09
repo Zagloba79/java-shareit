@@ -19,7 +19,7 @@ public interface ItemService {
 
     List<ItemDto> getItemsByQueryPageable(Integer from, Integer size, String text, Long ownerId);
 
-    CommentDto createComment(CommentDto feedbackDto, Long itemId, Long userId);
+    CommentDto createComment(CommentDto commentDto, Long itemId, Long userId);
 
     ItemDto updateItem(ItemDto itemDto, Long itemId, Long ownerId);
 }
