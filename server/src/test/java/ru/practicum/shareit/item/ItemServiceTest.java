@@ -35,16 +35,16 @@ public class ItemServiceTest {
     private ItemRequestRepository itemRequestRepository;
     @Mock
     private EntityHandler handler;
-    User user = new User("user", "user@user.ru");
-    User requester = new User("requester", "requester@user.ru");
-    ItemRequest request = new ItemRequest(222L, "desc", requester, LocalDateTime.now());
-    ItemDto itemWithReqDto = new ItemDto("itemDto", "itemDtoDescription",
+    final User user = new User("user", "user@user.ru");
+    final User requester = new User("requester", "requester@user.ru");
+    final ItemRequest request = new ItemRequest(222L, "desc", requester, LocalDateTime.now());
+    final ItemDto itemWithReqDto = new ItemDto("itemDto", "itemDtoDescription",
             true, 222L);
-    ItemDto itemWithoutReqDto = new ItemDto("itemDto", "itemDtoDescription",
+    final ItemDto itemWithoutReqDto = new ItemDto("itemDto", "itemDtoDescription",
             true, null);
-    Item itemWithReq = new Item("itemDto", "itemDtoDescription",
+    final Item itemWithReq = new Item("itemDto", "itemDtoDescription",
             true, user, request);
-    Item itemWithoutReq = new Item("itemDto", "itemDtoDescription",
+    final Item itemWithoutReq = new Item("itemDto", "itemDtoDescription",
             true, user, null);
 
 

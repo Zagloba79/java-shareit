@@ -27,7 +27,7 @@ public class ItemRepositoryTest {
     @Autowired
     private ItemRequestRepository itemRequestRepository;
     private User owner = new User("Anna", "anna@mail.ru");
-    Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
+    final Pageable pageable = PageRequest.of(0, 10, Sort.by("id").ascending());
 
     @AfterEach
     public void clearDb() {

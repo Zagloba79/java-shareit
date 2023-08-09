@@ -42,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final ItemRequestRepository itemRequestRepository;
-    static Predicate<Item> isAvailable = item ->
+    static final Predicate<Item> isAvailable = item ->
             Boolean.TRUE.equals(item.getAvailable());
 
     @Override

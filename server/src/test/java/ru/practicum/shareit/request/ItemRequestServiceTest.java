@@ -38,14 +38,14 @@ public class ItemRequestServiceTest {
     ItemRepository itemRepository;
     @Mock
     EntityHandler handler;
-    Long requesterId = 1L;
-    Long requestId = 3L;
-    User requester = generator.nextObject(User.class);
+    final Long requesterId = 1L;
+    final Long requestId = 3L;
+    final User requester = generator.nextObject(User.class);
     ItemRequestDto requestDto;
-    ItemRequest request = new ItemRequest(3L, "description",
+    final ItemRequest request = new ItemRequest(3L, "description",
             requester, LocalDateTime.of(2023, 7, 3, 0, 0, 0));
-    Item item = generator.nextObject(Item.class);
-    List<ItemRequest> requests = new ArrayList<>();
+    final Item item = generator.nextObject(Item.class);
+    final List<ItemRequest> requests = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {

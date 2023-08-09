@@ -36,7 +36,7 @@ public class ItemServiceITTest {
     private final BookingService bookingService;
     private final EntityHandler handler;
 
-    LocalDateTime presentTime = LocalDateTime.now();
+    final LocalDateTime presentTime = LocalDateTime.now();
     private UserDto ownerDto = new UserDto("owner", "ooo@user.ru");
     private UserDto userDto = new UserDto("notOwner", "nnn@user.ru");
     private ItemDto itemDto = new ItemDto("item", "Descqwqw", true, null);
