@@ -70,7 +70,7 @@ public class CommentDtoTest {
     @Test
     @DirtiesContext
     public void whenCommentDtoCreatedIsNull() {
-        commentDto.setText(null);
+        commentDto.setCreated(null);
         Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
         assertThat(violations).isNotEmpty();
         AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
