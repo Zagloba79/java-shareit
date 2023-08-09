@@ -16,43 +16,43 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class UserControllerITTest {
     @Mock
-    private UserClient userClient;
+    private UserClient client;
     @InjectMocks
-    private UserController userController;
+    private UserController controller;
     private final ResponseEntity<Object> objectResponseEntity = new ResponseEntity<>(HttpStatus.OK);
     private final UserDto userDto = new UserDto(1L, "hgf", "kij@er.ty");
 
     @Test
     public void createUserTest() {
-        when(userClient.create(userDto)).thenReturn(objectResponseEntity);
-        ResponseEntity<Object> user = userController.create(userDto);
-        assertEquals(user, objectResponseEntity);
+        when(client.create(userDto)).thenReturn(objectResponseEntity);
+        ResponseEntity<Object> response = controller.create(userDto);
+        assertEquals(response, objectResponseEntity);
     }
 
     @Test
     public void updateUserTest() {
-        when(userClient.update(userDto, userDto.getId())).thenReturn(objectResponseEntity);
-        ResponseEntity<Object> objectResponseEntity1 = userController.update(userDto, userDto.getId());
-        assertEquals(objectResponseEntity, objectResponseEntity1);
+        when(client.update(userDto, userDto.getId())).thenReturn(objectResponseEntity);
+        ResponseEntity<Object> response = controller.update(userDto, userDto.getId());
+        assertEquals(objectResponseEntity, response);
     }
 
     @Test
     public void getAllUsersTest() {
-        when(userClient.getUsers()).thenReturn(objectResponseEntity);
-        ResponseEntity<Object> allUsers = userController.getUsers();
-        assertEquals(objectResponseEntity, allUsers);
+        when(client.getUsers()).thenReturn(objectResponseEntity);
+        ResponseEntity<Object> response = controller.getUsers();
+        assertEquals(objectResponseEntity, response);
     }
 
     @Test
     public void getUserTest() {
-        when(userClient.getUserById(userDto.getId())).thenReturn(objectResponseEntity);
-        ResponseEntity<Object> user = userController.getUserById(userDto.getId());
-        assertEquals(objectResponseEntity, user);
+        when(client.getUserById(userDto.getId())).thenReturn(objectResponseEntity);
+        ResponseEntity<Object> response = controller.getUserById(userDto.getId());
+        assertEquals(objectResponseEntity, response);
     }
 
     @Test
     public void deleteUserTest() {
-        userController.delete(userDto.getId());
-        Mockito.verify(userClient, Mockito.times(1)).delete(userDto.getId());
+        controller.delete(userDto.getId());
+        Mockito.verify(client, Mockito.times(1)).delete(userDto.getId());
     }
 }

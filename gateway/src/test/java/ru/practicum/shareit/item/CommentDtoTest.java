@@ -44,7 +44,7 @@ public class CommentDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenNewBookingDtoIsValidTest() {
+    public void whenNewCommentDtoIsValidTest() {
         Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
         assertThat(violations).isEmpty();
     }
