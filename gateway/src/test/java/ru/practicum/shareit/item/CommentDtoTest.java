@@ -13,7 +13,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -22,8 +21,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 public class CommentDtoTest {
     private final JacksonTester<CommentDto> json;
     private final Validator validator;
-    private final CommentDto commentDto = new CommentDto(1L, "text", "alex",
-            LocalDateTime.of(2023, 11, 12, 13, 14, 15));
+    private final CommentDto commentDto = new CommentDto("text");
 
     public CommentDtoTest(@Autowired JacksonTester<CommentDto> json) {
         this.json = json;
@@ -34,12 +32,8 @@ public class CommentDtoTest {
     @Test
     @DirtiesContext
     public void testJsonCommentDto() throws Exception {
-        commentDto.setId(1L);
         JsonContent<CommentDto> result = json.write(commentDto);
-        assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
         assertThat(result).extractingJsonPathStringValue("$.text").isEqualTo("text");
-        assertThat(result).extractingJsonPathStringValue("$.authorName").isEqualTo("alex");
-        assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo("2023-11-12T13:14:15");
     }
 
     @Test
@@ -51,28 +45,10 @@ public class CommentDtoTest {
 
     @Test
     @DirtiesContext
-    public void whenCommentDtoAuthorNameIsBlank() {
-        commentDto.setAuthorName("   ");
-        Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
-        assertThat(violations).isNotEmpty();
-        AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
-    }
-
-    @Test
-    @DirtiesContext
     public void whenCommentDtoTextIsBlank() {
         commentDto.setText("   ");
         Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
         assertThat(violations).isNotEmpty();
         AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
-    }
-
-    @Test
-    @DirtiesContext
-    public void whenCommentDtoCreatedIsNull() {
-        commentDto.setCreated(null);
-        Set<ConstraintViolation<CommentDto>> violations = validator.validate(commentDto);
-        assertThat(violations).isNotEmpty();
-        AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
     }
 }

@@ -42,31 +42,31 @@ public class ItemController {
 
     @ResponseBody
     @PatchMapping("/{itemId}")
-    public ResponseEntity<Object> update(@RequestBody @Valid ItemDto itemDto,
-                                         @PathVariable @Min(0) Long itemId,
-                                         @RequestHeader(USER_ID) @Min(0) Long userId) {
+    public ResponseEntity<Object> update(@RequestHeader(USER_ID) @Min(0) Long userId,
+                                         @RequestBody ItemDto itemDto,
+                                         @PathVariable @Min(0) Long itemId) {
         return itemClient.update(itemDto, itemId, userId);
     }
 
     @DeleteMapping("/{itemId}")
-    public ResponseEntity<Object> delete(@PathVariable @Min(0) Long itemId,
-                                         @RequestHeader(USER_ID) @Min(0) Long ownerId) {
+    public ResponseEntity<Object> delete(@RequestHeader(USER_ID) @Min(0) Long ownerId,
+                                         @PathVariable @Min(0) Long itemId) {
         return itemClient.delete(itemId, ownerId);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> getItemsByQuery(@RequestParam String text,
-                                                  @RequestHeader(USER_ID) @Min(0) Long userId,
-                                                  @RequestParam(name = "from", defaultValue = "0") @Min(0) Integer from,
+    public ResponseEntity<Object> getItemsByQuery(@RequestHeader(USER_ID) @Min(0) Long userId,
+                                                  @RequestParam String text,
+                                                  @RequestParam(defaultValue = "0") @Min(0) Integer from,
                                                   @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         return itemClient.getItemsByQuery(userId, text, from, size);
     }
 
     @ResponseBody
     @PostMapping("/{itemId}/comment")
-    public ResponseEntity<Object> createComment(@RequestBody @Valid CommentDto commentDto,
-                                                @RequestHeader(USER_ID) @Min(0) Long userId,
+    public ResponseEntity<Object> createComment(@RequestHeader(USER_ID) @Min(0) Long userId,
+                                                @RequestBody @Valid CommentDto commentDto,
                                                 @PathVariable @Min(0) Long itemId) {
-        return itemClient.createComment(commentDto, itemId, userId);
+        return itemClient.createComment(userId, commentDto, itemId);
     }
 }

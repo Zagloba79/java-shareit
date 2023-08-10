@@ -57,9 +57,9 @@ public class BookingController {
 
     @ResponseBody
     @PatchMapping("/{bookingId}")
-    public ResponseEntity<Object> update(@PathVariable @Min(0) Long bookingId,
-                                         @RequestHeader(USER_ID) @Min(0) Long userId,
-                                         @RequestParam Boolean approved) {
-        return bookingClient.update(bookingId, userId, approved);
+    public ResponseEntity<Object> approve(@PathVariable @Min(0) Long bookingId,
+                                          @RequestHeader(USER_ID) @Min(0) Long userId,
+                                          @RequestParam Boolean approved) {
+        return bookingClient.approve(bookingId, userId, approved);
     }
 }

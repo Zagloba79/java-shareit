@@ -82,7 +82,7 @@ class BookingControllerTest {
     public void updateBookingTest() throws Exception {
         Long userId = 1L;
         Long bookingId = 1L;
-        when(bookingClient.update(bookingId, userId, true)).thenReturn(wellRequest);
+        when(bookingClient.approve(bookingId, userId, true)).thenReturn(wellRequest);
         mvc.perform(patch("/bookings/{bookingId}", bookingId)
                         .contentType("application/json")
                         .header(USER_ID, userId)
@@ -96,7 +96,7 @@ class BookingControllerTest {
     public void exceptionUpdateBookingBadRequestTest() throws Exception {
         Long userId = 1L;
         Long bookingId = -1L;
-        when(bookingClient.update(bookingId, userId, true)).thenReturn(wellRequest);
+        when(bookingClient.approve(bookingId, userId, true)).thenReturn(wellRequest);
         mvc.perform(patch("/bookings/{bookingId}", -1)
                         .contentType("application/json")
                         .header(USER_ID, userId)

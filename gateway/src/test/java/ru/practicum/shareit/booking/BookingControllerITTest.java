@@ -39,8 +39,8 @@ public class BookingControllerITTest {
         Long userId = 1L;
         Long bookingId = 1L;
         boolean approved = true;
-        when(client.update(userId, bookingId, approved)).thenReturn(objectResponseEntity);
-        ResponseEntity<Object> objectResponseEntity1 = controller.update(userId, bookingId, approved);
+        when(client.approve(userId, bookingId, approved)).thenReturn(objectResponseEntity);
+        ResponseEntity<Object> objectResponseEntity1 = controller.approve(userId, bookingId, approved);
         assertEquals(objectResponseEntity, objectResponseEntity1);
     }
 

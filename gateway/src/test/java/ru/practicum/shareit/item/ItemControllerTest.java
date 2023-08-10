@@ -145,7 +145,7 @@ class ItemControllerTest {
     public void createCommentTest() throws Exception {
         CommentDto commentDto = new CommentDto(1L, "tet", "name",
                 LocalDateTime.of(2023, 1, 2, 3, 4, 5));
-        when(itemClient.createComment(commentDto, itemId, userId)).thenReturn(wellRequest);
+        when(itemClient.createComment(userId, commentDto, itemId)).thenReturn(wellRequest);
         mockMvc.perform(post("/items/{itemId}/comment", itemId)
                         .contentType("application/json")
                         .header(USER_ID, userId)
@@ -156,7 +156,7 @@ class ItemControllerTest {
     @Test
     public void createCommentNotValidCommentTest() throws Exception {
         CommentDto commentDto = new CommentDto();
-        when(itemClient.createComment(commentDto, itemId, userId)).thenReturn(wellRequest);
+        when(itemClient.createComment(userId, commentDto, itemId)).thenReturn(wellRequest);
         mockMvc.perform(post("/items/{itemId}/comment", itemId)
                         .contentType("application/json")
                         .header(USER_ID, userId)

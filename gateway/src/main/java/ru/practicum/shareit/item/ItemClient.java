@@ -11,6 +11,8 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
+import java.util.Map;
+
 @Service
 public class ItemClient extends BaseClient {
     private static final String API_PREFIX = "/items";
@@ -38,7 +40,13 @@ public class ItemClient extends BaseClient {
         if (size != null) {
             path += "&size=" + size;
         }
-        return get(path, userId);
+        assert size != null;
+        Map<String, Object> parameters = Map.of(
+                "from", from,
+                "size", size
+        );
+
+        return get(path, userId, parameters);
     }
 
     public ResponseEntity<Object> update(ItemDto itemDto, Long itemId, Long userId) {
@@ -54,10 +62,15 @@ public class ItemClient extends BaseClient {
         if (size != null) {
             path += "&size=" + size;
         }
-        return get(path);
+        assert size != null;
+        Map<String, Object> parameters = Map.of(
+                "text", text,
+                "from", from,
+                "size", size);
+        return get(path, userId, parameters);
     }
 
-    public ResponseEntity<Object> createComment(CommentDto commentDto, Long itemId, Long userId) {
+    public ResponseEntity<Object> createComment(Long userId, CommentDto commentDto, Long itemId) {
         return post("/" + itemId + "/comment", userId, commentDto);
     }
 }

@@ -4,22 +4,26 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentDto {
+    @Nullable
     private Long id;
     @NotBlank
     private String text;
-    @NotBlank
+    @Nullable
     private String authorName;
-    @NotNull
+    @Nullable
     private LocalDateTime created;
+
+    public CommentDto(String text) {
+        this.text = text;
+    }
 }

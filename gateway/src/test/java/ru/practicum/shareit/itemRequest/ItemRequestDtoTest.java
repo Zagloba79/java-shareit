@@ -32,7 +32,7 @@ public class ItemRequestDtoTest {
 
     private final UserDto requester = new UserDto(1L, "ann", "ann@user.ru");
     private final ItemRequestDto itemRequestDto = new ItemRequestDto(2L, "desc", requester,
-            LocalDateTime.of(2023, 1, 2, 3, 4, 5), null);
+            LocalDateTime.of(2023, 1, 2, 3, 4, 5));
 
 
     @Test
