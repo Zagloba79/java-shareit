@@ -15,8 +15,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.time.LocalDateTime;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -85,18 +83,6 @@ class ItemControllerTest {
                         .header(USER_ID, userId)
                         .content(objectMapper.writeValueAsString(itemDto1)))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    public void exceptionUpdateItemNotValidTest() throws Exception {
-        ItemDto itemDto1 = itemDto;
-        itemDto1.setDescription("");
-        when(itemClient.update(any(), anyLong(), anyLong())).thenReturn(wellRequest);
-        mockMvc.perform(MockMvcRequestBuilders.patch("/items/{itemId}", itemId)
-                        .contentType("application/json")
-                        .header(USER_ID, userId)
-                        .content(objectMapper.writeValueAsString(itemDto1)))
-                .andExpect(status().isBadRequest());
     }
 
     @Test

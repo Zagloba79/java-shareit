@@ -40,8 +40,7 @@ class ItemRequestControllerTest {
     private final ResponseEntity<Object> wellRequest = new ResponseEntity<>(HttpStatus.OK);
     private final UserDto userDto = new UserDto(1L, "Asd", "hju@ert.tu");
     private final ItemRequestDto itemDto = new ItemRequestDto(5L, "iuy", userDto,
-            LocalDateTime.of(2023, 1, 2, 3, 4, 5),
-            null);
+            LocalDateTime.of(2023, 1, 2, 3, 4, 5));
 
     @Test
     public void createRequestTest() throws Exception {

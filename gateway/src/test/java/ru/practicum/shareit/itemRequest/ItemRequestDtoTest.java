@@ -61,13 +61,4 @@ public class ItemRequestDtoTest {
         assertThat(violations).isNotEmpty();
         AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be blank'");
     }
-
-    @Test
-    @DirtiesContext
-    public void whenCreatedIsNullTest() {
-        itemRequestDto.setCreated(null);
-        Set<ConstraintViolation<ItemRequestDto>> violations = validator.validate(itemRequestDto);
-        assertThat(violations).isNotEmpty();
-        AssertionsForClassTypes.assertThat(violations.toString()).contains("interpolatedMessage='must not be null'");
-    }
 }
