@@ -35,22 +35,27 @@ jobs:
         run: |
           chmod a+x ./tests/.github/workflows/build.sh
           ./tests/.github/workflows/build.sh
+
       - name: Install Node
         uses: actions/setup-node@v1
         with:
-          node-version: '16.x'
+          node-version: '12.x'
 
       - name: Install newman
         run: |
           npm install -g newman
+
       - name: Run Application
         run: |
           chmod a+x ./tests/.github/workflows/run.sh
           ./tests/.github/workflows/run.sh
+
+
       - name: Waiting for application is up
         run: |
           /tmp/wait-for-it.sh -t 60 localhost:8080
           echo "Application is up"
+
       - name: Run POSTMAN tests
         run: |
           newman run ./tests/postman/sprint.json --delay-request 50 -r cli
